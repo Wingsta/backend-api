@@ -18,11 +18,11 @@ import Log from '../middlewares/Log';
 class App {
 	// Clear the console
 	public clearConsole (): void {
-		process.stdout.write('\x1B[2J\x1B[0f');
+		// process.stdout.write('\x1B[2J\x1B[0f');
 
-		Queue.dispatch('checkout', {foo: 'bar', fizz: 'buzz'}, function (data) {
-			console.log('>> here is the data', data);
-		});
+		// Queue.dispatch('checkout', {foo: 'bar', fizz: 'buzz'}, function (data) {
+		// 	console.log('>> here is the data', data);
+		// });
 	}
 
 	// Loads your dotenv file
@@ -43,7 +43,7 @@ class App {
 	public loadDatabase (): void {
 		Log.info('Database :: Booting @ Master...');
 
-		Database.init();
+		 Database.init();
 	}
 
 	// Loads the Worker Cluster
@@ -53,14 +53,14 @@ class App {
 
 	// Loads the Queue Monitor
 	public loadQueue (): void {
-		const isQueueMonitorEnabled: boolean = Locals.config().queueMonitor;
-		const queueMonitorPort: number = Locals.config().queueMonitorHttpPort;
+		// const isQueueMonitorEnabled: boolean = Locals.config().queueMonitor;
+		// const queueMonitorPort: number = Locals.config().queueMonitorHttpPort;
 
-		if (isQueueMonitorEnabled) {
-			kue.app.listen(queueMonitorPort);
+		// if (isQueueMonitorEnabled) {
+		// 	kue.app.listen(queueMonitorPort);
 
-			console.log('\x1b[33m%s\x1b[0m', `Queue Monitor :: Running @ 'http://localhost:${queueMonitorPort}'`);
-		}
+		// 	console.log('\x1b[33m%s\x1b[0m', `Queue Monitor :: Running @ 'http://localhost:${queueMonitorPort}'`);
+		// }
 	}
 }
 

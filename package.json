@@ -41,6 +41,7 @@
     "passport-twitter": "^1.0.4",
     "pug": ">=3.0.1",
     "request": "^2.88.0",
+    "ts-node-dev": "^2.0.0",
     "tslint": "^5.11.0"
   },
   "devDependencies": {
@@ -59,8 +60,9 @@
     "typescript-eslint-parser": "^18.0.0"
   },
   "scripts": {
+    "start": "node dist/index.js",
     "build": "tsc --project './tsconfig.json'",
-    "dev": "tsc --project './tsconfig.json' --watch & NODE_ENV=development nodemon dist",
+    "dev": "ts-node-dev --poll --respawn --transpile-only --no-deps --exit-child ./src/index.ts",
     "test": "tsc --project './tsconfig.json' && ./node_modules/.bin/mocha dist/**/*.spec.js",
     "lint": "./node_modules/.bin/tslint -c tslint.json 'src/**/**.ts'"
   },

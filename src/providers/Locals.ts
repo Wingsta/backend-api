@@ -8,7 +8,7 @@ import { Application } from 'express';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 
-class Locals {
+class 	Locals {
 	/**
 	 * Makes env configs available for your app
 	 * throughout the app's runtime

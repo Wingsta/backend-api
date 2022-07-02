@@ -41,7 +41,7 @@ class Http {
 		_express.use(expressValidator());
 
 		// Enables the request flash messages
-		_express.use(flash());
+		// _express.use(flash());
 
 		/**
 		 * Enables the session store
@@ -56,13 +56,13 @@ class Http {
 			cookie: {
 				maxAge: 1209600000 // two weeks (in ms)
 			},
-			store: new MongoStore({
-				url: process.env.MONGOOSE_URL,
-				autoReconnect: true
-			})
+			// store: new MongoStore({
+			// 	url: process.env.MONGOOSE_URL,
+			// 	autoReconnect: true
+			// })
 		};
 
-		_express.use(session(options));
+		// _express.use(session(options));
 
 		// Enables the CORS
 		_express.use(cors());

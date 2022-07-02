@@ -19,16 +19,17 @@ export class Database {
 
 		(<any>mongoose).Promise = bluebird;
 
-		mongoose.set('useCreateIndex', true);
+		// mongoose.set('useCreateIndex', true);
 
 		mongoose.connect(dsn, options, (error: MongoError) => {
 			// handle the error case
 			if (error) {
 				Log.info('Failed to connect to the Mongo server!!');
-				console.log(error);
+				 console.log(error, "error");
 				throw error;
 			} else {
 				Log.info('connected to mongo server at: ' + dsn);
+			console.log("connected to mongo server at: " + dsn);
 			}
 		});
 	}
