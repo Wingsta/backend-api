@@ -12,6 +12,9 @@ import {
   IAccessToken,
 } from "../../../interfaces/models/accountuser";
 import AccessToken from "../../../models/token";
+// import { Types  } from "mongoose";
+import Locals from "../../../providers/Locals";
+import { ObjectId } from "mongodb";
 
 interface LoginGetI extends IAccountUser, IAccessToken {}
 class AccountUserAuth {
@@ -33,35 +36,32 @@ class AccountUserAuth {
               error: err,
             });
           }
-          let accountSaveStatus;
-          if (accountuserData) {
-            accountSaveStatus = await AccountUser.updateOne(
-              { email: _email },
-              body,
-              {
-                upsert: true,
-              }
-            );
-          }
+          let accountSaveStatus = await saveAccountUser(
+            accountuserData,
+            _email,
+            body
+          );
 
-          if (!accountuserData && body) {
-            let newAccountUser = await new AccountUser(body);
+           let accessTokenStatus;
+          if(accountSaveStatus)
+         {
+            accessTokenStatus = await saveAccessToken(
+             body,
+             accountSaveStatus as string
+           );
+         }
 
-            accountSaveStatus = newAccountUser.save();
-          }
-
-          let accessTokenStatus = await  AccessToken.updateOne({userId : body.userID},body,{upsert: true});
-
-          const token = jwt.sign({ email: _email }, "YOYOYOYOYO", {
+          const token = jwt.sign({ email: _email }, Locals.config().appSecret, {
             expiresIn: 10 * 600,
           });
 
-          if (accessTokenStatus?.ok && accountSaveStatus?.ok) {
+          if (accessTokenStatus?.ok && accountSaveStatus) {
             return res.json({
               status: true,
               userId: body.userID,
               token,
               token_expires_in: 10 * 600,
+              accountSaveStatus,
             });
           } else {
             return res.json({
@@ -79,3 +79,42 @@ class AccountUserAuth {
 }
 
 export default AccountUserAuth;
+
+
+async function saveAccessToken(body: LoginGetI,_id:string) {
+  return await AccessToken.updateOne(
+    { accountUserId: new ObjectId(_id) },
+    {...body,_id},
+    {
+      upsert: true,
+    }
+  );
+}
+
+async function saveAccountUser(
+  accountuserData: IAccountUser,
+  _email: string,
+  body: LoginGetI
+) {
+  let accountSaveStatus;
+  if (accountuserData) {
+    accountSaveStatus = await AccountUser.updateOne({ email: _email }, body, {
+      upsert: true,
+    });
+  }
+
+  if (!accountuserData && body) {
+    let newAccountUser = new AccountUser(body);
+
+    accountSaveStatus = await newAccountUser.save();
+  }
+
+  if (accountSaveStatus?._id) {
+    return accountSaveStatus._id;
+  }
+
+  if (accountuserData?._id) {
+    return accountuserData._id;
+  }
+  return null;
+}

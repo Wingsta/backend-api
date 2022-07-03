@@ -11,9 +11,7 @@ import { IAccountUser } from '../interfaces/models/accountuser';
 import mongoose from '../providers/Database';
 
 // Create the model schema & register your custom methods here
-export interface IUserModel extends IAccountUser, mongoose.Document {
 
-}
 
 // Define the User Schema
 export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
@@ -32,7 +30,7 @@ export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
 
 
 
-const AccountUser = mongoose.model<IUserModel>(
+const AccountUser = mongoose.model<IAccountUser & mongoose.Document>(
   "AccountUser",
   AccountUserSchema
 );

@@ -7,6 +7,7 @@
 import * as jwt from 'jsonwebtoken';
 
 import User from '../../../models/User';
+import Locals from '../../../providers/Locals';
 
 class RefreshToken {
 	public static getToken (req): string {
@@ -27,61 +28,19 @@ class RefreshToken {
 			});
 		}
 
-		const decode = jwt.decode(
-			_token,
-			res.locals.app.appSecret,
-			{ expiresIn: res.locals.app.jwtExpiresIn }
-		);
+		const decode = jwt.decode(_token, Locals.config().appSecret, {
+      expiresIn: 10 * 600,
+    });
+console.log(decode)
+		  const token = jwt.sign({email : decode.email}, Locals.config().appSecret, {
+        expiresIn: 10 * 600,
+      });
 
-		User.findOne({email: decode.email}, (err, user) => {
-			if (err) {
-				return res.json({
-					error: err
-				});
-			}
-
-			if (! user) {
-				return res.json({
-					error: ['User not found!']
-				});
-			}
-
-			if (! user.password) {
-				return res.json({
-					error: ['Please login using your social creds']
-				});
-			}
-
-			user.comparePassword(decode.password, (err, isMatch) => {
-				if (err) {
-					return res.json({
-						error: err
-					});
-				}
-
-				if (! isMatch) {
-					return res.json({
-						error: ['Password does not match!']
-					});
-				}
-
-				const token = jwt.sign(
-					{ email: decode.email, password: decode.password },
-					res.locals.app.appSecret,
-					{ expiresIn: res.locals.app.jwtExpiresIn * 60 }
-				);
-
-				// Hide protected columns
-				user.tokens = undefined;
-				user.password = undefined;
-
-				return res.json({
-					user,
-					token,
-					token_expires_in: res.locals.app.jwtExpiresIn * 60
-				});
-			});
-		});
+			return res.json({
+        email: decode.email,
+        token,
+        token_expires_in: 10 * 600,
+      });
 	}
 }
 

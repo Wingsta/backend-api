@@ -4,46 +4,38 @@
  * @author Faiz A. Farooqui <faiz@geekyants.com>
  */
 
-import { Strategy } from 'passport-local';
-import User from '../../models/User';
-import Log from '../../middlewares/Log';
+
+import AccountUser from "../../models/accountuser";
+import Log from "../../middlewares/Log";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import Locals from "../../providers/Locals";
+
+
+var opts = {} as Record<string, any>;
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = Locals.config().appSecret;
 
 class Local {
-	public static init (_passport: any): any {
-		_passport.use(new Strategy({ usernameField: 'email' }, (email, password, done) => {
-			Log.info(`Email is ${email}`);
-			Log.info(`Password is ${password}`);
-
-			User.findOne({ email: email.toLowerCase() }, (err, user) => {
-				Log.info(`user is ${user.email}`);
-				Log.info(`error is ${err}`);
-
-				if (err) {
-					return done(err);
-				}
-
-				if (! user) {
-					return done(null, false, { msg: `E-mail ${email} not found.`});
-				}
-
-				if (user && !user.password) {
-					return done(null, false, { msg: `E-mail ${email} was not registered with us using any password. Please use the appropriate providers to Log-In again!`});
-				}
-
-				Log.info('comparing password now!');
-
-				user.comparePassword(password, (_err, _isMatch) => {
-					if (_err) {
-						return done(_err);
-					}
-					if (_isMatch) {
-						return done(null, user);
-					}
-					return done(null, false, { msg: 'Invalid E-mail or password.'});
-				});
-			});
-		}));
-	}
+  public static init(_passport: any): any {
+    _passport.use(
+      new JwtStrategy(opts, function (jwt_payload, done) {
+		console.log(jwt_payload)
+        AccountUser.findOne({ email: jwt_payload.email }, function (err, user) {
+          if (err) {
+            
+            return done(err, false);
+          }
+          if (user) {
+            
+            return done(null, user);
+          } else {
+            return done(null, false);
+            // or you could create a new account
+          }
+        });
+      })
+    );
+  }
 }
 
 export default Local;

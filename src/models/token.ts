@@ -16,11 +16,11 @@ export interface IAccessTokenModel extends IAccessToken, mongoose.Document {}
 // Define the User Schema
 export const AccessTokenSchema = new mongoose.Schema<IAccessToken>(
   {
-    accessToken: { type: String,  },
-data_access_expiration_time: { type: String, },
-type: { type: String, },
-userId : {type : String},
- 
+    accessToken: { type: String },
+    data_access_expiration_time: { type: String },
+    type: { type: String },
+    userID: { type: String },
+    accountUserId: { type: mongoose.Schema.Types.ObjectId },
   },
   {
     timestamps: true,

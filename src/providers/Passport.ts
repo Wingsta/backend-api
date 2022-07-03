@@ -19,15 +19,15 @@ class Passport {
 		_express = _express.use(passport.initialize());
 		_express = _express.use(passport.session());
 
-		passport.serializeUser<any, any>((user, done) => {
-			done(null, user.id);
-		});
+		// passport.serializeUser<any, any>((user, done) => {
+		// 	done(null, user);
+		// });
 
-		passport.deserializeUser<any, any>((id, done) => {
-			User.findById(id, (err, user) => {
-				done(err, user);
-			});
-		});
+		// passport.deserializeUser<any, any>((id, done) => {
+		// 	User.findById(id, (err, user) => {
+		// 		done(err, user);
+		// 	});
+		// });
 
 		this.mountLocalStrategies();
 
@@ -37,9 +37,10 @@ class Passport {
 	public mountLocalStrategies(): void {
 		try {
 			LocalStrategy.init(passport);
-			GoogleStrategy.init(passport);
-			TwitterStrategy.init(passport);
+			// GoogleStrategy.init(passport);
+			// TwitterStrategy.init(passport);
 		} catch (_err) {
+			console.log(_err)
 			Log.error(_err.stack);
 		}
 	}
@@ -54,13 +55,14 @@ class Passport {
 	}
 
 	public isAuthorized (req, res, next): any {
-		const provider = req.path.split('/').slice(-1)[0];
-		const token = req.user.tokens.find(token => token.kind === provider);
-		if (token) {
+		// const provider = req.path.split('/').slice(-1)[0];
+		// const token = req.user.tokens.find(token => token.kind === provider);
+		console.log(req.user);
+		// if (token) {
 			return next();
-		} else {
-			return res.redirect(`/auth/${provider}`);
-		}
+		// } else {
+			// return res.redirect(`/auth/${provider}`);
+		// }
 	}
 }
 
