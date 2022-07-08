@@ -20,7 +20,7 @@ export const CommentBotSchema = new mongoose.Schema<ICommentBot>(
     name: { type: String },
     description: { type: String },
     tags: { type: Array },
-    commnent: { type: Object },
+    comment: { type: Object },
     posts: { type: Array },
   },
   {

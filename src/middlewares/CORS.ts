@@ -19,7 +19,7 @@ class CORS {
 			optionsSuccessStatus: 200		// Some legacy browsers choke on 204
 		};
 
-		_express.use(cors(options));
+		// _express.use(cors(options));
 
 		return _express;
 	}

@@ -12,7 +12,7 @@ export interface ICommentBot {
   name : string,
   description : string,
   tags : string[];
-  commnent : {
+  comment : {
     commentString : string,
   },
   posts : {
