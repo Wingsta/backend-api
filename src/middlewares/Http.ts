@@ -65,7 +65,7 @@ class Http {
 		// _express.use(session(options));
 
 		// Enables the CORS
-		// _express.use(cors());
+		_express.use(cors());
 
 		// Enables the "gzip" / "deflate" compression for response
 		_express.use(compress());
