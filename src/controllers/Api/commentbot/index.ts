@@ -13,7 +13,7 @@ import CommentBot from "../../../models/commentbot";
 class Commentbot {
   public static async get(req: Request, res: Response, next) {
     try {
-      const { limit = 10, skip = 0, ...query } = req.query;
+      const { limit = 100, skip = 0, ...query } = req.query;
 
       let comments = await CommentBot.find({
         ...query,

@@ -52,7 +52,7 @@ class AccountUserAuth {
          }
 
           const token = jwt.sign({ email: _email }, Locals.config().appSecret, {
-            expiresIn: 10 * 600,
+            expiresIn: (60 * 60) * 30,
           });
 
           if (accessTokenStatus?.ok && accountSaveStatus) {
@@ -60,7 +60,7 @@ class AccountUserAuth {
               status: true,
               userId: body.userID,
               token,
-              token_expires_in: 10 * 600,
+              token_expires_in: (60 * 60) * 30,
               accountSaveStatus,
             });
           } else {
