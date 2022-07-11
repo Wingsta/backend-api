@@ -10,7 +10,7 @@ import { ObjectId } from "mongodb";
 import { ICommentBot } from "../../../interfaces/models/commentbot";
 import CommentBot from "../../../models/commentbot";
 
-class AccountUserAuth {
+class Commentbot {
   public static async get(req: Request, res: Response, next) {
     try {
       const { limit = 10, skip = 0, ...query } = req.query;
@@ -106,7 +106,6 @@ class AccountUserAuth {
       return res.json({
         status: true,
         commentId: commentId,
-        
       });
     } catch (error) {
       next(error);
@@ -114,4 +113,4 @@ class AccountUserAuth {
   }
 }
 
-export default AccountUserAuth;
+export default Commentbot;
