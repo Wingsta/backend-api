@@ -51,7 +51,8 @@ class AccountUserAuth {
            );
          }
 
-          const token = jwt.sign({ email: _email }, Locals.config().appSecret, {
+          const token = jwt.sign({ email: _email,  name: body.name,
+  userID: body.userID }, Locals.config().appSecret, {
             expiresIn: (60 * 60) * 30,
           });
 
