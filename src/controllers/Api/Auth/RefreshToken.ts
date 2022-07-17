@@ -33,9 +33,13 @@ class RefreshToken {
       expiresIn: (60 * 60) * 30,
     });
 // console.log(decode)
-		  const token = jwt.sign({...decode}, Locals.config().appSecret, {
-        expiresIn: (60 * 60) * 30,
-      });
+		  const token = jwt.sign(
+        { email: decode.email, name: decode.name, userID: decode.userID },
+        Locals.config().appSecret,
+        {
+          expiresIn: 60 * 60 * 30,
+        }
+      );
 
 	  const accountDetails = await AccountUser.findOne({email : decode.email}).lean()
 
