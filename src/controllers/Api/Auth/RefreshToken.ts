@@ -32,8 +32,8 @@ class RefreshToken {
 		const decode = jwt.decode(_token, Locals.config().appSecret, {
       expiresIn: (60 * 60) * 30,
     });
-console.log(decode)
-		  const token = jwt.sign({email : decode.email}, Locals.config().appSecret, {
+// console.log(decode)
+		  const token = jwt.sign({...decode}, Locals.config().appSecret, {
         expiresIn: (60 * 60) * 30,
       });
 

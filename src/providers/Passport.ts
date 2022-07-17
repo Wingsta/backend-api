@@ -57,7 +57,7 @@ class Passport {
 	public isAuthorized (req, res, next): any {
 		// const provider = req.path.split('/').slice(-1)[0];
 		// const token = req.user.tokens.find(token => token.kind === provider);
-		console.log(req.user);
+		// console.log(req.user);
 		// if (token) {
 			return next();
 		// } else {

@@ -43,6 +43,7 @@ router.get(
 router.get(
   "/commentbot/:id",
   passport.authenticate("jwt", { session: false }),
+  CommentbotController.getId,
   CommentController.getAll
 );
 

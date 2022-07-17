@@ -19,7 +19,7 @@ class Local {
   public static init(_passport: any): any {
     _passport.use(
       new JwtStrategy(opts, function (jwt_payload, done) {
-		console.log(jwt_payload)
+		// console.log(jwt_payload)
         AccountUser.findOne({ email: jwt_payload.email }, function (err, user) {
           if (err) {
             

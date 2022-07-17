@@ -23,13 +23,32 @@ class Commentbot {
         .skip(skip as number)
         .lean();
 
-      console.log(comments);
+      // console.log(comments);
 
       return res.json({
         status: true,
 
         comments,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getId(req: Request, res: Response, next) {
+    try {
+      
+      let {id} = req.params;
+      let commentBot = await CommentBot.findOne({
+        _id : new ObjectId(id),
+        accountUserId: new ObjectId((req.user as any)._id),
+      })
+     
+        .lean();
+
+      
+res.locals.commentBot = commentBot;
+next();
     } catch (error) {
       next(error);
     }

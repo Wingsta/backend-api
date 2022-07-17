@@ -23,10 +23,13 @@ class Commentbot {
         .skip(skip as number)
         .lean();
 
+      
       return res.json({
         status: true,
-
-        comments,
+        data: {
+          commentBot: res.locals.commentBot,
+          comments,
+        },
       });
     } catch (error) {
       next(error);

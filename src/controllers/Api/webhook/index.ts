@@ -15,7 +15,7 @@ import Comment from "../../../models/comment";
 class AccountUserAuth {
   public static async get(req: Request, res: Response, next) {
     try {
-      console.log(req.body, req.query, req.method);
+      // console.log(req.body, req.query, req.method);
       return res.send(req.query["hub.challenge"]);
     } catch (error) {
       next(error);
