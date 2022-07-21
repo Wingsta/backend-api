@@ -50,7 +50,7 @@ router.get(
   "/commentbot/:id",
   passport.authenticate("jwt", { session: false }),
   CommentbotController.getId,
-  NotificationbotController.getId,
+
   CommentController.getAll
 );
 
@@ -88,6 +88,7 @@ router.get(
 router.get(
   "/notificationbot/:id",
   passport.authenticate("jwt", { session: false }),
+  NotificationbotController.getId,
   CommentController.getAll
 );
 

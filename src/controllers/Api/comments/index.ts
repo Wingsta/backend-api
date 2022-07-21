@@ -28,7 +28,7 @@ class Commentbot {
         status: true,
         data: {
           commentBot: res.locals.commentBot,
-          notificationBot : res.locals.notificationBot,
+          notificationBot: res.locals.notificationBot,
           comments,
         },
       });
