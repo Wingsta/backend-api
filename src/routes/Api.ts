@@ -25,6 +25,12 @@ router.post(
 );
 
 router.post(
+  "/getTestToken",
+  //   passport.authenticate("jwt", { session: false }),
+  AccountUserController.testLogin
+);
+
+router.post(
   "/auth/refresh-token",
   expressJwt({ secret: Locals.config().appSecret }),
   RefreshTokenController.perform

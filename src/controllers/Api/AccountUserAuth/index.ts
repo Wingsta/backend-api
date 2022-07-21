@@ -42,26 +42,28 @@ class AccountUserAuth {
             body
           );
 
-           let accessTokenStatus;
-          if(accountSaveStatus)
-         {
+          let accessTokenStatus;
+          if (accountSaveStatus) {
             accessTokenStatus = await saveAccessToken(
-             body,
-             accountSaveStatus as string
-           );
-         }
+              body,
+              accountSaveStatus as string
+            );
+          }
 
-          const token = jwt.sign({ email: _email,  name: body.name,
-  userID: body.userID }, Locals.config().appSecret, {
-            expiresIn: (60 * 60) * 30,
-          });
+          const token = jwt.sign(
+            { email: _email, name: body.name, userID: body.userID },
+            Locals.config().appSecret,
+            {
+              expiresIn: 60 * 60 * 30,
+            }
+          );
 
           if (accessTokenStatus?.ok && accountSaveStatus) {
             return res.json({
               status: true,
               userId: body.userID,
               token,
-              token_expires_in: (60 * 60) * 30,
+              token_expires_in: 60 * 60 * 30,
               accountSaveStatus,
             });
           } else {
@@ -69,6 +71,56 @@ class AccountUserAuth {
               status: false,
               accountSaveStatus,
               accessTokenStatus,
+            });
+          }
+        }
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async testLogin(req: Request, res: Response, next) {
+    try {
+      let body = req.body as LoginGetI;
+
+      const _email = body.email.toLowerCase();
+
+      if (!_email) {
+        return res.json({ error: "no email" });
+      }
+
+      AccountUser.findOne(
+        { email: _email },
+        async (err: Error, accountuserData: IAccountUser) => {
+          if (err) {
+            return res.json({
+              error: err,
+            });
+          }
+         
+          const token = jwt.sign(
+            {
+              email: _email,
+              name: accountuserData.name,
+              userID: accountuserData.userID,
+            },
+            Locals.config().appSecret,
+            {
+              expiresIn: 60 * 60 * 30,
+            }
+          );
+
+          if (accountuserData) {
+            return res.json({
+              status: true,
+              userId: accountuserData.userID,
+              token,
+              token_expires_in: 60 * 60 * 30,
+            });
+          } else {
+            return res.json({
+              status: false,
             });
           }
         }
