@@ -23,13 +23,26 @@ class NotificationBotC {
         .skip(skip as number)
         .lean();
 
-      
-
       return res.json({
         status: true,
 
         notifications,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getId(req: Request, res: Response, next) {
+    try {
+      let { id } = req.params;
+      let notificationBot = await NotificationBot.findOne({
+        _id: new ObjectId(id),
+        accountUserId: new ObjectId((req.user as any)._id),
+      }).lean();
+
+      res.locals.notificationBot = notificationBot;
+      next();
     } catch (error) {
       next(error);
     }
