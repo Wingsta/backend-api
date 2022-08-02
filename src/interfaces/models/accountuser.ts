@@ -27,6 +27,7 @@ export interface IAccountUser {
       width: number;
     };
   };
+  meta : Record<string,any>;
 }
 
 

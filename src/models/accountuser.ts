@@ -22,6 +22,7 @@ export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
     name: { type: String },
     userID: { type: String },
     picture: { type: Object },
+    meta : {type : Object},
   },
   {
     timestamps: true,
