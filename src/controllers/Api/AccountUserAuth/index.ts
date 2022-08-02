@@ -84,24 +84,24 @@ class AccountUserAuth {
     try {
       let body = req.body as LoginGetI;
 
-      const _email = body.email.toLowerCase();
+      const userID = body?.userID;
 
-      if (!_email) {
-        return res.json({ error: "no email" });
+      if (!userID) {
+        return res.json({ error: "no userID" });
       }
 
       AccountUser.findOne(
-        { email: _email },
+        { userID: userID },
         async (err: Error, accountuserData: IAccountUser) => {
           if (err) {
             return res.json({
               error: err,
             });
           }
-         
+
           const token = jwt.sign(
             {
-              email: _email,
+              email: accountuserData.email,
               name: accountuserData.name,
               userID: accountuserData.userID,
             },
