@@ -41,7 +41,9 @@ class RefreshToken {
         }
       );
 
-	  const accountDetails = await AccountUser.findOne({email : decode.email}).lean()
+	  const accountDetails = await AccountUser.findOne({
+      userID: decode.userID,
+    }).lean();
 
 			return res.json({
         email: decode.email,
