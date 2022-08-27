@@ -142,33 +142,35 @@ export default AccountUserAuth;
 
 async function saveBuisnessAccount(userID: string, accessToken: string) {
   try {
+
+    //get facebook accounts for that user
     const response = await axios.get(
       `https://graph.facebook.com/v14.0/${userID}?fields=accounts&access_token=${accessToken}`
     );
 
     if (response?.data?.accounts?.data[0]) {
       let account = response?.data?.accounts?.data[0];
-
+console.log(account);
   //      "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&
   // client_id=APP-ID&
   // client_secret=APP-SECRET&
   // fb_exchange_token=SHORT-LIVED-USER-ACCESS-TOKEN"
       if (account?.id) {
+        //get facebook page token for that user
         const pageToken = await axios.get(
           `https://graph.facebook.com/${account?.id}?fields=access_token&access_token=${accessToken}`
         );
+
+
         const buisnessAccount = await axios.get(
           `https://graph.facebook.com/v14.0/${account?.id}?fields=instagram_business_account&access_token=${accessToken}`
         );
 
-        if(pageToken?.data?.access_token){
-
-         const commentSubscription = await axios.post(
-           `https://graph.facebook.com/v14.0/${account?.id}/subscribed_apps?subscribed_fields=feed,mention&access_token=${pageToken?.data?.access_token}`
-         );
-
-      }
-
+        if (pageToken?.data?.access_token) {
+          const commentSubscription = await axios.post(
+            `https://graph.facebook.com/v14.0/${account?.id}/subscribed_apps?subscribed_fields=mention&access_token=${pageToken?.data?.access_token}`
+          );
+        }
 
         if (buisnessAccount?.data?.instagram_business_account?.id) {
           let ig = buisnessAccount?.data?.instagram_business_account?.id;
@@ -176,16 +178,16 @@ async function saveBuisnessAccount(userID: string, accessToken: string) {
             `https://graph.facebook.com/v14.0/${ig}?fields=id,name,profile_picture_url,username&access_token=${accessToken}`
           );
 
-           const subscriptions = await axios.get(
-             `https://graph.facebook.com/v14.0/${account?.id}/subscribed_apps?access_token=${pageToken?.data?.access_token}`
-           );
+          const subscriptions = await axios.get(
+            `https://graph.facebook.com/v14.0/${account?.id}/subscribed_apps?access_token=${pageToken?.data?.access_token}`
+          );
 
           if (buisnessAccountIG?.data) {
             return {
               buisnessAccountData: buisnessAccountIG?.data,
               buisnessAccountId: buisnessAccount?.data?.id,
               fbPageId: account?.id,
-              subscriptions : subscriptions?.data,
+              subscriptions: subscriptions?.data,
               fbPageAccessToken: pageToken?.data?.access_token,
             };
           }
