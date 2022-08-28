@@ -31,7 +31,7 @@ const generateHash = async (plainPassword: string) => {
 class AccountUserAuth {
   public static async login(req: Request, res: Response, next) {
     try {
-      let body = req.body as ISignupGet;
+      let body = req.body as ISignupGet & {type  :"GOOGLE"};;
 
       const email = body.email;
 
@@ -47,7 +47,10 @@ class AccountUserAuth {
         return res.json({ error: "account does not exists" });
       }
 
-      if(!!(await bcrypt.compare(body.password,account.password))){
+      if (
+        body.type ===
+        "GOOGLE" || !!(await bcrypt.compare(body.password, account.password))
+      ) {
         const token = jwt.sign(
           {
             email: body.email,
@@ -61,8 +64,7 @@ class AccountUserAuth {
           }
         );
 
-        let companyDetails = await Company.findOne({_id: account?.companyId})
-
+        let companyDetails = await Company.findOne({ _id: account?.companyId });
 
         return res.json(
           sendSuccessResponse({ account, token, company: companyDetails })
@@ -80,8 +82,9 @@ class AccountUserAuth {
 
   public static async signup(req: Request, res: Response, next) {
     try {
-      let body = req.body as ISignupGet;
-let company: ICompany;
+      let body = req.body as ISignupGet & {type  :"GOOGLE"};
+
+      let company: ICompany;
       const email = body.email;
 
       if (!email) {
@@ -96,7 +99,7 @@ let company: ICompany;
         return res.json(sendErrorResponse("email already exists"));
       }
 
-      if (body.password) {
+      if (body.password && body.type !== 'GOOGLE') {
         body.password = await generateHash(body.password);
       }
 
