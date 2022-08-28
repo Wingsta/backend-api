@@ -19,7 +19,7 @@ class Local {
   public static init(_passport: any): any {
     _passport.use(
       new JwtStrategy(opts, function (jwt_payload, done) {
-		// console.log(jwt_payload)
+		 
         AccountUser.findOne({ email: jwt_payload.email }, function (err, user) {
           if (err) {
             
@@ -27,7 +27,7 @@ class Local {
           }
           if (user) {
             
-            return done(null, user);
+            return done(null, jwt_payload);
           } else {
             return done(null, false);
             // or you could create a new account

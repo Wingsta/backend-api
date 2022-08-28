@@ -10,132 +10,55 @@ import * as passport from "passport";
 import Locals from "../providers/Locals";
 
 import AccountUserController from "../controllers/Api/AccountUserAuth";
-import CommentbotController from "../controllers/Api/commentbot";
-import NotificationbotController from "../controllers/Api/notificationbot";
-import CommentController from "../controllers/Api/comments";
-import WebhookController from "../controllers/Api/webhook";
-import RefreshTokenController from "../controllers/Api/Auth/RefreshToken";
+import ProductController from "../controllers/Api/products/index";
+import AuthRefreshController from "../controllers/Api/Auth/RefreshToken";
+
 
 const router = Router();
 
 router.post(
-  "/getToken",
+  "/signup",
+  //   passport.authenticate("jwt", { session: false }),
+  AccountUserController.signup
+);
+
+router.post(
+  "/login",
   //   passport.authenticate("jwt", { session: false }),
   AccountUserController.login
 );
 
-router.post(
-  "/getTestToken",
-  //   passport.authenticate("jwt", { session: false }),
-  AccountUserController.testLogin
-);
-
-router.post(
-  "/auth/refresh-token",
-  expressJwt({ secret: Locals.config().appSecret }),
-  RefreshTokenController.perform
-);
-
-/**
- * Comment Bot
- */
-router.get(
-  "/commentbot",
-  passport.authenticate("jwt", { session: false }),
-  CommentbotController.get
-);
-
 
 router.get(
-  "/commentbot/:id",
-  passport.authenticate("jwt", { session: false }),
-  CommentbotController.getId,
-
-  CommentController.getAll
+  "/refreshToken",
+    passport.authenticate("jwt", { session: false }),
+  AuthRefreshController.perform
 );
 
-
-
 router.post(
-  "/commentbot",
+  "/products",
   passport.authenticate("jwt", { session: false }),
-  CommentbotController.post
+  ProductController.post
 );
 
 router.patch(
-  "/commentbot/:id",
+  "/products",
   passport.authenticate("jwt", { session: false }),
-  CommentbotController.patch
+  ProductController.patch
+);
+
+router.get(
+  "/products",
+  passport.authenticate("jwt", { session: false }),
+  ProductController.get
 );
 
 router.delete(
-  "/commentbot/:id",
+  "/products",
   passport.authenticate("jwt", { session: false }),
-  CommentbotController.delete
+  ProductController.delete
 );
 
 
-/**
- * Notification Bot
- */
-router.get(
-  "/notificationbot",
-  passport.authenticate("jwt", { session: false }),
-  NotificationbotController.get
-);
-
-
-router.get(
-  "/notificationbot/:id",
-  passport.authenticate("jwt", { session: false }),
-  NotificationbotController.getId,
-  CommentController.getAll
-);
-
-
-
-router.post(
-  "/notificationbot",
-  passport.authenticate("jwt", { session: false }),
-  NotificationbotController.post
-);
-
-router.patch(
-  "/notificationbot/:id",
-  passport.authenticate("jwt", { session: false }),
-  NotificationbotController.patch
-);
-
-router.delete(
-  "/notificationbot/:id",
-  passport.authenticate("jwt", { session: false }),
-  NotificationbotController.delete
-);
-
-
-
-/**
- * Comments
- * 
- */
-router.get(
-  "/comments/:id",
-  passport.authenticate("jwt", { session: false }),
-  CommentController.get
-);
-
-
-
-router.get(
-  "/webhook",
-
-  WebhookController.get
-);
-
-router.post(
-  "/webhook",
-
-  WebhookController.post
-);
 
 export default router;

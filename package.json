@@ -4,9 +4,11 @@
   "description": "A Web & API server built using TypeScript",
   "main": "dist",
   "dependencies": {
+    "@faker-js/faker": "^7.4.0",
     "@types/bluebird": "^3.5.24",
     "axios": "^0.27.2",
     "bcrypt-nodejs": "0.0.3",
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.2",
     "body-parser": "^1.18.3",
     "bootstrap": "^4.1.3",
@@ -48,6 +50,7 @@
   },
   "devDependencies": {
     "@types/bcrypt-nodejs": "0.0.30",
+    "@types/bcryptjs": "^2.4.2",
     "@types/compression": "0.0.36",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",

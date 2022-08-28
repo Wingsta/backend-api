@@ -7,21 +7,20 @@
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt-nodejs';
 
-import { IAccountUser } from '../interfaces/models/accountuser';
+import { ICompany } from '../interfaces/models/accountuser';
 import mongoose from '../providers/Database';
 
 // Create the model schema & register your custom methods here
 
 
 // Define the User Schema
-export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
+export const CompanySchema = new mongoose.Schema<ICompany>(
   {
     email: { type: String, unique: true },
 
     companyId: { type: mongoose.Schema.Types.ObjectId },
     password: { type: String },
     website: { type: String },
-    name: { type: String }
   },
   {
     timestamps: true,
@@ -30,9 +29,9 @@ export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
 
 
 
-const AccountUser = mongoose.model<IAccountUser & mongoose.Document>(
-  "AccountUser",
-  AccountUserSchema
+const Company = mongoose.model<ICompany & mongoose.Document>(
+  "Company",
+  CompanySchema
 );
 
-export default AccountUser;
+export default Company;

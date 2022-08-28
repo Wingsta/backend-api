@@ -23,6 +23,7 @@ class RefreshToken {
 
 	public static async perform (req, res): Promise<any> {
 		const _token = RefreshToken.getToken(req);
+		console.log(req.headers.authorization);
 		if (_token === '') {
 			return res.json({
 				error: ['Invalid Token!']
@@ -32,9 +33,14 @@ class RefreshToken {
 		const decode = jwt.decode(_token, Locals.config().appSecret, {
       expiresIn: (60 * 60) * 30,
     });
-// console.log(decode)
+
 		  const token = jwt.sign(
-        { email: decode.email, name: decode.name, userID: decode.userID },
+        {
+          email: decode?.email,
+          name: decode?.name,
+          companyId: decode?.companyId,
+          accountId: decode?._id,
+        },
         Locals.config().appSecret,
         {
           expiresIn: 60 * 60 * 30,
@@ -42,11 +48,11 @@ class RefreshToken {
       );
 
 	  const accountDetails = await AccountUser.findOne({
-      userID: decode.userID,
+      email: decode.email,
     }).lean();
 
 			return res.json({
-        email: decode.email,
+        tokenDetails : decode,
         token,
         token_expires_in: 10 * 600,
         accountDetails,
