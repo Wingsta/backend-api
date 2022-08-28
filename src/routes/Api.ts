@@ -24,6 +24,12 @@ router.post(
 );
 
 router.post(
+  "/bulkupload",
+  passport.authenticate("jwt", { session: false }),
+  ProductController.bulkUpload
+);
+
+router.post(
   "/signup",
   //   passport.authenticate("jwt", { session: false }),
   AccountUserController.signup
