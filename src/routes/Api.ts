@@ -10,11 +10,18 @@ import * as passport from "passport";
 import Locals from "../providers/Locals";
 
 import AccountUserController from "../controllers/Api/AccountUserAuth";
+import CommonController from "../controllers/Api/common/index";
 import ProductController from "../controllers/Api/products/index";
 import AuthRefreshController from "../controllers/Api/Auth/RefreshToken";
 
 
 const router = Router();
+
+router.post(
+  "/upload",
+  passport.authenticate("jwt", { session: false }),
+  CommonController.upload
+);
 
 router.post(
   "/signup",

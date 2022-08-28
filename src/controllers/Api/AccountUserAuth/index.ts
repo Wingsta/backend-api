@@ -65,7 +65,7 @@ class AccountUserAuth {
 
 
         return res.json(
-          sendResponse({ account, token, company: companyDetails })
+          sendSuccessResponse({ account, token, company: companyDetails })
         );
       }
 

@@ -6,6 +6,7 @@
 
 import * as cors from 'cors';
 import { Application } from 'express';
+import * as multer from 'multer';
 import * as flash from 'express-flash';
 import * as compress from 'compression';
 import * as connect from 'connect-mongo';
@@ -23,6 +24,15 @@ class Http {
 	public static mount(_express: Application): Application {
 		Log.info('Booting the \'HTTP\' middleware...');
 
+		const multerMid = multer({
+      storage: multer.memoryStorage(),
+      limits: {
+        // no larger than 5mb.
+        fileSize: 5 * 1024 * 1024,
+      },
+    });
+
+	_express.use(multerMid.single("file"));
 		// Enables the request body parser
 		_express.use(bodyParser.json({
 			limit: Locals.config().maxUploadLimit
