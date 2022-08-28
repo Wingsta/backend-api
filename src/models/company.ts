@@ -16,11 +16,7 @@ import mongoose from '../providers/Database';
 // Define the User Schema
 export const CompanySchema = new mongoose.Schema<ICompany>(
   {
-    email: { type: String, unique: true },
-
-    companyId: { type: mongoose.Schema.Types.ObjectId },
-    password: { type: String },
-    website: { type: String },
+    companyName: { type: String },
   },
   {
     timestamps: true,

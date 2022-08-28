@@ -18,6 +18,7 @@ import Locals from "../../../providers/Locals";
 import { ObjectId } from "mongodb";
 import axios from "axios";
 import Company from "../../../models/company";
+import { sendErrorResponse, sendResponse, sendSuccessResponse } from "../../../services/response/sendresponse";
 
 interface ISignupGet extends IAccountUser, ICompany {}
 
@@ -60,16 +61,19 @@ class AccountUserAuth {
           }
         );
 
+        let companyDetails = await Company.findOne({_id: account?.companyId})
 
 
-        return res.json({ account, token });
+        return res.json(
+          sendResponse({ account, token, company: companyDetails })
+        );
       }
 
      
       
-      return res.json({ account });
+      return res.json(sendErrorResponse( "login failed"));
     } catch (error) {
-      console.log(error);
+      
       next(error);
     }
   }
@@ -81,7 +85,7 @@ let company: ICompany;
       const email = body.email;
 
       if (!email) {
-        return res.json({ error: "no email" });
+        return res.json(sendErrorResponse("no email"));
       }
 
       let isEmailExist = !!(await AccountUser.findOne({
@@ -89,7 +93,7 @@ let company: ICompany;
       }).lean());
 
       if (isEmailExist) {
-        return res.json({ error: "account aldready exists" });
+        return res.json(sendErrorResponse("email already exists"));
       }
 
       if (body.password) {
@@ -102,7 +106,9 @@ let company: ICompany;
         }).save();
 
         if (!company?._id) {
-          return res.json({ error: "company creation failed" });
+          return res.json(
+            sendErrorResponse( "company creation failed")
+          );
         }
 
         body.companyId = company?._id;
@@ -124,11 +130,13 @@ let company: ICompany;
           }
         );
 
-        return res.json({ token, accountuser, company });
+        return res.json(
+          sendSuccessResponse({ token, account: accountuser, company })
+        );
       }
-      return res.json({ accountuser });
+      return res.json(sendErrorResponse("signup failed"));
     } catch (error) {
-      console.log(error);
+      
       next(error);
     }
   }

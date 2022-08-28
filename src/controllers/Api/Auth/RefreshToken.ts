@@ -8,7 +8,9 @@ import * as jwt from 'jsonwebtoken';
 
 
 import AccountUser from "../../../models/accountuser";
+import Company from '../../../models/company';
 import Locals from '../../../providers/Locals';
+import { sendSuccessResponse } from '../../../services/response/sendresponse';
 
 class RefreshToken {
 	public static getToken (req): string {
@@ -23,7 +25,7 @@ class RefreshToken {
 
 	public static async perform (req, res): Promise<any> {
 		const _token = RefreshToken.getToken(req);
-		console.log(req.headers.authorization);
+	
 		if (_token === '') {
 			return res.json({
 				error: ['Invalid Token!']
@@ -47,16 +49,24 @@ class RefreshToken {
         }
       );
 
+	    
+
 	  const accountDetails = await AccountUser.findOne({
       email: decode.email,
     }).lean();
 
-			return res.json({
-        tokenDetails : decode,
-        token,
-        token_expires_in: 10 * 600,
-        accountDetails,
-      });
+	let companyDetails = await Company.findOne({
+    _id: accountDetails?.companyId,
+  });
+
+			return res.json(
+        sendSuccessResponse({
+          token,
+          token_expires_in: 10 * 600,
+          account: accountDetails,
+          company: companyDetails,
+        })
+      );
 	}
 }
 

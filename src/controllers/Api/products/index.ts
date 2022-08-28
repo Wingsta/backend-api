@@ -18,6 +18,7 @@ import axios from "axios";
 import Company from "../../../models/company";
 import Product from "../../../models/products";
 import { IProducts } from "../../../interfaces/models/products";
+import { sendErrorResponse, sendSuccessResponse } from "../../../services/response/sendresponse";
 
 function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
@@ -85,11 +86,13 @@ class Products {
       //      return { update: !!update.ok, _id: _id };
       //    })
       //  );
-      return res.json({
-        totalCount,
-        currentPage: offset / limit + 1,
-        products,
-      });
+      return res.json(
+        sendSuccessResponse({
+          totalCount,
+          currentPage: offset / limit + 1,
+          products,
+        })
+      );
     } catch (error) {
       next(error);
     }
@@ -109,12 +112,12 @@ class Products {
         }));
 
       if (!productArr || !productArr.length) {
-        return res.json({ error: "product not array / empty" });
+        return res.json(sendErrorResponse("product not array / empty"));
       }
 
       let products = await Product.insertMany(productArr);
 
-      return res.json(products);
+      return res.json(sendSuccessResponse(products));
     } catch (error) {
       next(error);
     }
@@ -134,7 +137,7 @@ class Products {
         }));
 
       if (!productArr || !productArr.length) {
-        return res.json({ error: "product not array / empty" });
+        return res.json(sendErrorResponse("product not array / empty"));
       }
 
       let products = await Promise.all(
@@ -156,7 +159,7 @@ class Products {
         })
       );
 
-      return res.json(products);
+      return res.json(sendSuccessResponse(products));
     } catch (error) {
       next(error);
     }
@@ -169,7 +172,7 @@ class Products {
 
    
       if (!productArr || !productArr.length) {
-        return res.json({ error: "product not array / empty" });
+        return res.json(sendErrorResponse("product not array / empty"));
       }
 
       let products = await Product.deleteMany({
@@ -177,7 +180,9 @@ class Products {
         companyId,
       });
 
-      return res.json({ deletedCount: products?.deletedCount || 0 });
+      return res.json(
+        sendSuccessResponse({ deletedCount: products?.deletedCount || 0 })
+      );
     } catch (error) {
       next(error);
     }
