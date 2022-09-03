@@ -67,7 +67,7 @@ router.get(
 );
 
 router.get(
-  "/product",
+  "/product/:productId",
   passport.authenticate("jwt", { session: false }),
   ProductController.getId
 );

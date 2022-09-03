@@ -44,6 +44,7 @@ class Products {
   public static async get(req: Request, res: Response, next: NextFunction) {
     try {
       let searchTerm = req.query.searchTerm as string;
+      let { companyId } = req.user as { companyId: string };
       let {
         limit = 10,
         offset = 0,
@@ -65,7 +66,7 @@ class Products {
       if (offset) {
         offset = parseInt(offset.toString());
       }
-      let mongoQuery = {} as any;
+      let mongoQuery = { companyId } as any;
 
       if (status) {
         let statusTypes = status.split(",");
@@ -118,13 +119,13 @@ class Products {
   public static async getId(req: Request, res: Response, next: NextFunction) {
     try {
       
-      let productId = req.query.productId;
-      
+      let productId = req.params.productId;
+      let { companyId } = req.user as { companyId: string };
 
       if (!productId){
         return res.json(sendErrorResponse("product not found"))
       } 
-      let mongoQuery = {} as any;
+      let mongoQuery = { companyId } as any;
 
       if (productId) {
         
