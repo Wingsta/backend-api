@@ -123,7 +123,7 @@ class Products {
       let { companyId } = req.user as { companyId: string };
 
       if (!productId){
-        return res.json(sendErrorResponse("product not found"))
+        return res.json(sendErrorResponse("product not found",1002))
       } 
       let mongoQuery = { companyId } as any;
 
@@ -156,7 +156,7 @@ class Products {
       //    })
       //  );
       if (!product) {
-        return res.status(400).json(sendErrorResponse("no product found"));
+        return res.status(400).json(sendErrorResponse("no product found",1002));
       }
       return res.json(
         sendSuccessResponse({

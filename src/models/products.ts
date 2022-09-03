@@ -9,13 +9,14 @@ import * as bcrypt from "bcrypt-nodejs";
 
 import { IProducts } from "../interfaces/models/products";
 import mongoose from "../providers/Database";
+import { Types } from "mongoose";
 
 // Create the model schema & register your custom methods here
 
 // Define the User Schema
 export const ProductSchema = new mongoose.Schema<IProducts>(
   {
-    companyId: { type: String },
+    companyId: { type: Types.ObjectId },
     name: { type: String },
     price: { type: Number },
     status: { type: Number },

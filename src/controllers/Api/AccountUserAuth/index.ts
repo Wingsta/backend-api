@@ -15,7 +15,7 @@ import *  as bcrypt from "bcryptjs";
 
 // import { Types  } from "mongoose";
 import Locals from "../../../providers/Locals";
-import { ObjectId } from "mongodb";
+import { ObjectID, ObjectId } from "mongodb";
 import axios from "axios";
 import Company from "../../../models/company";
 import { sendErrorResponse, sendResponse, sendSuccessResponse } from "../../../services/response/sendresponse";
@@ -119,7 +119,7 @@ class AccountUserAuth {
 					);
 				}
 
-				body.companyId = company?._id;
+				body.companyId = new ObjectID(company?._id);
 			}
 
 			let accountuser = await new AccountUser(body).save();
