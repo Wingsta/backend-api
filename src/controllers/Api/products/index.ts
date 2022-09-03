@@ -115,6 +115,58 @@ class Products {
     }
   }
 
+  public static async getId(req: Request, res: Response, next: NextFunction) {
+    try {
+      
+      let productId = req.query.productId;
+      
+
+      if (!productId){
+        return res.json(sendErrorResponse("product not found"))
+      } 
+      let mongoQuery = {} as any;
+
+      if (productId) {
+        
+        mongoQuery["_id"] = productId;
+      }
+    
+
+      let product = await Product.findOne(mongoQuery)
+      
+
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      if (!product) {
+        return res.status(400).json(sendErrorResponse("no product found"));
+      }
+      return res.json(
+        sendSuccessResponse({
+          product,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public static async post(req: Request, res: Response, next: NextFunction) {
     try {
       let productArr = req.body.products as IProducts[];
@@ -196,7 +248,7 @@ class Products {
             }
           }
 
-          return true
+          return true;
         })
         .map((it: any) => {
           if (it.carouselImages instanceof String) {
@@ -220,7 +272,7 @@ class Products {
             it.status = statusMap[it.status] || 1;
           }
 
-          return it
+          return it;
         });
 
       let productArr = finalData.map((it) => ({
@@ -236,10 +288,6 @@ class Products {
         carouselImages: it["carouselImages"] || [],
       })) as IProducts[];
 
-      
-
-      
-
       let { companyId } = req.user as { companyId: string };
 
       productArr = productArr
@@ -250,14 +298,18 @@ class Products {
           companyId: new ObjectId(companyId),
         }));
 
-        
       if (!productArr || !productArr.length) {
         return res.json(sendErrorResponse("product not array / empty"));
       }
 
       let products = await Product.insertMany(productArr);
 
-      return res.json(sendSuccessResponse({productsUploaded : products?.length, errorCount : errorRows?.length || 0}));
+      return res.json(
+        sendSuccessResponse({
+          productsUploaded: products?.length,
+          errorCount: errorRows?.length || 0,
+        })
+      );
     } catch (error) {
       next(error);
     }

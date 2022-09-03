@@ -66,6 +66,12 @@ router.get(
   ProductController.get
 );
 
+router.get(
+  "/product",
+  passport.authenticate("jwt", { session: false }),
+  ProductController.getId
+);
+
 router.delete(
   "/products",
   passport.authenticate("jwt", { session: false }),
