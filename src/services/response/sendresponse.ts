@@ -18,11 +18,11 @@ export const sendSuccessResponse = (data: any, message: string = "success") => {
   };
 };
 
-export const sendErrorResponse = ( message: string = "success") => {
+export const sendErrorResponse = ( message: string = "success", error = null) => {
   return {
     data: null,
     message,
-    error: true,
+    error,
     status: false,
   };
 };

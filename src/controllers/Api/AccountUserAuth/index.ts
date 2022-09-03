@@ -8,8 +8,8 @@ import * as jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import AccountUser from "../../../models/accountuser";
 import {
-  IAccountUser, ICompany,
-  
+	IAccountUser, ICompany,
+
 } from "../../../interfaces/models/accountuser";
 import *  as bcrypt from "bcryptjs";
 
@@ -20,129 +20,134 @@ import axios from "axios";
 import Company from "../../../models/company";
 import { sendErrorResponse, sendResponse, sendSuccessResponse } from "../../../services/response/sendresponse";
 
-interface ISignupGet extends IAccountUser, ICompany {}
+interface ISignupGet extends IAccountUser, ICompany { }
 
 
 const generateHash = async (plainPassword: string) => {
-  const salt = bcrypt.genSaltSync(10);
-  const hash = await bcrypt.hashSync(plainPassword, salt);
-  return hash;
+	const salt = bcrypt.genSaltSync(10);
+	const hash = await bcrypt.hashSync(plainPassword, salt);
+	return hash;
 };
 class AccountUserAuth {
-  public static async login(req: Request, res: Response, next) {
-    try {
-      let body = req.body as ISignupGet & {type  :"GOOGLE"};;
+	public static async login(req: Request, res: Response, next) {
+		try {
+			let body = req.body as ISignupGet & { type: "GOOGLE" };;
 
-      const email = body.email;
+			const email = body.email;
 
-      if (!email) {
-        return res.json({ error: "no email" });
-      }
+			if (!email) {
+				return res.json({ error: "no email" });
+			}
 
-      let account = (await AccountUser.findOne({
-        email: body.email,
-      }).lean());
+			let account = (await AccountUser.findOne({
+				email: body.email,
+			}).lean());
 
-      if (!account) {
-        return res.json({ error: "account does not exists" });
-      }
+			if (!account) {
+				return res.json(sendErrorResponse("Account does not exist!", 1001));
+			}
 
-      if (
-        body.type ===
-        "GOOGLE" || !!(await bcrypt.compare(body.password, account.password))
-      ) {
-        const token = jwt.sign(
-          {
-            email: body.email,
-            name: body.name,
-            companyId: account?.companyId,
-            accountId: account?._id,
-          },
-          Locals.config().appSecret,
-          {
-            expiresIn: 60 * 60 * 30,
-          }
-        );
+			if (body.type !== "GOOGLE" && !account.password) {
+				return res.json(sendErrorResponse("Please user Google login for the given Email!"));
+			}
 
-        let companyDetails = await Company.findOne({ _id: account?.companyId });
+			if (!body.type && !(await bcrypt.compare(body.password, account.password))) {
+				return res.json(sendErrorResponse("Incorrect Password!"));
+			}
 
-        return res.json(
-          sendSuccessResponse({ account, token, company: companyDetails })
-        );
-      }
+			if (
+				body.type ===
+				"GOOGLE" || !!(await bcrypt.compare(body.password, account.password))
+			) {
+				const token = jwt.sign(
+					{
+						email: body.email,
+						name: body.name,
+						companyId: account?.companyId,
+						accountId: account?._id,
+					},
+					Locals.config().appSecret,
+					{
+						expiresIn: 60 * 60 * 30,
+					}
+				);
 
-     
-      
-      return res.json(sendErrorResponse( "login failed"));
-    } catch (error) {
-      
-      next(error);
-    }
-  }
+				let companyDetails = await Company.findOne({ _id: account?.companyId });
 
-  public static async signup(req: Request, res: Response, next) {
-    try {
-      let body = req.body as ISignupGet & {type  :"GOOGLE"};
+				return res.json(
+					sendSuccessResponse({ account, token, company: companyDetails })
+				);
+			}
 
-      let company: ICompany;
-      const email = body.email;
+			return res.json(sendErrorResponse("login failed"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-      if (!email) {
-        return res.json(sendErrorResponse("no email"));
-      }
+	public static async signup(req: Request, res: Response, next) {
+		try {
+			let body = req.body as ISignupGet & { type: "GOOGLE" };
 
-      let isEmailExist = !!(await AccountUser.findOne({
-        email: body.email,
-      }).lean());
+			let company: ICompany;
+			const email = body.email;
 
-      if (isEmailExist) {
-        return res.json(sendErrorResponse("email already exists"));
-      }
+			if (!email) {
+				return res.json(sendErrorResponse("no email"));
+			}
 
-      if (body.password && body.type !== 'GOOGLE') {
-        body.password = await generateHash(body.password);
-      }
+			let isEmailExist = !!(await AccountUser.findOne({
+				email: body.email,
+			}).lean());
 
-      if (body.companyName) {
-         company = await new Company({
-          companyName: body.companyName,
-        }).save();
+			if (isEmailExist) {
+				return res.json(sendErrorResponse("email already exists"));
+			}
 
-        if (!company?._id) {
-          return res.json(
-            sendErrorResponse( "company creation failed")
-          );
-        }
+			if (body.password && body.type !== 'GOOGLE') {
+				body.password = await generateHash(body.password);
+			}
 
-        body.companyId = company?._id;
-      }
+			if (body.companyName) {
+				company = await new Company({
+					companyName: body.companyName,
+				}).save();
 
-      let accountuser = await new AccountUser(body).save();
+				if (!company?._id) {
+					return res.json(
+						sendErrorResponse("company creation failed")
+					);
+				}
 
-      if (accountuser?._id) {
-        const token = jwt.sign(
-          {
-            email: body.email,
-            name: body.name,
-            companyId: accountuser?.companyId,
-            accountId : accountuser?._id
-          },
-          Locals.config().appSecret,
-          {
-            expiresIn: 60 * 60 * 30,
-          }
-        );
+				body.companyId = company?._id;
+			}
 
-        return res.json(
-          sendSuccessResponse({ token, account: accountuser, company })
-        );
-      }
-      return res.json(sendErrorResponse("signup failed"));
-    } catch (error) {
-      
-      next(error);
-    }
-  }
+			let accountuser = await new AccountUser(body).save();
+
+			if (accountuser?._id) {
+				const token = jwt.sign(
+					{
+						email: body.email,
+						name: body.name,
+						companyId: accountuser?.companyId,
+						accountId: accountuser?._id
+					},
+					Locals.config().appSecret,
+					{
+						expiresIn: 60 * 60 * 30,
+					}
+				);
+
+				return res.json(
+					sendSuccessResponse({ token, account: accountuser, company })
+				);
+			}
+			return res.json(sendErrorResponse("signup failed"));
+		} catch (error) {
+
+			next(error);
+		}
+	}
 }
 
 export default AccountUserAuth;
