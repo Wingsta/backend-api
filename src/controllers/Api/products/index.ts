@@ -200,7 +200,8 @@ class Products {
   ) {
     try {
       let file = req.file;
-      let fileUrl = (await uploadImage(file)) as string;
+      let { companyId } = req.user as { companyId: string };
+      let fileUrl = (await uploadImage(file,companyId)) as string;
 
       if (!fileUrl) {
         return res.json(sendErrorResponse("no file found / error in upload"));
@@ -289,7 +290,7 @@ class Products {
         carouselImages: it["carouselImages"] || [],
       })) as IProducts[];
 
-      let { companyId } = req.user as { companyId: string };
+      
 
       productArr = productArr
         ?.filter((it) => it.sku)

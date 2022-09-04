@@ -11,11 +11,11 @@ const bucket = gc.bucket("insta-pilot-beta.appspot.com"); // should be your buck
  *   "originalname" and "buffer" as keys
  */
 
-export const uploadImage = (file) =>
+export const uploadImage = (file ,company: string,) =>
   new Promise((resolve, reject) => {
     const { originalname, buffer } = file;
 
-    const blob = bucket.file(originalname.replace(/ /g, "_"));
+    const blob = bucket.file(`${company}/${originalname}`.replace(/ /g, "_"));
     const blobStream = blob.createWriteStream({
       resumable: false,
     });

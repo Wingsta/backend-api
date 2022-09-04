@@ -18,7 +18,8 @@ class CommonController {
     try {
       
       const myFile = req.file as any;
-      const imageUrl = await uploadImage(myFile);
+      let { companyId } = req.user as { companyId: string };
+      const imageUrl = await uploadImage(myFile, companyId);
       res.json(
         sendSuccessResponse({
           
