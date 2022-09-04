@@ -342,7 +342,7 @@ class Products {
 
           let update = await Product.updateOne(
             { _id: _id },
-            { it },
+            { ...it },
             {
               upsert: true,
             }
