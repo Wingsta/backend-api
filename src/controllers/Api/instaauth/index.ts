@@ -174,10 +174,14 @@ async function saveBuisnessAccount(userID: string, accessToken: string) {
     if (response?.data?.accounts?.data[0]) {
       let account = response?.data?.accounts?.data[0];
 
-      //      "https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&
-      // client_id=APP-ID&
-      // client_secret=APP-SECRET&
-      // fb_exchange_token=SHORT-LIVED-USER-ACCESS-TOKEN"
+	   const longAccessToken = await axios.get(
+       `https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=453354629748227&client_secret=1b61388c5b6118edc6c49d34c13f80bc&fb_exchange_token=${accessToken}`
+     );
+
+	 if (longAccessToken?.data?.access_token) {
+		accessToken = longAccessToken?.data?.access_token;
+	 }
+      
       if (account?.id) {
         //get facebook page token for that user
         const pageToken = await axios.get(
