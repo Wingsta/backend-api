@@ -16,7 +16,7 @@ import { Types } from "mongoose";
 // Define the User Schema
 export const ProductSchema = new mongoose.Schema<IProducts>(
   {
-    companyId: { type: Types.ObjectId },
+    companyId: { type: Types.ObjectId, ref: "Company" },
     name: { type: String },
     price: { type: Number },
     status: { type: Number },
@@ -25,7 +25,7 @@ export const ProductSchema = new mongoose.Schema<IProducts>(
     addedDate: { type: Date },
     thumbnail: { type: String },
     carouselImages: { type: Array },
-    posts: { type: Array },
+    posts: [{ type: Types.ObjectId, ref: "Post" }],
   },
   {
     timestamps: true,

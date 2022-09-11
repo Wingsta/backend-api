@@ -133,7 +133,9 @@ class Products {
       }
     
 
-      let product = await Product.findOne(mongoQuery)
+      let product = await Product.find(mongoQuery)
+        .populate("posts");
+  
       
 
 

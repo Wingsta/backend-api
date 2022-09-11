@@ -48,10 +48,10 @@ router.post(
   InstaAuthController.login
 );
 
-router.post(
+router.get(
   "/insta/post",
   passport.authenticate("jwt", { session: false }),
-  InstaAuthController.createPost
+  InstaAuthController.get
 );
 
 router.post(

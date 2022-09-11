@@ -5,7 +5,7 @@
  */
 
 import * as jwt from "jsonwebtoken";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import AccountUser from "../../../models/accountuser";
 import { IAccountUser, ICompany } from "../../../interfaces/models/accountuser";
 import * as bcrypt from "bcryptjs";
@@ -21,6 +21,9 @@ import {
   sendSuccessResponse,
 } from "../../../services/response/sendresponse";
 import Product from "../../../models/products";
+import Post from "../../../models/posts";
+import { IPosts } from "../../../interfaces/models/posts";
+import { IProducts } from "../../../interfaces/models/products";
 
 interface ISignupGet extends IAccountUser, ICompany {}
 
@@ -66,49 +69,79 @@ class AccountUserAuth {
     }
   }
 
-  public static async createPost(req: Request, res: Response, next) {
+  public static async get(req: Request, res: Response, next: NextFunction) {
     try {
+      let searchTerm = req.query.searchTerm as string;
       let { companyId } = req.user as { companyId: string };
-      let { image_url, caption, productId,name } = req.body as {
-        image_url: string;
-        caption: string;
-        productId: string;
-		name : string;
+      let {
+        limit = 10,
+        offset = 0,
+        sortBy = "createdTime",
+        sortType = "asc",
+      } = req.query as unknown as {
+        limit: number;
+        offset: number;
+        sortBy: string;
+        sortType: string;
+        status: string;
       };
-      if (!companyId) {
-        return res.json(sendErrorResponse("no companyId"));
+
+      if (limit) {
+        limit = parseInt(limit.toString());
       }
 
-      let company = await Company.findOne({ _id: new ObjectID(companyId) });
-
-      if (company.meta) {
-        let data = await savePost(
-          company?.meta?.buisnessAccountId,
-          company?.meta?.accessToken,
-          image_url,
-          caption
-        );
-
-        if (data?.data?.id) {
-          let object = [
-            {
-              id: data?.data?.id,
-              image_url,
-              caption,
-              createdTime: new Date(),
-			  name
-            },
-          ];
-
-          let k = await Product.updateOne(
-            { _id: new ObjectId(productId) },
-            { $push: { posts: object } },
-            { upsert: true }
-          );
-          console.log(k);
-        }
-        return res.json(sendSuccessResponse(data?.data));
+      if (offset) {
+        offset = parseInt(offset.toString());
       }
+      let mongoQuery = { companyId } as any;
+
+      if (searchTerm) {
+        mongoQuery["$or"] = [{ name: new RegExp(searchTerm, "i") }];
+      }
+
+      let posts = await Promise.all(
+        (
+          await Post.find(mongoQuery)
+            .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+            .skip(offset)
+            .limit(limit)
+            .lean()
+        ).map(async (it: IPosts & { products: IProducts[] }) => {
+          let products = await Product.find({
+            posts: { $in: [new ObjectID(it._id)] },
+          }).lean();
+          it.products = products;
+
+          return it;
+        })
+      );
+      let totalCount = await Post.find(mongoQuery).count();
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      return res.json(
+        sendSuccessResponse({
+          totalCount,
+          currentPage: offset / limit + 1,
+          posts,
+        })
+      );
     } catch (error) {
       next(error);
     }
@@ -117,44 +150,64 @@ class AccountUserAuth {
   public static async createCarousel(req: Request, res: Response, next) {
     try {
       let { companyId } = req.user as { companyId: string };
-      let { image_url, caption, productIds ,name} = req.body as {
+      let { image_url, caption, productIds, name } = req.body as {
         image_url: string[];
         caption: string;
         productIds: string[];
-		name : string;
+        name: string;
       };
       if (!companyId) {
         return res.json(sendErrorResponse("no companyId"));
       }
 
+      if (!image_url || !image_url.length) {
+        return res.json(sendErrorResponse("no image_url"));
+      }
+
       let company = await Company.findOne({ _id: new ObjectID(companyId) });
 
       if (company.meta) {
-        let data = await saveCarousel(
-          company?.meta?.buisnessAccountId,
-          company?.meta?.accessToken,
-          image_url,
-          caption
-        );
+        let data = null;
+
+        if (image_url?.length === 1) {
+          data = await savePost(
+            company?.meta?.buisnessAccountId,
+            company?.meta?.accessToken,
+            image_url[0],
+            caption
+          );
+        } else
+          data = await saveCarousel(
+            company?.meta?.buisnessAccountId,
+            company?.meta?.accessToken,
+            image_url,
+            caption
+          );
 
         if (data?.data?.id) {
           let object = [
             {
               id: data?.data?.id,
-			  media_type : "CAROUSEL",
+              media_type: image_url?.length === 1 ? "POST" : "CAROUSEL",
               image_url,
               caption,
               createdTime: new Date(),
-			  name
+              name,
+              companyId,
             },
           ];
 
+          let posts = (await Post.insertMany(object))?.map((it) => it._id);
+
           let k = await Product.updateMany(
-            { _id: productIds.map((productId) => new ObjectId(productId)) },
-            { $push: { posts: object } },
+            {
+              _id: productIds.map((productId) => new ObjectId(productId)),
+              companyId: new Object(companyId),
+            },
+            { $push: { posts: posts } },
             { upsert: true }
           );
-          console.log(k);
+          console.log(k, posts);
         }
         return res.json(sendSuccessResponse(data?.data));
       }
@@ -174,14 +227,14 @@ async function saveBuisnessAccount(userID: string, accessToken: string) {
     if (response?.data?.accounts?.data[0]) {
       let account = response?.data?.accounts?.data[0];
 
-	   const longAccessToken = await axios.get(
-       `https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=453354629748227&client_secret=1b61388c5b6118edc6c49d34c13f80bc&fb_exchange_token=${accessToken}`
-     );
+      const longAccessToken = await axios.get(
+        `https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=453354629748227&client_secret=1b61388c5b6118edc6c49d34c13f80bc&fb_exchange_token=${accessToken}`
+      );
 
-	 if (longAccessToken?.data?.access_token) {
-		accessToken = longAccessToken?.data?.access_token;
-	 }
-      
+      if (longAccessToken?.data?.access_token) {
+        accessToken = longAccessToken?.data?.access_token;
+      }
+
       if (account?.id) {
         //get facebook page token for that user
         const pageToken = await axios.get(
