@@ -191,7 +191,7 @@ class Products {
         mongoQuery["_id"] = productId;
       }
 
-      let product = await Product.find(mongoQuery).populate("posts");
+      let product = await Product.findOne(mongoQuery).populate("posts");
 
       //  let products1 = await Promise.all(
       //    products.map(async (it) => {
