@@ -103,6 +103,12 @@ router.get(
 );
 
 router.get(
+  "/product/:productId/analytics",
+  passport.authenticate("jwt", { session: false }),
+  ProductController.getIdPosts
+);
+
+router.get(
   "/product/:productId",
   passport.authenticate("jwt", { session: false }),
   ProductController.getId

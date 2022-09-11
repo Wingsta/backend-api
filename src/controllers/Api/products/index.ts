@@ -116,28 +116,82 @@ class Products {
     }
   }
 
-  public static async getId(req: Request, res: Response, next: NextFunction) {
+  public static async getIdPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      
       let productId = req.params.productId;
       let { companyId } = req.user as { companyId: string };
 
-      if (!productId){
-        return res.json(sendErrorResponse("product not found",1002))
-      } 
+      if (!productId) {
+        return res.json(sendErrorResponse("product not found", 1002));
+      }
       let mongoQuery = { companyId } as any;
 
       if (productId) {
-        
         mongoQuery["_id"] = productId;
       }
-    
 
-      let product = await Product.find(mongoQuery)
-        .populate("posts");
-  
-      
+      let posts = (await Product.findOne(mongoQuery).populate("posts"))?.posts;
 
+      let metrics = posts.map((it) => ({
+        id: it._id,
+        engagement: faker.datatype.number({ max: 300 }),
+        impressions: faker.datatype.number({ max: 300 }),
+        reach: faker.datatype.number({ max: 300 }),
+        saved: faker.datatype.number({ max: 300 }),
+        video_views: faker.datatype.number({ max: 300 }),
+        comments_count: faker.datatype.number({ max: 300 }),
+        like_count: faker.datatype.number({ max: 300 }),
+      }));
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      if (!posts) {
+        return res
+          .status(400)
+          .json(sendErrorResponse("no product found", 1002));
+      }
+      return res.json(
+        sendSuccessResponse({
+          posts,
+          metrics
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getId(req: Request, res: Response, next: NextFunction) {
+    try {
+      let productId = req.params.productId;
+      let { companyId } = req.user as { companyId: string };
+
+      if (!productId) {
+        return res.json(sendErrorResponse("product not found", 1002));
+      }
+      let mongoQuery = { companyId } as any;
+
+      if (productId) {
+        mongoQuery["_id"] = productId;
+      }
+
+      let product = await Product.find(mongoQuery).populate("posts");
 
       //  let products1 = await Promise.all(
       //    products.map(async (it) => {
@@ -158,7 +212,9 @@ class Products {
       //    })
       //  );
       if (!product) {
-        return res.status(400).json(sendErrorResponse("no product found",1002));
+        return res
+          .status(400)
+          .json(sendErrorResponse("no product found", 1002));
       }
       return res.json(
         sendSuccessResponse({
@@ -203,7 +259,7 @@ class Products {
     try {
       let file = req.file;
       let { companyId } = req.user as { companyId: string };
-      let fileUrl = (await uploadImage(file,companyId)) as string;
+      let fileUrl = (await uploadImage(file, companyId)) as string;
 
       if (!fileUrl) {
         return res.json(sendErrorResponse("no file found / error in upload"));
@@ -291,8 +347,6 @@ class Products {
         thumbnail: it["thumbnail"],
         carouselImages: it["carouselImages"] || [],
       })) as IProducts[];
-
-      
 
       productArr = productArr
         ?.filter((it) => it.sku)
