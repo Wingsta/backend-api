@@ -17,6 +17,7 @@ import mongoose from '../providers/Database';
 export const CompanySchema = new mongoose.Schema<ICompany>(
   {
     companyName: { type: String },
+    meta: { type: Object },
   },
   {
     timestamps: true,

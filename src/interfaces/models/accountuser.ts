@@ -14,12 +14,13 @@ export interface IAccountUser {
   password: string;
   website: string;
   name: string;
+  
 }
 
 export interface ICompany {
-  _id : Types.ObjectId;
+  _id: Types.ObjectId;
   companyName: string;
-  
+  meta: { [key : string] : any};
 }
 
 

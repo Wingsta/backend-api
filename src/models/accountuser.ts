@@ -21,7 +21,8 @@ export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
     companyId: { type: mongoose.Schema.Types.ObjectId },
     password: { type: String },
     website: { type: String },
-    name: { type: String }
+    name: { type: String },
+    
   },
   {
     timestamps: true,

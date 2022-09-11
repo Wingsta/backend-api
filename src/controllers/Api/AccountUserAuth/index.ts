@@ -148,6 +148,7 @@ class AccountUserAuth {
 			next(error);
 		}
 	}
+	
 }
 
 export default AccountUserAuth;

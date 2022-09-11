@@ -10,10 +10,10 @@ import * as passport from "passport";
 import Locals from "../providers/Locals";
 
 import AccountUserController from "../controllers/Api/AccountUserAuth";
+import InstaAuthController from "../controllers/Api/instaauth";
 import CommonController from "../controllers/Api/common/index";
 import ProductController from "../controllers/Api/products/index";
 import AuthRefreshController from "../controllers/Api/Auth/RefreshToken";
-
 
 const router = Router();
 
@@ -35,16 +35,52 @@ router.post(
   AccountUserController.signup
 );
 
+console.log("hello");
 router.post(
   "/login",
   //   passport.authenticate("jwt", { session: false }),
   AccountUserController.login
 );
 
+router.post(
+  "/insta/login",
+  passport.authenticate("jwt", { session: false }),
+  InstaAuthController.login
+);
+
+router.post(
+  "/insta/post",
+  passport.authenticate("jwt", { session: false }),
+  InstaAuthController.createPost
+);
+
+router.post(
+  "/insta/carousel",
+  passport.authenticate("jwt", { session: false }),
+  InstaAuthController.createCarousel
+);
+
+router.get(
+  "/insta/post/:postId",
+  passport.authenticate("jwt", { session: false }),
+  InstaAuthController.login
+);
+
+router.delete(
+  "/insta/post/:postId",
+  passport.authenticate("jwt", { session: false }),
+  InstaAuthController.login
+);
+
+router.patch(
+  "/insta/post/:postId",
+  passport.authenticate("jwt", { session: false }),
+  InstaAuthController.login
+);
 
 router.get(
   "/refreshToken",
-    passport.authenticate("jwt", { session: false }),
+  passport.authenticate("jwt", { session: false }),
   AuthRefreshController.perform
 );
 
@@ -77,7 +113,5 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   ProductController.delete
 );
-
-
 
 export default router;
