@@ -14,6 +14,7 @@ import InstaAuthController from "../controllers/Api/instaauth";
 import CommonController from "../controllers/Api/common/index";
 import ProductController from "../controllers/Api/products/index";
 import AuthRefreshController from "../controllers/Api/Auth/RefreshToken";
+import DomainController from "../controllers/Api/domains/index";
 
 const router = Router();
 
@@ -118,6 +119,36 @@ router.delete(
   "/products",
   passport.authenticate("jwt", { session: false }),
   ProductController.delete
+);
+
+router.post(
+  "/domain/",
+  passport.authenticate("jwt", { session: false }),
+  DomainController.post
+);
+
+router.get(
+  "/domain/exists",
+  passport.authenticate("jwt", { session: false }),
+  DomainController.get
+);
+
+router.get(
+  "/domain/:domain",
+  passport.authenticate("jwt", { session: false }),
+  DomainController.getDomain
+);
+
+router.post(
+  "/domain/:domain",
+  passport.authenticate("jwt", { session: false }),
+  DomainController.patchDomain
+);
+
+router.get(
+  "/public/domain/:domain",
+
+  DomainController.getPublicDomain
 );
 
 export default router;
