@@ -57,7 +57,7 @@ class RefreshToken {
 
 	let companyDetails = await Company.findOne({
     _id: accountDetails?.companyId,
-  });
+  }).populate("meta.domainId");
 
 			return res.json(
         sendSuccessResponse({

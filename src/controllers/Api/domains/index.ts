@@ -38,7 +38,7 @@ class Products {
       if (!name) {
         return res.json(sendErrorResponse("name not found", 1002));
       }
-      let mongoQuery = { [`meta.domainName`]: name } as any;
+      let mongoQuery = { [`meta.domainName`]: name.toLowerCase() } as any;
 
       let products = await Company.findOne(mongoQuery);
 
@@ -79,8 +79,8 @@ class Products {
         return res.json(sendErrorResponse("name should not be empty"));
       }
 
-      let domain = (await Domain.insertMany({ name: name, companyId }))[0];
-console.log(domain)
+      let domain = (await Domain.insertMany({ name: name.toLowerCase(), companyId }))[0];
+
       if (domain) {
         let company = await Company.findOne({ _id: companyId }).lean();
 
