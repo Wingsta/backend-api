@@ -18,9 +18,9 @@ export const sendSuccessResponse = (data: any, message: string = "success") => {
   };
 };
 
-export const sendErrorResponse = ( message: string = "success", error = null) => {
+export const sendErrorResponse = ( message: string = "success", error = null,data?:any ) => {
   return {
-    data: null,
+    data: data || null ,
     message,
     error,
     status: false,

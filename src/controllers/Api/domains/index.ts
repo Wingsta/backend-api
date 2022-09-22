@@ -35,9 +35,39 @@ class Products {
       let name = req.query.name as string;
       let { companyId } = req.user as { companyId: string };
 
-      if (!name) {
-        return res.json(sendErrorResponse("name not found", 1002));
+      let company = await Company.findOne({ _id: companyId }).lean();
+
+      if (!company) {
+        return res.json(sendErrorResponse("company not found"));
       }
+      if (!name) {
+        return res.json(sendErrorResponse("name should not be empty"));
+      }
+
+      let oldDomain = (await Domain.find({ companyId }).lean())[0];
+
+      if (oldDomain) {
+        let meta = company.meta;
+        if (!meta) {
+          meta = {};
+        }
+        meta.domainName = oldDomain.name;
+        meta.domainId = oldDomain._id;
+        let status = await Company.updateOne(
+          { _id: company },
+          { $set: { meta } },
+          { upsert: true }
+        );
+
+        if (status.ok) {
+          return res.json(
+            sendErrorResponse("Domain exists , try again.", null, {
+              domain: oldDomain,
+            })
+          );
+        }
+      }
+
       let mongoQuery = { [`meta.domainName`]: name.toLowerCase() } as any;
 
       let products = await Company.findOne(mongoQuery);
@@ -74,29 +104,64 @@ class Products {
     try {
       let name = req.body.name as string;
       let { companyId } = req.user as { companyId: string };
+      let company = await Company.findOne({ _id: companyId }).lean();
 
+      if (!company) {
+        return res.json(sendErrorResponse("company not found"));
+      }
       if (!name) {
         return res.json(sendErrorResponse("name should not be empty"));
       }
 
-      let domain = (await Domain.insertMany({ name: name.toLowerCase(), companyId }))[0];
+      let oldDomain = (await Domain.find({ companyId }).lean())[0];
+
+      if (oldDomain) {
+        let meta = company.meta;
+        if (!meta) {
+          meta = {};
+        }
+        meta.domainName = oldDomain.name;
+        meta.domainId = oldDomain._id;
+        let status = await Company.updateOne(
+          { _id: company },
+          { $set: { meta } },
+          { upsert: true }
+        );
+
+        if (status.ok) {
+          return res.json(
+            sendErrorResponse("Domain exists , try again.", null, {
+              domain: oldDomain,
+            })
+          );
+        }
+      }
+
+      let domain = (
+        await Domain.insertMany({ name: name.toLowerCase(), companyId })
+      )[0];
 
       if (domain) {
-        let company = await Company.findOne({ _id: companyId }).lean();
+        let meta = company.meta;
+        if (!meta) {
+          meta = {};
+        }
+        meta.domainName = name;
+        meta.domainId = domain._id;
+        let status = await Company.updateOne(
+          { _id: company },
+          { $set: { meta } },
+          { upsert: true }
+        );
 
-        if (company) {
-          let meta = company.meta;
-          meta.domainName = name;
-          meta.domainId = domain._id;
-          let status = await Company.updateOne(
-            { _id: company },
-            { $set: { meta } },
-            { upsert: true }
+        if (status.ok) {
+          return res.json(
+            sendSuccessResponse({
+              domainId: domain._id,
+              ...meta,
+              publish: false,
+            })
           );
-
-          if (status.ok) {
-            return res.json(sendSuccessResponse({ domainId: domain._id }));
-          }
         }
       }
 
@@ -120,10 +185,41 @@ class Products {
         return res.json(sendErrorResponse("not a domain object"));
       }
 
+      console.log(domain,"do")
+
       let update = await Domain.updateOne(
-        { _id: domainId, companyId },
+        { _id: domainId },
         { $set: { metaData: domain.metaData } },
         { upsert: true }
+      );
+
+      if (update.ok) return res.json(sendSuccessResponse({ updated: true }));
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async togglePublish(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let domain = req.body as IDomain;
+      let domainId = req.params.domain;
+      let { companyId } = req.user as { companyId: string };
+
+      if (!domain) {
+        return res.json(sendErrorResponse("not a domain object"));
+      }
+
+      console.log(domain)
+
+      let update = await Domain.updateOne(
+        { _id: domainId },
+        { $set: { publish: !!domain.publish } },
+        { upsert: true,  }
       );
 
       if (update.ok) return res.json(sendSuccessResponse({ updated: true }));
@@ -155,20 +251,23 @@ class Products {
     }
   }
 
-  public static async getPublicDomain(req: Request, res: Response, next: NextFunction) {
+  public static async getPublicDomain(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       let name = req.params.domain as string;
-      
 
       if (!name) {
         return res.json(sendErrorResponse("name not found", 1002));
       }
-      
+
       let mongoQuery = { [`meta.domainName`]: name } as any;
 
       let products = await Company.findOne(mongoQuery);
 
-      let domainId = products.meta.domainId
+      let domainId = products.meta.domainId;
 
       if (!domainId) {
         return res.json(sendErrorResponse("domainId needed"));
@@ -178,7 +277,6 @@ class Products {
 
       if (domain) return res.json(sendSuccessResponse(domain));
       return res.json(sendErrorResponse("something went wrong"));
-     
     } catch (error) {
       next(error);
     }
