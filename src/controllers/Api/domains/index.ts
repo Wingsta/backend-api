@@ -159,7 +159,7 @@ class Products {
             sendSuccessResponse({
               domainId: domain._id,
               ...meta,
-              publish: false,
+              published: false,
             })
           );
         }
@@ -218,7 +218,7 @@ class Products {
 
       let update = await Domain.updateOne(
         { _id: domainId },
-        { $set: { publish: !!domain.publish } },
+        { $set: { published: !!domain.published } },
         { upsert: true,  }
       );
 

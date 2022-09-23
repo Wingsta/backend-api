@@ -18,7 +18,7 @@ export const DomainSchema = new mongoose.Schema<IDomain>(
     name: { type: String },
     companyId: { type: mongoose.Schema.Types.ObjectId },
     metaData: { type: Object },
-    publish : {type : Boolean, default : false}
+    published : {type : Boolean, default : false}
   },
   {
     timestamps: true,

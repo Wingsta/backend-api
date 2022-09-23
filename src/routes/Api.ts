@@ -140,7 +140,7 @@ router.get(
 );
 
 router.post(
-  "/domain/publish/:domain",
+  "/domain/toggle-publish/:domain",
   passport.authenticate("jwt", { session: false }),
   DomainController.togglePublish
 );

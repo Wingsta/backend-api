@@ -10,7 +10,7 @@ export interface IDomain {
   _id: Types.ObjectId;
   name : string,
   companyId: Types.ObjectId;
-  publish : Boolean;
+  published : Boolean;
   metaData : {[key : string] : any}
   
   
