@@ -244,6 +244,14 @@ class Products {
 
       let domain = await Domain.findOne({ _id: domainId, companyId }).lean();
 
+      if(domain?.metaData?.popularProducts?.length){
+        let products = await Product.find({
+          companyId,
+          _id: { $in: domain?.metaData?.popularProducts },
+        }).lean();
+
+        domain.metaData.popularProducts = products;
+      }
       if (domain) return res.json(sendSuccessResponse(domain));
       return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {
@@ -265,15 +273,24 @@ class Products {
 
       let mongoQuery = { [`meta.domainName`]: name } as any;
 
-      let products = await Company.findOne(mongoQuery);
+      let company = await Company.findOne(mongoQuery);
 
-      let domainId = products.meta.domainId;
+      let domainId = company.meta.domainId;
 
       if (!domainId) {
         return res.json(sendErrorResponse("domainId needed"));
       }
 
       let domain = await Domain.findOne({ _id: domainId }).lean();
+
+        if (domain?.metaData?.popularProducts?.length) {
+          let products = await Product.find({
+            companyId: company._id,
+            _id: { $in: domain?.metaData?.popularProducts },
+          }).lean();
+
+          domain.metaData.popularProducts = products;
+        }
 
       if (domain) return res.json(sendSuccessResponse(domain));
       return res.json(sendErrorResponse("something went wrong"));
