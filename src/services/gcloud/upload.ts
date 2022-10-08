@@ -20,8 +20,9 @@ export const uploadImage = (file ,company: string,) =>
       resumable: false,
     });
     blobStream
-      .on("finish", () => {
-        blob.makePublic()
+      .on("finish",async () => {
+        let k  =await blob.makePublic()
+        console.log(k,"hellpp")
         console.log(
           `https://storage.googleapis.com/${bucket.name}/${blob.name}`
         );
