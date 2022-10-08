@@ -345,6 +345,7 @@ class Products {
           ? new Date(typeCheckService.isDate(it["addedDate"]) as string)
           : new Date(),
         thumbnail: it["thumbnail"],
+        category : it['category'],
         carouselImages: it["carouselImages"] || [],
       })) as IProducts[];
 

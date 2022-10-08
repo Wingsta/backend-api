@@ -17,6 +17,7 @@ export interface IProducts {
   addedDate: Date;
   thumbnail: string;
   carouselImages : string[];
+  category : string;
   posts : any[]
 }
 

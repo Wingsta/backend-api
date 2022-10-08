@@ -25,6 +25,7 @@ export const ProductSchema = new mongoose.Schema<IProducts>(
     addedDate: { type: Date },
     thumbnail: { type: String },
     carouselImages: { type: Array },
+    category: { type: String },
     posts: [{ type: Types.ObjectId, ref: "Post" }],
   },
   {
