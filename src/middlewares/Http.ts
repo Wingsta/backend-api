@@ -28,7 +28,7 @@ class Http {
       storage: multer.memoryStorage(),
       limits: {
         // no larger than 5mb.
-        fileSize: 5 * 1024 * 1024,
+        fileSize: 10 * 1024 * 1024,
       },
     });
 

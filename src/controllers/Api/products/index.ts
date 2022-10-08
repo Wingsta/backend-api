@@ -260,7 +260,7 @@ class Products {
       let file = req.file;
       let { companyId } = req.user as { companyId: string };
       let fileUrl = (await uploadImage(file, companyId)) as string;
-
+console.log(fileUrl)
       if (!fileUrl) {
         return res.json(sendErrorResponse("no file found / error in upload"));
       }
