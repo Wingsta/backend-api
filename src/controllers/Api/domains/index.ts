@@ -307,6 +307,46 @@ class Products {
       next(error);
     }
   }
+
+  public static async checkSubdomain(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let name = req.params.domain as string;
+
+      if (!name) {
+        return res.json(sendErrorResponse("name not found", 1002));
+      }
+
+      let mongoQuery = { [`meta.domainName`]: name } as any;
+
+      let company = await Company.findOne(mongoQuery);
+
+      let domainId = company?.meta?.domainId;
+
+      if (!domainId) {
+        return res.json(sendErrorResponse("domainId needed"));
+      }
+
+      let domain = await Domain.findOne({ _id: domainId }).lean();
+
+      let payload = {
+        exist: false,
+        published: false
+      }
+
+      if (domain) {
+        payload.exist = true;
+        payload.published = domain?.published ? true : false;
+      }
+
+      return res.json(sendSuccessResponse(payload));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
   async function getDomain(name: string) {

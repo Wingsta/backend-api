@@ -177,4 +177,10 @@ router.get(
   DomainController.getPublicDomain
 );
 
+router.get(
+  "/domain/check/:domain",
+
+  DomainController.checkSubdomain
+);
+
 export default router;
