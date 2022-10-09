@@ -152,6 +152,12 @@ router.post(
 );
 
 router.post(
+  "/domain/:domain/meta",
+  passport.authenticate("jwt", { session: false }),
+  DomainController.patchDomainMeta
+);
+
+router.post(
   "/domain/:domain",
   passport.authenticate("jwt", { session: false }),
   DomainController.patchDomain

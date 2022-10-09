@@ -200,6 +200,38 @@ class Products {
     }
   }
 
+  public static async patchDomainMeta(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let meta = req.body as IDomain;
+      let domainId = req.params.domain;
+      let { companyId } = req.user as { companyId: string };
+
+      if (!meta) {
+        return res.json(sendErrorResponse("not a meta object"));
+      }
+
+      let domainMeta = (await Domain.findOne({ _id: domainId }).lean())?.metaData;
+
+      if(!domainMeta){
+        domainMeta = {}
+      }
+      let update = await Domain.updateOne(
+        { _id: domainId },
+        { $set: { metaData: { ...domainMeta,...meta, } } },
+        { upsert: true }
+      );
+
+      if (update.ok) return res.json(sendSuccessResponse({ updated: true }));
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public static async togglePublish(
     req: Request,
     res: Response,
@@ -270,18 +302,17 @@ class Products {
       if (!name) {
         return res.json(sendErrorResponse("name not found", 1002));
       }
-   let domainData = await getDomain(name);
+      let domainData = await getDomain(name);
 
-      if(domainData.data){
+      if (domainData.data) {
         let companyId = domainData?.data?.company?._id;
 
-        req.user = {companyId : companyId};
+        req.user = { companyId: companyId };
 
-        return next()
-      }
-      else return res.json(domainData);
+        return next();
+      } else return res.json(domainData);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       next(error);
     }
   }
@@ -300,9 +331,7 @@ class Products {
 
       let data = await getDomain(name);
 
-      return res.json(data)
-
-      
+      return res.json(data);
     } catch (error) {
       next(error);
     }
@@ -334,8 +363,8 @@ class Products {
 
       let payload = {
         exist: false,
-        published: false
-      }
+        published: false,
+      };
 
       if (domain) {
         payload.exist = true;
