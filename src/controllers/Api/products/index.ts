@@ -116,7 +116,11 @@ class Products {
     }
   }
 
-  public static async getIdPosts(req: Request, res: Response, next: NextFunction) {
+  public static async getIdPosts(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       let productId = req.params.productId;
       let { companyId } = req.user as { companyId: string };
@@ -169,7 +173,7 @@ class Products {
       return res.json(
         sendSuccessResponse({
           posts,
-          metrics
+          metrics,
         })
       );
     } catch (error) {
@@ -189,6 +193,55 @@ class Products {
 
       if (productId) {
         mongoQuery["_id"] = productId;
+      }
+
+      let product = await Product.findOne(mongoQuery).populate("posts");
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      if (!product) {
+        return res
+          .status(400)
+          .json(sendErrorResponse("no product found", 1002));
+      }
+      return res.json(
+        sendSuccessResponse({
+          product,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getSKU(req: Request, res: Response, next: NextFunction) {
+    try {
+      let skuId = req.params.skuId;
+      let { companyId } = req.user as { companyId: string };
+
+      if (!skuId) {
+        return res.json(sendErrorResponse("product not found", 1002));
+      }
+      let mongoQuery = { companyId } as any;
+
+      if (skuId) {
+        mongoQuery["sku"] = skuId;
       }
 
       let product = await Product.findOne(mongoQuery).populate("posts");
@@ -260,7 +313,7 @@ class Products {
       let file = req.file;
       let { companyId } = req.user as { companyId: string };
       let fileUrl = (await uploadImage(file, companyId)) as string;
-console.log(fileUrl)
+
       if (!fileUrl) {
         return res.json(sendErrorResponse("no file found / error in upload"));
       }
@@ -345,32 +398,38 @@ console.log(fileUrl)
           ? new Date(typeCheckService.isDate(it["addedDate"]) as string)
           : new Date(),
         thumbnail: it["thumbnail"],
-        category : it['category'],
+        category: it["category"],
         carouselImages: it["carouselImages"] || [],
       })) as IProducts[];
 
-      productArr = productArr
+      let productArrInsert = productArr
         ?.filter((it) => it.sku)
         ?.map((it) => ({
-          ...it,
+          updateOne: {
+            filter: { sku: it.sku, companyId: new ObjectId(companyId) },
+            update: {
+              ...it,
 
-          companyId: new ObjectId(companyId),
+              companyId: new ObjectId(companyId),
+            },
+            upsert: true,
+          },
         }));
 
       if (!productArr || !productArr.length) {
         return res.json(sendErrorResponse("product not array / empty"));
       }
 
-      let products = await Product.insertMany(productArr);
+      await Product.bulkWrite(productArrInsert);
 
       return res.json(
         sendSuccessResponse({
-          productsUploaded: products?.length,
+          productsUploaded: productArr?.length,
           errorCount: errorRows?.length || 0,
         })
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
       next(error);
     }
   }

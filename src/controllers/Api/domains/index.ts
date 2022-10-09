@@ -185,7 +185,7 @@ class Products {
         return res.json(sendErrorResponse("not a domain object"));
       }
 
-      console.log(domain,"do")
+      console.log(domain, "do");
 
       let update = await Domain.updateOne(
         { _id: domainId },
@@ -214,12 +214,12 @@ class Products {
         return res.json(sendErrorResponse("not a domain object"));
       }
 
-      console.log(domain)
+      console.log(domain);
 
       let update = await Domain.updateOne(
         { _id: domainId },
         { $set: { published: !!domain.published } },
-        { upsert: true,  }
+        { upsert: true }
       );
 
       if (update.ok) return res.json(sendSuccessResponse({ updated: true }));
@@ -244,7 +244,7 @@ class Products {
 
       let domain = await Domain.findOne({ _id: domainId, companyId }).lean();
 
-      if(domain?.metaData?.popularProducts?.length){
+      if (domain?.metaData?.popularProducts?.length) {
         let products = await Product.find({
           companyId,
           _id: { $in: domain?.metaData?.popularProducts },
@@ -255,6 +255,33 @@ class Products {
       if (domain) return res.json(sendSuccessResponse(domain));
       return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getPublicDomainProducts(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let name = req.params.domain as string;
+
+      if (!name) {
+        return res.json(sendErrorResponse("name not found", 1002));
+      }
+   let domainData = await getDomain(name);
+
+      if(domainData.data){
+        let companyId = domainData?.data?.company?._id;
+
+        req.user = {companyId : companyId};
+
+        return next()
+      }
+      else return res.json(domainData);
+    } catch (error) {
+      console.log(error)
       next(error);
     }
   }
@@ -271,33 +298,43 @@ class Products {
         return res.json(sendErrorResponse("name not found", 1002));
       }
 
-      let mongoQuery = { [`meta.domainName`]: name } as any;
+      let data = await getDomain(name);
 
-      let company = await Company.findOne(mongoQuery);
+      return res.json(data)
 
-      let domainId = company.meta.domainId;
-
-      if (!domainId) {
-        return res.json(sendErrorResponse("domainId needed"));
-      }
-
-      let domain = await Domain.findOne({ _id: domainId }).lean();
-
-        if (domain?.metaData?.popularProducts?.length) {
-          let products = await Product.find({
-            companyId: company._id,
-            _id: { $in: domain?.metaData?.popularProducts },
-          }).lean();
-
-          domain.metaData.popularProducts = products;
-        }
-
-      if (domain) return res.json(sendSuccessResponse(domain));
-      return res.json(sendErrorResponse("something went wrong"));
+      
     } catch (error) {
       next(error);
     }
   }
 }
 
+  async function getDomain(name: string) {
+    let mongoQuery = { [`meta.domainName`]: name } as any;
+
+    let company = await Company.findOne(mongoQuery);
+
+      if (!company?.meta?.domainId) {
+        return sendErrorResponse("domainId invalid");
+      }
+    let domainId = company.meta.domainId;
+
+    if (!domainId) {
+      return sendErrorResponse("domainId needed");
+    }
+
+    let domain = await Domain.findOne({ _id: domainId }).lean();
+
+    if (domain?.metaData?.popularProducts?.length) {
+      let products = await Product.find({
+        companyId: company._id,
+        _id: { $in: domain?.metaData?.popularProducts },
+      }).lean();
+
+      domain.metaData.popularProducts = products;
+    }
+
+    if (domain) return sendSuccessResponse({...domain, company});
+    return sendErrorResponse("something went wrong");
+  }
 export default Products;

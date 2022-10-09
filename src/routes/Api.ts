@@ -115,6 +115,12 @@ router.get(
   ProductController.getId
 );
 
+router.get(
+  "/product/sku/:skuId",
+  passport.authenticate("jwt", { session: false }),
+  ProductController.getSKU
+);
+
 router.delete(
   "/products",
   passport.authenticate("jwt", { session: false }),
@@ -149,6 +155,20 @@ router.post(
   "/domain/:domain",
   passport.authenticate("jwt", { session: false }),
   DomainController.patchDomain
+);
+
+router.get(
+  "/public/domain/:domain/products/:skuId",
+
+  DomainController.getPublicDomainProducts,
+  ProductController.getSKU
+);
+
+router.get(
+  "/public/domain/:domain/products",
+
+  DomainController.getPublicDomainProducts,
+  ProductController.get
 );
 
 router.get(
