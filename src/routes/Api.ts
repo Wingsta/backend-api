@@ -171,6 +171,13 @@ router.get(
 );
 
 router.get(
+  "/public/domain/:domain/all-products",
+
+  DomainController.getPublicDomainProducts,
+  ProductController.getAllProducts
+);
+
+router.get(
   "/public/domain/:domain/products",
 
   DomainController.getPublicDomainProducts,

@@ -116,6 +116,97 @@ class Products {
     }
   }
 
+  public static async getAllProducts(req: Request, res: Response, next: NextFunction) {
+    try {
+      let searchTerm = req.query.searchTerm as string;
+      let { companyId } = req.user as { companyId: string };
+      let {
+        limit = 10,
+        offset = 0,
+        sortBy = "addedDate",
+        sortType = "asc",
+        status,
+      } = req.query as unknown as {
+        limit: number;
+        offset: number;
+        sortBy: string;
+        sortType: string;
+        status: string;
+      };
+
+      if (limit) {
+        limit = parseInt(limit.toString());
+      }
+
+      if (offset) {
+        offset = parseInt(offset.toString());
+      }
+      let mongoQuery = { companyId } as any;
+
+      if (status) {
+        let statusTypes = status.split(",");
+        mongoQuery["status"] = { $in: statusTypes };
+      }
+      if (searchTerm) {
+        mongoQuery["$or"] = [
+          { sku: new RegExp(searchTerm, "i") },
+          { name: new RegExp(searchTerm, "i") },
+        ];
+      }
+
+      let products = await Product.find(mongoQuery)
+        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+        .skip(offset)
+        .limit(limit)
+        .lean();
+
+         let productsGrossing = await Product.find(mongoQuery)
+           .sort([['price',  -1]])
+           .skip(0)
+           .limit(10)
+           .lean();
+
+               let productsRecent = await Product.find(mongoQuery)
+                 .sort([["updatedAt", -1]])
+                 .skip(0)
+                 .limit(3)
+                 .lean();
+
+           
+      let totalCount = await Product.find(mongoQuery).count();
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      return res.json(
+        sendSuccessResponse({
+          totalCount,
+          currentPage: offset / limit + 1,
+          products,
+          productsGrossing,
+          productsRecent
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public static async getIdPosts(
     req: Request,
     res: Response,
