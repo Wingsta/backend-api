@@ -169,7 +169,7 @@ class Products {
                let productsRecent = await Product.find(mongoQuery)
                  .sort([["updatedAt", -1]])
                  .skip(0)
-                 .limit(3)
+                 .limit(5)
                  .lean();
 
            
