@@ -32,7 +32,11 @@ class CommonController {
     }
   }
 
-  public static async uploadForSoicalLink(req: Request, res: Response, next): Promise<any> {
+  public static async uploadForSocialLink(
+    req: Request,
+    res: Response,
+    next
+  ): Promise<any> {
     try {
       const myFile = req.file as any;
       let { companyId } = req.user as { companyId: string };

@@ -25,9 +25,9 @@ router.post(
 );
 
 router.post(
-  "/uploadForSoicalLink",
+  "/uploadForSocialLink",
   passport.authenticate("jwt", { session: false }),
-  CommonController.uploadForSoicalLink
+  CommonController.uploadForSocialLink
 );
 
 router.post(
