@@ -25,6 +25,12 @@ router.post(
 );
 
 router.post(
+  "/uploadForSoicalLink",
+  passport.authenticate("jwt", { session: false }),
+  CommonController.uploadForSoicalLink
+);
+
+router.post(
   "/bulkupload",
   passport.authenticate("jwt", { session: false }),
   ProductController.bulkUpload

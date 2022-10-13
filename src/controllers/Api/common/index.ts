@@ -10,19 +10,35 @@ import { Request, Response } from "express";
 import AccountUser from "../../../models/accountuser";
 import Company from '../../../models/company';
 import Locals from '../../../providers/Locals';
-import { uploadImage } from '../../../services/gcloud/upload';
+import {
+  uploadImage,
+  uploadImageForSocialLink,
+} from "../../../services/gcloud/upload";
 import { sendSuccessResponse } from '../../../services/response/sendresponse';
 
 class CommonController {
   public static async upload(req: Request, res: Response, next): Promise<any> {
     try {
-      
       const myFile = req.file as any;
       let { companyId } = req.user as { companyId: string };
       const imageUrl = await uploadImage(myFile, companyId);
       res.json(
         sendSuccessResponse({
-          
+          url: imageUrl,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async uploadForSoicalLink(req: Request, res: Response, next): Promise<any> {
+    try {
+      const myFile = req.file as any;
+      let { companyId } = req.user as { companyId: string };
+      const imageUrl = await uploadImageForSocialLink(myFile, companyId);
+      res.json(
+        sendSuccessResponse({
           url: imageUrl,
         })
       );
