@@ -103,7 +103,23 @@ class Products {
   public static async post(req: Request, res: Response, next: NextFunction) {
     try {
       let name = req.body.name as string;
-      let { companyId } = req.user as { companyId: string };
+      let constants =     [
+          "subdomain",
+          "auth",
+          "dashboard",
+          "product",
+          "instagram",
+          "subdomain",
+          "website",
+          "my-orders",
+          "payments",
+          "my-leads",
+          "analytics",
+        ]
+      if (constants.includes(req.body.name)){
+        return res.json(sendErrorResponse("restricted keywrod"));
+      }
+        let { companyId } = req.user as { companyId: string };
       let company = await Company.findOne({ _id: companyId }).lean();
 
       if (!company) {
