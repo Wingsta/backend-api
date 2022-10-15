@@ -49,7 +49,11 @@ class Products {
          "analytics",
        ];
        if (constants.includes(name)) {
-         return res.json(sendErrorResponse("Domain exists , try again."));
+             return res.json(
+               sendSuccessResponse({
+                 exists: true
+               })
+             );
        }
       let { companyId } = req.user as { companyId: string };
 
