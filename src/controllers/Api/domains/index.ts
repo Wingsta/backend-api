@@ -365,6 +365,23 @@ class Products {
         return res.json(sendErrorResponse("name not found", 1002));
       }
 
+       let constants = [
+         "subdomain",
+         "auth",
+         "dashboard",
+         "product",
+         "instagram",
+         "subdomain",
+         "website",
+         "my-orders",
+         "payments",
+         "my-leads",
+         "analytics",
+       ];
+       if (constants.includes(name)) {
+         return res.json(sendErrorResponse("restricted keywrod"));
+       }
+
       let mongoQuery = { [`meta.domainName`]: name } as any;
 
       let company = await Company.findOne(mongoQuery);
