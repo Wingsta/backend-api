@@ -33,6 +33,24 @@ class Products {
   public static async get(req: Request, res: Response, next: NextFunction) {
     try {
       let name = req.query.name as string;
+
+
+       let constants = [
+         "subdomain",
+         "auth",
+         "dashboard",
+         "product",
+         "instagram",
+         "subdomain",
+         "website",
+         "my-orders",
+         "payments",
+         "my-leads",
+         "analytics",
+       ];
+       if (constants.includes(name)) {
+         return res.json(sendErrorResponse("restricted keywrod"));
+       }
       let { companyId } = req.user as { companyId: string };
 
       let company = await Company.findOne({ _id: companyId }).lean();
