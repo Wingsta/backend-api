@@ -49,7 +49,7 @@ class Products {
          "analytics",
        ];
        if (constants.includes(name)) {
-         return res.json(sendErrorResponse("restricted keywrod"));
+         return res.json(sendErrorResponse("Domain exists , try again."));
        }
       let { companyId } = req.user as { companyId: string };
 
