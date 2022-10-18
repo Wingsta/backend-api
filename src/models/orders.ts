@@ -33,12 +33,14 @@ const OrderProducts = new Schema({
 export const OrderSchema = new mongoose.Schema<IOrder>(
   {
     companyId: { type: Types.ObjectId, ref: "Company" },
-    sku: { type: String },
-    name: { type: String },
+    products: [OrderProducts],
 
     userId: { type: Types.ObjectId, ref: "Profile" },
     status: { type: String },
     deliveryAddress: Address,
+    total: { type: Number },
+    tax: { type: Number },
+    totalAfterTax: { type: Number },
     paymentMethod: { type: String },
   },
   {

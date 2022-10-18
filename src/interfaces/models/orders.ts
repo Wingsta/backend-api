@@ -17,13 +17,20 @@ export interface IOrderProducts {
 
 export interface IOrder {
   _id: Types.ObjectId;
-  sku: string;
-  name: string;
-  
+
+  products: IOrderProducts[];
   userId: Types.ObjectId;
   companyId: Types.ObjectId;
-  status: 'COMPLETED' | 'DISPATCHED' | 'CONFIRMED' | 'PENDING' | 'CANCELLED' | string;
-  deliveryAddress : IAddress;
-  paymentMethod : 'CARD' | 'CASH' | 'UPI' | 'NET-BANKING' | 'FREE';
-  
+  status:
+    | "COMPLETED"
+    | "DISPATCHED"
+    | "CONFIRMED"
+    | "PENDING"
+    | "CANCELLED"
+    | string;
+  deliveryAddress: IAddress;
+  total : number;
+  tax : number;
+  totalAfterTax : number;
+  paymentMethod: "CARD" | "CASH" | "UPI" | "NET-BANKING" | "FREE";
 }

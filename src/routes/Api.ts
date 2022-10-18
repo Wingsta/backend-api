@@ -17,6 +17,8 @@ import AuthRefreshController from "../controllers/Api/Auth/RefreshToken";
 import DomainController from "../controllers/Api/domains/index";
 import ProfileController from "../controllers/Api/profile/index";
 import CartController from "../controllers/Api/cart/index";
+import OrderController from "../controllers/Api/orders/index";
+import AdminOrderController from "../controllers/Api/admin-orders/index";
 
 const router = Router();
 
@@ -172,6 +174,22 @@ router.post(
   DomainController.patchDomain
 );
 
+// admin orders
+
+router.get(
+  "/order/",
+  passport.authenticate("jwt", { session: false }),
+
+  AdminOrderController.getOrders
+);
+
+router.post(
+  "/order/updateStatus/:orderId",
+  passport.authenticate("jwt", { session: false }),
+
+  AdminOrderController.statusUpdate
+);
+
 /// profile 
 
 
@@ -234,19 +252,26 @@ router.delete(
 
 //// order
 
-// router.get(
-//   "/public/domain/:domain/order/",
-//   passport.authenticate("profile", { session: false }),
-//   DomainController.getPublicDomainMiddleWare,
-//   CartController.getCart
-// );
+router.get(
+  "/public/domain/:domain/order/",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  OrderController.getOrders
+);
 
-// router.post(
-//   "/public/domain/:domain/placeOrder",
-//   passport.authenticate("profile", { session: false }),
-//   DomainController.getPublicDomainMiddleWare,
-//   CartController.postCart
-// );
+router.post(
+  "/public/domain/:domain/placeOrder",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  OrderController.postOrder
+);
+
+router.post(
+  "/public/domain/:domain/updateStatus/:orderId",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  OrderController.statusUpdate
+);
 
 // router.patch(
 //   "/public/domain/:domain/deleteCartAll",

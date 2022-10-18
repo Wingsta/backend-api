@@ -42,9 +42,12 @@ class ProfileController {
         return res.json(sendErrorResponse("unauthorised"));
       }
 
+      
+
       let cartDetails = await Cart.find({
         userId: id,
       }).lean();
+
       if (cartDetails) {
         return res.json(
           sendSuccessResponse({
@@ -77,7 +80,7 @@ class ProfileController {
 
       let productDetails = await Product.findOne({
         _id: new ObjectId(cartDetails?.productId),
-        companyId : domain?.companyId,
+        companyId: new ObjectId(domain?.companyId),
       }).lean();
 console.log(
   { _id: new ObjectId(cartDetails?.productId), companyId: domain?.companyId },
