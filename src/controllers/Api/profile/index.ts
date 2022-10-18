@@ -96,7 +96,14 @@ class ProfileController {
         return res.json(sendErrorResponse("otp missing/incorrect"));
       }
 
-      let profile = await new Profile({
+      let profile = await  Profile.findOne({
+        mobile: mobile,
+        companyId: domain?.companyId,
+      }).lean();
+
+      
+      if(!profile?._id)
+       profile = await new Profile({
         mobile: mobile,
         companyId: domain?.companyId,
       }).save();
