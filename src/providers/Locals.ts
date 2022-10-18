@@ -19,6 +19,7 @@ class 	Locals {
 		const url = process.env.APP_URL || `http://localhost:${process.env.PORT}`;
 		const port = process.env.PORT || 4040;
 		const appSecret = process.env.APP_SECRET || 'This is your responsibility!';
+		const profileSecret = process.env.PROFILE_SECRET || "This is your responsibility!";
 		const mongooseUrl = process.env.MONGOOSE_URL;
 		const maxUploadLimit = process.env.APP_MAX_UPLOAD_LIMIT || '50mb';
 		const maxParameterLimit = process.env.APP_MAX_PARAMETER_LIMIT || '50mb';
@@ -45,28 +46,29 @@ class 	Locals {
 		const redisDB = process.env.REDIS_QUEUE_PREFIX || 3;
 
 		return {
-			appSecret,
-			apiPrefix,
-			company,
-			copyright,
-			description,
-			isCORSEnabled,
-			jwtExpiresIn,
-			keywords,
-			logDays,
-			maxUploadLimit,
-			maxParameterLimit,
-			mongooseUrl,
-			name,
-			port,
-			redisDB,
-			redisHttpPort,
-			redisHttpHost,
-			redisPrefix,
-			url,
-			queueMonitor,
-			queueMonitorHttpPort
-		};
+      appSecret,
+      apiPrefix,
+      company,
+      copyright,
+      description,
+      isCORSEnabled,
+      jwtExpiresIn,
+      keywords,
+      logDays,
+      maxUploadLimit,
+      maxParameterLimit,
+      mongooseUrl,
+      name,
+      port,
+      redisDB,
+      redisHttpPort,
+      redisHttpHost,
+      redisPrefix,
+      url,
+      queueMonitor,
+      queueMonitorHttpPort,
+      profileSecret,
+    };
 	}
 
 	/**

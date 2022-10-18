@@ -34,27 +34,26 @@ class Products {
     try {
       let name = req.query.name as string;
 
-
-       let constants = [
-         "subdomain",
-         "auth",
-         "dashboard",
-         "product",
-         "instagram",
-         "subdomain",
-         "website",
-         "my-orders",
-         "payments",
-         "my-leads",
-         "analytics",
-       ];
-       if (constants.includes(name)) {
-             return res.json(
-               sendSuccessResponse({
-                 exists: true
-               })
-             );
-       }
+      let constants = [
+        "subdomain",
+        "auth",
+        "dashboard",
+        "product",
+        "instagram",
+        "subdomain",
+        "website",
+        "my-orders",
+        "payments",
+        "my-leads",
+        "analytics",
+      ];
+      if (constants.includes(name)) {
+        return res.json(
+          sendSuccessResponse({
+            exists: true,
+          })
+        );
+      }
       let { companyId } = req.user as { companyId: string };
 
       let company = await Company.findOne({ _id: companyId }).lean();
@@ -125,23 +124,23 @@ class Products {
   public static async post(req: Request, res: Response, next: NextFunction) {
     try {
       let name = req.body.name as string;
-      let constants =     [
-          "subdomain",
-          "auth",
-          "dashboard",
-          "product",
-          "instagram",
-          "subdomain",
-          "website",
-          "my-orders",
-          "payments",
-          "my-leads",
-          "analytics",
-        ]
-      if (constants.includes(req.body.name)){
+      let constants = [
+        "subdomain",
+        "auth",
+        "dashboard",
+        "product",
+        "instagram",
+        "subdomain",
+        "website",
+        "my-orders",
+        "payments",
+        "my-leads",
+        "analytics",
+      ];
+      if (constants.includes(req.body.name)) {
         return res.json(sendErrorResponse("restricted keywrod"));
       }
-        let { companyId } = req.user as { companyId: string };
+      let { companyId } = req.user as { companyId: string };
       let company = await Company.findOne({ _id: companyId }).lean();
 
       if (!company) {
@@ -223,8 +222,6 @@ class Products {
         return res.json(sendErrorResponse("not a domain object"));
       }
 
-      console.log(domain, "do");
-
       let update = await Domain.updateOne(
         { _id: domainId },
         { $set: { metaData: domain.metaData } },
@@ -252,14 +249,15 @@ class Products {
         return res.json(sendErrorResponse("not a meta object"));
       }
 
-      let domainMeta = (await Domain.findOne({ _id: domainId }).lean())?.metaData;
+      let domainMeta = (await Domain.findOne({ _id: domainId }).lean())
+        ?.metaData;
 
-      if(!domainMeta){
-        domainMeta = {}
+      if (!domainMeta) {
+        domainMeta = {};
       }
       let update = await Domain.updateOne(
         { _id: domainId },
-        { $set: { metaData: { ...domainMeta,...meta, } } },
+        { $set: { metaData: { ...domainMeta, ...meta } } },
         { upsert: true }
       );
 
@@ -305,6 +303,21 @@ class Products {
     next: NextFunction
   ) {
     try {
+      let domain = req.body.domain;
+
+      if (domain) return res.json(sendSuccessResponse(domain));
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getDomainMiddleWare(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
       let domainId = req.params.domain;
       let { companyId } = req.user as { companyId: string };
 
@@ -322,7 +335,10 @@ class Products {
 
         domain.metaData.popularProducts = products;
       }
-      if (domain) return res.json(sendSuccessResponse(domain));
+      if (domain) {
+        req.body.domain = domain;
+        return next();
+      }
       return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {
       next(error);
@@ -375,6 +391,31 @@ class Products {
     }
   }
 
+  public static async getPublicDomainMiddleWare(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let name = req.params.domain as string;
+
+      if (!name) {
+        return res.json(sendErrorResponse("name not found", 1002));
+      }
+
+      let data = await getDomain(name);
+
+      if(data && data?.data){
+        req.body.domain = data?.data;
+        return next()
+      }
+
+      return res.json(sendErrorResponse("domain not found", 1002));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public static async checkSubdomain(
     req: Request,
     res: Response,
@@ -387,22 +428,22 @@ class Products {
         return res.json(sendErrorResponse("name not found", 1002));
       }
 
-       let constants = [
-         "subdomain",
-         "auth",
-         "dashboard",
-         "product",
-         "instagram",
-         "subdomain",
-         "website",
-         "my-orders",
-         "payments",
-         "my-leads",
-         "analytics",
-       ];
-       if (constants.includes(name)) {
-         return res.json(sendErrorResponse("restricted keywrod"));
-       }
+      let constants = [
+        "subdomain",
+        "auth",
+        "dashboard",
+        "product",
+        "instagram",
+        "subdomain",
+        "website",
+        "my-orders",
+        "payments",
+        "my-leads",
+        "analytics",
+      ];
+      if (constants.includes(name)) {
+        return res.json(sendErrorResponse("restricted keywrod"));
+      }
 
       let mongoQuery = { [`meta.domainName`]: name } as any;
 

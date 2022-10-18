@@ -6,5 +6,5 @@ public/static
 *.marko.js
 .env.example
 .logs/*.log
-gcloud-key.json
+
 dist/

@@ -15,6 +15,8 @@ import CommonController from "../controllers/Api/common/index";
 import ProductController from "../controllers/Api/products/index";
 import AuthRefreshController from "../controllers/Api/Auth/RefreshToken";
 import DomainController from "../controllers/Api/domains/index";
+import ProfileController from "../controllers/Api/profile/index";
+import CartController from "../controllers/Api/cart/index";
 
 const router = Router();
 
@@ -148,6 +150,7 @@ router.get(
 router.get(
   "/domain/:domain",
   passport.authenticate("jwt", { session: false }),
+  DomainController.getDomainMiddleWare,
   DomainController.getDomain
 );
 
@@ -169,6 +172,101 @@ router.post(
   DomainController.patchDomain
 );
 
+/// profile 
+
+
+router.get(
+  "/public/domain/:domain/profile",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  ProfileController.getProfile
+);
+
+router.post(
+  "/public/domain/:domain/verifyProfile/:mobile",
+  DomainController.getPublicDomainMiddleWare,
+  ProfileController.verifyProfile
+);
+
+router.post(
+  "/public/domain/:domain/profile",
+  DomainController.getPublicDomainMiddleWare,
+  ProfileController.postProfile
+);
+
+router.patch(
+  "/public/domain/:domain/profile",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  ProfileController.patchProfile
+);
+
+//// cart 
+
+router.get(
+  "/public/domain/:domain/cart/",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  CartController.getCart
+);
+
+router.post(
+  "/public/domain/:domain/sendToCart",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  CartController.postCart
+);
+
+router.delete(
+  "/public/domain/:domain/deleteCartAll",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  CartController.deleteCartAll
+);
+
+router.delete(
+  "/public/domain/:domain/deleteCart",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  CartController.deleteCart
+);
+
+
+//// order
+
+// router.get(
+//   "/public/domain/:domain/order/",
+//   passport.authenticate("profile", { session: false }),
+//   DomainController.getPublicDomainMiddleWare,
+//   CartController.getCart
+// );
+
+// router.post(
+//   "/public/domain/:domain/placeOrder",
+//   passport.authenticate("profile", { session: false }),
+//   DomainController.getPublicDomainMiddleWare,
+//   CartController.postCart
+// );
+
+// router.patch(
+//   "/public/domain/:domain/deleteCartAll",
+//   passport.authenticate("profile", { session: false }),
+//   DomainController.getPublicDomainMiddleWare,
+//   CartController.deleteCartAll
+// );
+
+// router.delete(
+//   "/public/domain/:domain/deleteCart",
+//   passport.authenticate("profile", { session: false }),
+//   DomainController.getPublicDomainMiddleWare,
+//   CartController.deleteCart
+// );
+
+
+// router.delete(
+//   "/public/domain/:domain/profile/:profile",
+//   DomainController.getPublicDomainMiddleWare
+// );
 router.get(
   "/public/domain/:domain/products/:skuId",
 
@@ -198,7 +296,6 @@ router.get(
 
 router.get(
   "/domain/check/:domain",
-
   DomainController.checkSubdomain
 );
 
