@@ -228,6 +228,13 @@ router.get(
   CartController.getCart
 );
 
+router.get(
+  "/public/domain/:domain/cart/count",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  CartController.getCartCount
+);
+
 router.post(
   "/public/domain/:domain/sendToCart",
   passport.authenticate("profile", { session: false }),
@@ -253,11 +260,20 @@ router.delete(
 //// order
 
 router.get(
+  "/public/domain/:domain/order/count",
+  passport.authenticate("profile", { session: false }),
+  DomainController.getPublicDomainMiddleWare,
+  OrderController.getOrders
+);
+
+router.get(
   "/public/domain/:domain/order/",
   passport.authenticate("profile", { session: false }),
   DomainController.getPublicDomainMiddleWare,
   OrderController.getOrders
 );
+
+
 
 router.post(
   "/public/domain/:domain/placeOrder",

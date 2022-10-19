@@ -67,6 +67,39 @@ class ProfileController {
       next(error);
     }
   }
+
+  public static async getOrdersCount(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let domain = req.body.domain as IDomain;
+      let { id, companyId } = req.user as { companyId: string; id: string };
+
+      if (!id) {
+        return res.json(sendErrorResponse("unauthorised"));
+      }
+      console.log(companyId);
+
+      let orderDetails = await Order.count({
+        userId: new ObjectId(id),
+        companyId: new ObjectId(domain?.companyId),
+      })
+
+      if (orderDetails !== undefined) {
+        return res.json(
+          sendSuccessResponse({
+            count : orderDetails,
+          })
+        );
+      }
+
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
   public static async postOrder(
     req: Request,
     res: Response,
@@ -175,7 +208,7 @@ class ProfileController {
     try {
       let domain = req.body.domain as IDomain;
       let orderId = req.params.orderId as string;
-    
+
       let status = req.body.status as string;
 
       let { id, companyId } = req.user as { companyId: string; id: string };
@@ -184,15 +217,18 @@ class ProfileController {
         return res.json(sendErrorResponse("unauthorised"));
       }
 
-      if (!status ) {
+      if (!status) {
         return res.json(sendErrorResponse("status needed"));
       }
 
-     
-      let update = await Order.updateOne({companyId : domain?.companyId,_id : new ObjectId(orderId)},{$set : {status}},{upsert : true})
+      let update = await Order.updateOne(
+        { companyId: domain?.companyId, _id: new ObjectId(orderId) },
+        { $set: { status } },
+        { upsert: true }
+      );
 
-      if(update?.ok){
-        return res.json(sendSuccessResponse({message : "updated status"}));
+      if (update?.ok) {
+        return res.json(sendSuccessResponse({ message: "updated status" }));
       }
       return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {

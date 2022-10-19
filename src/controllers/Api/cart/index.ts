@@ -42,8 +42,6 @@ class ProfileController {
         return res.json(sendErrorResponse("unauthorised"));
       }
 
-      
-
       let cartDetails = await Cart.find({
         userId: id,
       }).lean();
@@ -52,6 +50,31 @@ class ProfileController {
         return res.json(
           sendSuccessResponse({
             cartDetails,
+          })
+        );
+      }
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getCartCount(req: Request, res: Response, next: NextFunction) {
+    try {
+      let { id } = req.user as { companyId: string; id: string };
+
+      if (!id) {
+        return res.json(sendErrorResponse("unauthorised"));
+      }
+
+      let cartDetails = await Cart.count({
+        userId: id,
+      })
+
+      if (cartDetails !== undefined) {
+        return res.json(
+          sendSuccessResponse({
+           count :  cartDetails,
           })
         );
       }
@@ -82,24 +105,32 @@ class ProfileController {
         _id: new ObjectId(cartDetails?.productId),
         companyId: new ObjectId(domain?.companyId),
       }).lean();
-console.log(
-  { _id: new ObjectId(cartDetails?.productId), companyId: domain?.companyId },
-  domain
-);
-      if (!productDetails){
+      console.log(
+        {
+          _id: new ObjectId(cartDetails?.productId),
+          companyId: domain?.companyId,
+        },
+        domain
+      );
+      if (!productDetails) {
         return res.json(sendErrorResponse("productDetails not found"));
       }
+      let previousCart = await Cart.findOne({
+        productId: cartDetails?.productId,
+        userId: id,
+      }).lean();
 
-        let cart = await Cart.updateOne(
-          { productId: cartDetails?.productId, userId: id },
-          {
-            userId: id,
-            name : productDetails?.name,
-            sku : productDetails?.sku,
-            ...cartDetails,
-          },
-          { upsert: true }
-        );
+      let cart = await Cart.updateOne(
+        { productId: cartDetails?.productId, userId: id },
+        {
+          userId: id,
+          name: productDetails?.name,
+          sku: productDetails?.sku,
+          ...cartDetails,
+          quantity : (previousCart?.quantity || 0) + (cartDetails?.quantity || 0)
+        },
+        { upsert: true }
+      );
 
       if (cart?.ok) {
         return res.json(
@@ -108,6 +139,8 @@ console.log(
             details: {
               userId: id,
               ...cartDetails,
+              quantity:
+                (previousCart?.quantity || 0) + (cartDetails?.quantity || 0),
             },
           })
         );
@@ -124,7 +157,6 @@ console.log(
     next: NextFunction
   ) {
     try {
-
       let { id } = req.user as { companyId: string; id: string };
 
       if (!id) {
@@ -132,7 +164,6 @@ console.log(
       }
 
       let cart = await Cart.deleteMany({
-        
         userId: id,
       });
 
