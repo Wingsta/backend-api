@@ -44,7 +44,9 @@ class ProfileController {
 
       let cartDetails = await Cart.find({
         userId: id,
-      }).lean();
+      })
+        .populate("productId")
+        .lean();
 
       if (cartDetails) {
         return res.json(
