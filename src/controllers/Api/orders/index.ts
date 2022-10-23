@@ -13,7 +13,7 @@ import * as bcrypt from "bcryptjs";
 import * as typeCheckService from "../../../services/validations/typecheck";
 // import { Types  } from "mongoose";
 import Locals from "../../../providers/Locals";
-import { ObjectId } from "mongodb";
+import { ObjectID, ObjectId } from "mongodb";
 
 import axios, { AxiosRequestConfig } from "axios";
 
@@ -41,7 +41,7 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain as IDomain;
+      
       let { id, companyId } = req.user as { companyId: string; id: string };
 
       if (!id) {
@@ -51,7 +51,7 @@ class ProfileController {
 
       let orderDetails = await Order.find({
         userId: new ObjectId(id),
-        companyId: new ObjectId(domain?.companyId),
+        companyId: new ObjectId(companyId),
       }).lean();
 
       if (orderDetails) {
@@ -74,17 +74,17 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain as IDomain;
+      
       let { id, companyId } = req.user as { companyId: string; id: string };
 
       if (!id) {
         return res.json(sendErrorResponse("unauthorised"));
       }
-      console.log(companyId);
+      
 
       let orderDetails = await Order.count({
         userId: new ObjectId(id),
-        companyId: new ObjectId(domain?.companyId),
+        companyId: new ObjectId(companyId),
       })
 
       if (orderDetails !== undefined) {
@@ -106,7 +106,7 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain as IDomain;
+      
       let cartId = req.body.cartId as string[];
       let deliveryAddress = req.body.deliveryAddress as IAddress;
       let paymentMethod = req.body.paymentMethod;
@@ -130,6 +130,7 @@ class ProfileController {
       if (cartId?.length) {
         query = { _id: { $in: cartId.map((it) => new ObjectId(it)) } };
       }
+      let cartIdFound = [] as string[]
       let products = (
         await Cart.find({
           ...query,
@@ -139,7 +140,7 @@ class ProfileController {
           .lean()
       )?.map((it) => {
         let product = it?.productId as any as IProducts;
-
+        cartIdFound.push(it._id)
         return {
           name: product?.name,
           sku: product?.sku,
@@ -150,10 +151,10 @@ class ProfileController {
         };
       });
 
-      let total = products.reduce((a, b) => {
+      let total = products?.length ? products.reduce((a, b) => {
         a.price = (a?.price || 0) + (b?.price || 0);
         return a;
-      })?.price;
+      })?.price : 0;
       let tax = total * 0.28;
       let totalAfterTax = (total + tax).toFixed(2);
 
@@ -176,7 +177,7 @@ class ProfileController {
 
       let order = await new Order({
         userId: new ObjectId(id),
-        companyId: domain?.companyId,
+        companyId: companyId,
         products: products,
         status: "PENDING",
         total,
@@ -187,6 +188,7 @@ class ProfileController {
       }).save();
 
       if (order?._id) {
+        await Cart.deleteMany({ _id: { $in: cartIdFound.map(it => new ObjectID(it)) } });
         return res.json(
           sendSuccessResponse({
             ...order.toJSON(),
@@ -206,7 +208,7 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain as IDomain;
+      
       let orderId = req.params.orderId as string;
 
       let status = req.body.status as string;
@@ -222,7 +224,7 @@ class ProfileController {
       }
 
       let update = await Order.updateOne(
-        { companyId: domain?.companyId, _id: new ObjectId(orderId) },
+        { companyId: companyId, _id: new ObjectId(orderId) },
         { $set: { status } },
         { upsert: true }
       );

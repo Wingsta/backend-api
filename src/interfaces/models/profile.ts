@@ -12,6 +12,9 @@ export interface IAddress {
   city: string;
   state: string;
   pincode: string;
+  landmark: string;
+  default: boolean;
+  country: boolean;
 }
 export interface IUserProfile {
   _id: Types.ObjectId;

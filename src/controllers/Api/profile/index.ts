@@ -29,7 +29,7 @@ import { uploadImage } from "../../../services/gcloud/upload";
 import Domain from "../../../models/domain";
 import { IDomain } from "../../../interfaces/models/domains";
 import Profile from "../../../models/profile";
-import { IUserProfile } from "../../../interfaces/models/profile";
+import { IAddress, IUserProfile } from "../../../interfaces/models/profile";
 
 class ProfileController {
   public static async getProfile(
@@ -92,21 +92,19 @@ class ProfileController {
       }
 
       if (!otp || otp !== "123456") {
-        
         return res.json(sendErrorResponse("otp missing/incorrect"));
       }
 
-      let profile = await  Profile.findOne({
+      let profile = await Profile.findOne({
         mobile: mobile,
         companyId: domain?.companyId,
       }).lean();
 
-      
-      if(!profile?._id)
-       profile = await new Profile({
-        mobile: mobile,
-        companyId: domain?.companyId,
-      }).save();
+      if (!profile?._id)
+        profile = await new Profile({
+          mobile: mobile,
+          companyId: domain?.companyId,
+        }).save();
 
       if (profile?._id) {
         const token = jwt.sign(
@@ -136,22 +134,19 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain as IDomain;
+      
       let profile = (req.user as any)?.id as string;
+      let companyId = (req.user as any)?.companyId as string;
       let profilePatchDetails = req.body.profile as IUserProfile;
-      if (!domain) {
-        return res.json(sendErrorResponse("domainId needed"));
-      }
-
+   
       if (!profile || !profilePatchDetails) {
         return res.json(sendErrorResponse("profileId needed"));
       }
 
       let profileDetails = await Profile.findOne({
         _id: profile,
-        companyId: domain?.companyId,
+        companyId: companyId,
       }).lean();
-      
 
       if (profileDetails?._id) {
         let id = profileDetails?._id;
@@ -170,6 +165,86 @@ class ProfileController {
               message: "account updated",
               _id: id,
               profileDetails: { ...profileDetails, ...profilePatchDetails },
+            })
+          );
+      }
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async postAddress(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      
+      let profile = (req.user as any)?.id as string;
+
+      let address = req.body.address as IAddress;
+   
+
+      if ( !address) {
+        return res.json(sendErrorResponse("address needed"));
+      }
+
+      if (profile) {
+        let id = profile;
+
+        let update = await Profile.updateOne(
+          { _id: id },
+          { $push: { address } },
+          { upsert: true }
+        );
+
+        if (!!update.ok)
+          return res.json(
+            sendSuccessResponse({
+              message: "address added",
+            })
+          );
+      }
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async patchAddress(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      
+      let profile = (req.user as any)?.id as string;
+      let addressId = req.params.addressId as string;
+      let address = req.body.address as IAddress;
+    
+
+      if ( !address) {
+        return res.json(sendErrorResponse("address needed"));
+      }
+
+         if (!addressId) {
+           return res.json(sendErrorResponse("addressId needed"));
+         }
+
+      if (profile) {
+        let id = profile;
+
+        let update = await Profile.updateOne(
+          { _id: id, "address._id": addressId },
+          { $set: {address : {_id : addressId,...address} }},
+          { upsert: true }
+        );
+
+        if (!!update.ok)
+          return res.json(
+            sendSuccessResponse({
+              message: "address updated",
             })
           );
       }

@@ -13,7 +13,7 @@ import * as bcrypt from "bcryptjs";
 import * as typeCheckService from "../../../services/validations/typecheck";
 // import { Types  } from "mongoose";
 import Locals from "../../../providers/Locals";
-import { ObjectId } from "mongodb";
+import { ObjectID, ObjectId } from "mongodb";
 
 import axios, { AxiosRequestConfig } from "axios";
 
@@ -69,11 +69,40 @@ class ProfileController {
         return res.json(sendErrorResponse("unauthorised"));
       }
 
-      let cartDetails = await Cart.count({
-        userId: id,
-      })
+      let cartDetails = (await Cart.aggregate([
+        {
+          $match: {
+            userId: new ObjectID(id),
+          },
+        },
+        {
+          $group: {
+            _id: {},
+            quantity: {
+              $sum: "$quantity",
+            },
+          },
+        },
+      ]))?.[0]?.quantity;
 
-      if (cartDetails !== undefined) {
+      console.log(
+        await Cart.aggregate([
+          {
+            $match: {
+              userId: id,
+            },
+          },
+          {
+            $group: {
+              _id: {},
+              quantity: {
+                $sum: "$quantity",
+              },
+            },
+          },
+        ])
+      );
+      if (cartDetails !== undefined ) {
         return res.json(
           sendSuccessResponse({
            count :  cartDetails,
@@ -91,7 +120,7 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain as IDomain;
+      
       let cartDetails = req.body.cartDetails as ICart;
       let { id, companyId } = req.user as { companyId: string; id: string };
 
@@ -105,14 +134,14 @@ class ProfileController {
 
       let productDetails = await Product.findOne({
         _id: new ObjectId(cartDetails?.productId),
-        companyId: new ObjectId(domain?.companyId),
+        companyId: new ObjectId(companyId),
       }).lean();
       console.log(
         {
           _id: new ObjectId(cartDetails?.productId),
-          companyId: domain?.companyId,
+          companyId: companyId,
         },
-        domain
+        
       );
       if (!productDetails) {
         return res.json(sendErrorResponse("productDetails not found"));

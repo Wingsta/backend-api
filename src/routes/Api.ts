@@ -194,9 +194,9 @@ router.post(
 
 
 router.get(
-  "/public/domain/:domain/profile",
+  "/public/profile",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   ProfileController.getProfile
 );
 
@@ -213,46 +213,60 @@ router.post(
 );
 
 router.patch(
-  "/public/domain/:domain/profile",
+  "/public/profile",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   ProfileController.patchProfile
+);
+
+router.post(
+  "/public/profile/address",
+  passport.authenticate("profile", { session: false }),
+  
+  ProfileController.postAddress
+);
+
+router.patch(
+  "/public/profile/address/:addressId",
+  passport.authenticate("profile", { session: false }),
+  
+  ProfileController.patchAddress
 );
 
 //// cart 
 
 router.get(
-  "/public/domain/:domain/cart/",
+  "/public/cart/",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   CartController.getCart
 );
 
 router.get(
-  "/public/domain/:domain/cart/count",
+  "/public/cart/count",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   CartController.getCartCount
 );
 
 router.post(
-  "/public/domain/:domain/sendToCart",
+  "/public/cart/add",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   CartController.postCart
 );
 
 router.delete(
-  "/public/domain/:domain/deleteCartAll",
+  "/public/cart/deleteAll",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   CartController.deleteCartAll
 );
 
 router.delete(
-  "/public/domain/:domain/deleteCart",
+  "/public/cart/delete",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   CartController.deleteCart
 );
 
@@ -260,32 +274,32 @@ router.delete(
 //// order
 
 router.get(
-  "/public/domain/:domain/order/count",
+  "/public/order/count",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
-  OrderController.getOrders
+  
+  OrderController.getOrdersCount
 );
 
 router.get(
-  "/public/domain/:domain/order/",
+  "/public/order/",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   OrderController.getOrders
 );
 
 
 
 router.post(
-  "/public/domain/:domain/placeOrder",
+  "/public/order/placeOrder",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   OrderController.postOrder
 );
 
 router.post(
-  "/public/domain/:domain/updateStatus/:orderId",
+  "/public/order/updateStatus/:orderId",
   passport.authenticate("profile", { session: false }),
-  DomainController.getPublicDomainMiddleWare,
+  
   OrderController.statusUpdate
 );
 

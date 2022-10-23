@@ -20,6 +20,9 @@ const Address = new Schema({
   city: { type: String },
   state: { type: String },
   pincode: { type: String },
+  landmark: { type: String },
+  default: { type: Boolean , default : false},
+  country: { type: String, default : "India" },
 });
 // Define the Profile Schema
 export const ProfileSchema = new mongoose.Schema<IUserProfile>(
