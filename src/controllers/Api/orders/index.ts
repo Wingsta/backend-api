@@ -152,7 +152,8 @@ class ProfileController {
       });
 
       let total = products?.length ? products.reduce((a, b) => {
-        a.price = (a?.price || 0) + (b?.price || 0);
+        a.price =
+          (a?.quantity || 1) * (a?.price || 0) + (b?.quantity || 1)  * (b?.price || 0);
         return a;
       })?.price : 0;
       let tax = total * 0.28;

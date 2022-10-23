@@ -108,6 +108,12 @@ class ProfileController {
            count :  cartDetails,
           })
         );
+      }else {
+          return res.json(
+            sendSuccessResponse({
+              count: 0,
+            })
+          );
       }
       return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {
@@ -163,11 +169,18 @@ class ProfileController {
         { upsert: true }
       );
 
+        let finalValue = await Cart.findOne({
+          productId: cartDetails?.productId,
+          userId: id,
+        }).lean();
+
+      
       if (cart?.ok) {
         return res.json(
           sendSuccessResponse({
             message: "cart updated",
             details: {
+              _id : finalValue?._id,
               userId: id,
               ...cartDetails,
               quantity:
