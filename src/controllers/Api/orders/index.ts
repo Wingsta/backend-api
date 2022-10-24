@@ -151,11 +151,16 @@ class ProfileController {
         };
       });
 
-      let total = products?.length ? products.reduce((a, b) => {
+      console.log(products)
+      const reducedProduct = products.reduce((a, b) => {
+        
         a.price =
-          (a?.quantity || 1) * (a?.price || 0) + (b?.quantity || 1)  * (b?.price || 0);
+          ((a?.quantity || 1) * (a?.price || 0)) + ((b?.quantity || 1) * (b?.price || 0));
         return a;
-      })?.price : 0;
+      });
+      let total = products?.length
+        ? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
+        : 0;
       let tax = total * 0.28;
       let totalAfterTax = (total + tax).toFixed(2);
 
