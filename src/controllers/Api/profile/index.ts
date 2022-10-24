@@ -193,6 +193,15 @@ class ProfileController {
       if (profile) {
         let id = profile;
 
+         if (address.default) {
+          
+           await Profile.updateOne(
+             { _id: id, "address" : {$exists : true} },
+             { $set: { "address.$.default": false } },
+             { upsert: true }
+           );
+         }
+         
         let update = await Profile.updateOne(
           { _id: id },
           { $push: { address } },
@@ -239,9 +248,9 @@ class ProfileController {
 
         if(address.default){
           await Profile.updateOne(
-            { _id: id },
+            { _id: id, address: { $exists: true } },
             { $set: { "address.$.default": false } },
-            {upsert : true}
+            { upsert: true }
           );
         }
 
