@@ -85,23 +85,6 @@ class ProfileController {
         },
       ]))?.[0]?.quantity;
 
-      console.log(
-        await Cart.aggregate([
-          {
-            $match: {
-              userId: id,
-            },
-          },
-          {
-            $group: {
-              _id: {},
-              quantity: {
-                $sum: "$quantity",
-              },
-            },
-          },
-        ])
-      );
       if (cartDetails !== undefined ) {
         return res.json(
           sendSuccessResponse({
