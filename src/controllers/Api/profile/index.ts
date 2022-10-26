@@ -51,6 +51,7 @@ class ProfileController {
       if (profileDetails?._id) {
         const token = jwt.sign(
           {
+            name: profileDetails?.name,
             mobile: profileDetails.mobile,
             id: profileDetails?._id,
             companyId: companyId,
@@ -109,6 +110,7 @@ class ProfileController {
       if (profile?._id) {
         const token = jwt.sign(
           {
+            name: profile?.name,
             mobile: profile.mobile,
             id: profile?._id,
             companyId: domain?.companyId,
@@ -196,9 +198,12 @@ class ProfileController {
          if (address.default) {
           
            await Profile.updateOne(
-             { _id: id, "address" : {$exists : true} },
+             { 
+              _id: id, 
+              "address.default" : {$exists : true} 
+            },
              { $set: { "address.$.default": false } },
-             { upsert: true }
+            //  { upsert: true }
            );
          }
          
