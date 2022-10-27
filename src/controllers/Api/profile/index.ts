@@ -121,7 +121,11 @@ class ProfileController {
           }
         );
         return res.json(
-          sendSuccessResponse({ message: "account created", token: token })
+          sendSuccessResponse({
+            message: "account created",
+            token: token,
+            profile,
+          })
         );
       }
       return res.json(sendErrorResponse("something went wrong"));
@@ -261,7 +265,7 @@ class ProfileController {
 
         let update = await Profile.updateOne(
           { _id: id, "address._id": addressId },
-          { $set: {address : {_id : addressId,...address} }},
+          { $set: {"address.$" : {_id : addressId,...address} }},
           { upsert: true }
         );
 

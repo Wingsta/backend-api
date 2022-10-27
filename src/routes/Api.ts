@@ -256,6 +256,13 @@ router.post(
   CartController.postCart
 );
 
+router.post(
+  "/public/cart/alter",
+  passport.authenticate("profile", { session: false }),
+
+  CartController.alterCart
+);
+
 router.delete(
   "/public/cart/deleteAll",
   passport.authenticate("profile", { session: false }),

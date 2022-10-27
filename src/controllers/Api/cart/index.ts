@@ -61,7 +61,11 @@ class ProfileController {
     }
   }
 
-  public static async getCartCount(req: Request, res: Response, next: NextFunction) {
+  public static async getCartCount(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       let { id } = req.user as { companyId: string; id: string };
 
@@ -69,47 +73,48 @@ class ProfileController {
         return res.json(sendErrorResponse("unauthorised"));
       }
 
-      let cartDetails = (await Cart.aggregate([
-        {
-          $match: {
-            userId: new ObjectID(id),
-          },
-        },
-        {
-          $group: {
-            _id: {},
-            quantity: {
-              $sum: "$quantity",
+      let cartDetails = (
+        await Cart.aggregate([
+          {
+            $match: {
+              userId: new ObjectID(id),
             },
           },
-        },
-      ]))?.[0]?.quantity;
+          {
+            $group: {
+              _id: {},
+              quantity: {
+                $sum: "$quantity",
+              },
+            },
+          },
+        ])
+      )?.[0]?.quantity;
 
-      if (cartDetails !== undefined ) {
+      if (cartDetails !== undefined) {
         return res.json(
           sendSuccessResponse({
-           count :  cartDetails,
+            count: cartDetails,
           })
         );
-      }else {
-          return res.json(
-            sendSuccessResponse({
-              count: 0,
-            })
-          );
+      } else {
+        return res.json(
+          sendSuccessResponse({
+            count: 0,
+          })
+        );
       }
       return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {
       next(error);
     }
   }
-  public static async postCart(
+  public static async alterCart(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      
       let cartDetails = req.body.cartDetails as ICart;
       let { id, companyId } = req.user as { companyId: string; id: string };
 
@@ -125,20 +130,15 @@ class ProfileController {
         _id: new ObjectId(cartDetails?.productId),
         companyId: new ObjectId(companyId),
       }).lean();
-      console.log(
-        {
-          _id: new ObjectId(cartDetails?.productId),
-          companyId: companyId,
-        },
-        
-      );
+    
       if (!productDetails) {
         return res.json(sendErrorResponse("productDetails not found"));
       }
-      let previousCart = await Cart.findOne({
-        productId: cartDetails?.productId,
-        userId: id,
-      }).lean();
+
+        if ( (cartDetails?.quantity || 0) > 50) {
+          return res.json(sendErrorResponse("quantity exceeded", "2050"));
+        }
+    
 
       let cart = await Cart.updateOne(
         { productId: cartDetails?.productId, userId: id },
@@ -147,23 +147,99 @@ class ProfileController {
           name: productDetails?.name,
           sku: productDetails?.sku,
           ...cartDetails,
-          quantity : (previousCart?.quantity || 0) + (cartDetails?.quantity || 0)
+          quantity:
+            (cartDetails?.quantity || 0),
         },
-        { upsert: true }
+        { upsert: true ,
+                
+        }
       );
 
-        let finalValue = await Cart.findOne({
-          productId: cartDetails?.productId,
-          userId: id,
-        }).lean();
+      let finalValue = await Cart.findOne({
+        productId: cartDetails?.productId,
+        userId: id,
+      }).lean();
 
-      
       if (cart?.ok) {
         return res.json(
           sendSuccessResponse({
             message: "cart updated",
             details: {
-              _id : finalValue?._id,
+              _id: finalValue?._id,
+              userId: id,
+              ...cartDetails,
+              quantity:
+                (cartDetails?.quantity || 0),
+            },
+          })
+        );
+      }
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async postCart(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let cartDetails = req.body.cartDetails as ICart;
+      let { id, companyId } = req.user as { companyId: string; id: string };
+
+      if (!cartDetails) {
+        return res.json(sendErrorResponse("cartDetails needed"));
+      }
+
+      if (!id) {
+        return res.json(sendErrorResponse("unauthorised"));
+      }
+
+      let productDetails = await Product.findOne({
+        _id: new ObjectId(cartDetails?.productId),
+        companyId: new ObjectId(companyId),
+      }).lean();
+      console.log({
+        _id: new ObjectId(cartDetails?.productId),
+        companyId: companyId,
+      });
+      if (!productDetails) {
+        return res.json(sendErrorResponse("productDetails not found"));
+      }
+      let previousCart = await Cart.findOne({
+        productId: cartDetails?.productId,
+        userId: id,
+      }).lean();
+
+      if ((previousCart?.quantity || 0) + (cartDetails?.quantity || 0) > 50){
+        return res.json(sendErrorResponse("quantity exceeded", "2050"));
+      }
+        let cart = await Cart.updateOne(
+          { productId: cartDetails?.productId, userId: id },
+          {
+            userId: id,
+            name: productDetails?.name,
+            sku: productDetails?.sku,
+            ...cartDetails,
+            quantity:
+              (previousCart?.quantity || 0) + (cartDetails?.quantity || 0),
+          },
+          { upsert: true }
+        );
+
+      let finalValue = await Cart.findOne({
+        productId: cartDetails?.productId,
+        userId: id,
+      }).lean();
+
+      if (cart?.ok) {
+        return res.json(
+          sendSuccessResponse({
+            message: "cart updated",
+            details: {
+              _id: finalValue?._id,
               userId: id,
               ...cartDetails,
               quantity:
