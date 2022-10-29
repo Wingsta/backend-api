@@ -47,14 +47,14 @@ class ProfileController {
       if (!companyId) {
         return res.json(sendErrorResponse("unauthorised"));
       }
-console.log(companyId)
+
       let {
         limit = 10,
         offset = 0,
         startDate,
         endDate,
         sortBy = "createdAt",
-        sortType = "asc",
+        sortType = "desc",
         status,
       } = req.query as unknown as {
         limit: number;
