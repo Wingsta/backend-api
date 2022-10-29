@@ -96,10 +96,14 @@ class ProfileController {
         .populate("userId")
         .lean();
 
+      let count = await Order.count(mongoQuery)
+        
+
       if (orderDetails) {
         return res.json(
           sendSuccessResponse({
             orderDetails,
+            count,
           })
         );
       }
