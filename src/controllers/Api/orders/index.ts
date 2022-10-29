@@ -44,15 +44,61 @@ class ProfileController {
       
       let { id, companyId } = req.user as { companyId: string; id: string };
 
-      if (!id) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
-      console.log(companyId);
+         if (!id) {
+           return res.json(sendErrorResponse("unauthorised"));
+         }
+        let {
+          limit = 10,
+          offset = 0,
+          startDate,
+          endDate,
+          sortBy = "createdAt",
+          sortType = "desc",
+          status,
+        } = req.query as unknown as {
+          limit: number;
+          offset: number;
+          sortBy: string;
+          startDate: string;
+          endDate: string;
+          sortType: string;
+          status: string;
+        };
 
-      let orderDetails = await Order.find({
-        userId: new ObjectId(id),
-        companyId: new ObjectId(companyId),
-      }).lean();
+        if (limit) {
+          limit = parseInt(limit.toString());
+        }
+
+        if (offset) {
+          offset = parseInt(offset.toString());
+        }
+        let mongoQuery = {
+          companyId: new ObjectId(companyId),
+          userId: new ObjectId(id),
+        } as any;
+
+        if (status) {
+          let statusTypes = status.split(",");
+          mongoQuery["status"] = { $in: statusTypes };
+        }
+
+        if (startDate) {
+          mongoQuery["createdAt"] = { $gte: new Date(startDate) };
+        }
+
+        if (endDate) {
+          mongoQuery["createdAt"] = { $lte: new Date(endDate) };
+        }
+
+        
+        let orderDetails = await Order.find(mongoQuery)
+          .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+          .skip(offset)
+          .limit(limit)
+          .populate("userId")
+          .lean();
+   
+   
 
       if (orderDetails) {
         return res.json(
