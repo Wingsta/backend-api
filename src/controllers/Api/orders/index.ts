@@ -33,6 +33,7 @@ import { IAddress, IUserProfile } from "../../../interfaces/models/profile";
 import Cart from "../../../models/cart";
 import { ICart } from "../../../interfaces/models/cart";
 import Order from "../../../models/orders";
+import moment = require("moment");
 
 class ProfileController {
   public static async getOrders(
@@ -83,19 +84,31 @@ class ProfileController {
         }
 
         if (startDate) {
-          mongoQuery["createdAt"] = { $gte: new Date(startDate) };
+          if (!mongoQuery["$and"]){
+             mongoQuery["$and"] = []
+          }
+            mongoQuery['$and'].push({createdAt : {
+              $gte: moment(startDate).startOf("day").toDate(),
+            }})
         }
 
         if (endDate) {
-          mongoQuery["createdAt"] = { $lte: new Date(endDate) };
+             if (!mongoQuery["$and"]) {
+               mongoQuery["$and"] = []
+             }
+             mongoQuery["$and"].push({createdAt : {
+               $lte: moment(endDate).endOf("day").toDate(),
+             }});
+          
         }
 
+        console.log(JSON.stringify(mongoQuery))
         
         let orderDetails = await Order.find(mongoQuery)
           .sort([[sortBy, sortType === "asc" ? 1 : -1]])
           .skip(offset)
           .limit(limit)
-          .populate("userId")
+          // .populate("userId")
           .lean();
    
    let count = await Order.count(mongoQuery);
@@ -103,7 +116,7 @@ class ProfileController {
       if (orderDetails) {
         return res.json(
           sendSuccessResponse({
-            orderDetails,
+            orderDetails : orderDetails,
             count,
           })
         );
