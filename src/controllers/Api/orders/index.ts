@@ -34,6 +34,7 @@ import Cart from "../../../models/cart";
 import { ICart } from "../../../interfaces/models/cart";
 import Order from "../../../models/orders";
 import moment = require("moment");
+import OrderHistory from "../../../models/orderhistory";
 
 class ProfileController {
   public static async getOrders(
@@ -296,6 +297,7 @@ class ProfileController {
       );
 
       if (update?.ok) {
+        await OrderHistory.insertMany([{ orderId: id , status}]);
         return res.json(sendSuccessResponse({ message: "updated status" }));
       }
       return res.json(sendErrorResponse("something went wrong"));

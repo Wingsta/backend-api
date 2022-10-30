@@ -175,6 +175,12 @@ router.post(
 );
 
 // admin orders
+router.get(
+  "/order/:id",
+  passport.authenticate("jwt", { session: false }),
+
+  AdminOrderController.getOneOrder
+);
 
 router.get(
   "/order/",
@@ -182,6 +188,8 @@ router.get(
 
   AdminOrderController.getOrders
 );
+
+
 
 router.post(
   "/order/updateStatus/:orderId",
@@ -285,6 +293,13 @@ router.get(
   passport.authenticate("profile", { session: false }),
   
   OrderController.getOrdersCount
+);
+
+router.get(
+  "/public/order/:id",
+  passport.authenticate("profile", { session: false }),
+
+  AdminOrderController.getOneOrder
 );
 
 router.get(

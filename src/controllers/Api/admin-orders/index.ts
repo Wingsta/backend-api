@@ -33,15 +33,58 @@ import { IAddress, IUserProfile } from "../../../interfaces/models/profile";
 import Cart from "../../../models/cart";
 import { ICart } from "../../../interfaces/models/cart";
 import Order from "../../../models/orders";
+import OrderHistory from "../../../models/orderhistory";
 
 class ProfileController {
+  public static async getOneOrder(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let { companyId } = req.user as { companyId: string };
+
+      if (!companyId) {
+        return res.json(sendErrorResponse("unauthorised"));
+      }
+
+     let id = req.params.id as string
+     if(!id){
+      return res.json(sendErrorResponse("id missing"));
+     }
+
+      
+      let orderDetails = await Order.findOne({_id : new ObjectId(id)})
+       
+        .lean();
+
+      let orderhistory = await OrderHistory.find({
+        orderId: new ObjectId(id),
+      })
+        .sort([['createdAt', -1]])
+        .limit(5);
+
+      if (orderDetails) {
+        return res.json(
+          sendSuccessResponse({
+            orderDetails,
+            orderhistory,
+          })
+        );
+      }
+
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public static async getOrders(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      
       let { companyId } = req.user as { companyId: string };
 
       if (!companyId) {
@@ -60,8 +103,8 @@ class ProfileController {
         limit: number;
         offset: number;
         sortBy: string;
-        startDate : string,
-        endDate : string,
+        startDate: string;
+        endDate: string;
         sortType: string;
         status: string;
       };
@@ -96,8 +139,7 @@ class ProfileController {
         .populate("userId")
         .lean();
 
-      let count = await Order.count(mongoQuery)
-        
+      let count = await Order.count(mongoQuery);
 
       if (orderDetails) {
         return res.json(
@@ -141,6 +183,7 @@ class ProfileController {
       );
 
       if (update?.ok) {
+        await OrderHistory.insertMany([{ orderId, status }]);
         return res.json(sendSuccessResponse({ message: "updated status" }));
       }
       return res.json(sendErrorResponse("something went wrong"));
