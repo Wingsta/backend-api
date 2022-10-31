@@ -183,6 +183,13 @@ router.get(
 );
 
 router.get(
+  "/orderhistory/:id",
+  passport.authenticate("jwt", { session: false }),
+
+  AdminOrderController.getOrderHistory
+);
+
+router.get(
   "/order/",
   passport.authenticate("jwt", { session: false }),
 
@@ -300,6 +307,13 @@ router.get(
   passport.authenticate("profile", { session: false }),
 
   AdminOrderController.getOneOrder
+);
+
+router.get(
+  "/public/orderhisotry/:id",
+  passport.authenticate("profile", { session: false }),
+
+  AdminOrderController.getOrderHistory
 );
 
 router.get(

@@ -48,12 +48,11 @@ class ProfileController {
         return res.json(sendErrorResponse("unauthorised"));
       }
 
-     let id = req.params.id as string
-     if(!id){
-      return res.json(sendErrorResponse("id missing"));
-     }
+      let id = req.params.id as string;
+      if (!id) {
+        return res.json(sendErrorResponse("id missing"));
+      }
 
-      
       let orderDetails = await Order.findOne({ _id: new ObjectId(id) })
         .populate("userId")
         .lean();
@@ -61,8 +60,8 @@ class ProfileController {
       let orderhistory = await OrderHistory.find({
         orderId: new ObjectId(id),
       })
-        .sort([['createdAt', -1]])
-        
+        .sort([["createdAt", -1]])
+
         .limit(5);
 
       if (orderDetails) {
@@ -137,10 +136,92 @@ class ProfileController {
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
         .skip(offset)
         .limit(limit)
-        
+
         .lean();
 
       let count = await Order.count(mongoQuery);
+
+      if (orderDetails) {
+        return res.json(
+          sendSuccessResponse({
+            orderDetails,
+            count,
+          })
+        );
+      }
+
+      return res.json(sendErrorResponse("something went wrong"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getOrderHistory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let { companyId } = req.user as { companyId: string };
+
+      if (!companyId) {
+        return res.json(sendErrorResponse("unauthorised"));
+      }
+
+        let id = req.params.id as string;
+        if (!id) {
+          return res.json(sendErrorResponse("id missing"));
+        }
+
+      let {
+        limit = 10,
+        offset = 0,
+        startDate,
+        endDate,
+        sortBy = "createdAt",
+        sortType = "desc",
+        status,
+      } = req.query as unknown as {
+        limit: number;
+        offset: number;
+        sortBy: string;
+        startDate: string;
+        endDate: string;
+        sortType: string;
+        status: string;
+      };
+
+      if (limit) {
+        limit = parseInt(limit.toString());
+      }
+
+      if (offset) {
+        offset = parseInt(offset.toString());
+      }
+      let mongoQuery = { orderId: new ObjectId(id) } as any;
+
+      if (status) {
+        let statusTypes = status.split(",");
+        mongoQuery["status"] = { $in: statusTypes };
+      }
+
+      if (startDate) {
+        mongoQuery["createdAt"] = { $gte: new Date(startDate) };
+      }
+
+      if (endDate) {
+        mongoQuery["createdAt"] = { $lte: new Date(endDate) };
+      }
+
+      console.log(mongoQuery);
+      let orderDetails = await OrderHistory.find(mongoQuery)
+        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+        .skip(offset)
+        .limit(limit)
+
+        .lean();
+
+      let count = await OrderHistory.count(mongoQuery);
 
       if (orderDetails) {
         return res.json(
