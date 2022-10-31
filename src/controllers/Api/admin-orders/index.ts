@@ -136,7 +136,7 @@ class ProfileController {
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
         .skip(offset)
         .limit(limit)
-
+        .populate("userId")
         .lean();
 
       let count = await Order.count(mongoQuery);
@@ -214,7 +214,7 @@ class ProfileController {
       }
 
       console.log(mongoQuery);
-      let orderDetails = await OrderHistory.find(mongoQuery)
+      let orderHistories = await OrderHistory.find(mongoQuery)
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
         .skip(offset)
         .limit(limit)
@@ -223,10 +223,10 @@ class ProfileController {
 
       let count = await OrderHistory.count(mongoQuery);
 
-      if (orderDetails) {
+      if (orderHistories) {
         return res.json(
           sendSuccessResponse({
-            orderDetails,
+            orderHistories,
             count,
           })
         );
