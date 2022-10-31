@@ -62,6 +62,7 @@ class ProfileController {
         orderId: new ObjectId(id),
       })
         .sort([['createdAt', -1]])
+        .populate('userId')
         .limit(5);
 
       if (orderDetails) {
