@@ -54,15 +54,15 @@ class ProfileController {
      }
 
       
-      let orderDetails = await Order.findOne({_id : new ObjectId(id)})
-       
+      let orderDetails = await Order.findOne({ _id: new ObjectId(id) })
+        .populate("userId")
         .lean();
 
       let orderhistory = await OrderHistory.find({
         orderId: new ObjectId(id),
       })
         .sort([['createdAt', -1]])
-        .populate('userId')
+        
         .limit(5);
 
       if (orderDetails) {
@@ -137,7 +137,7 @@ class ProfileController {
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
         .skip(offset)
         .limit(limit)
-        .populate("userId")
+        
         .lean();
 
       let count = await Order.count(mongoQuery);
