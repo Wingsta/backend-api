@@ -214,10 +214,10 @@ class ProfileController {
 
       console.log(products)
       const reducedProduct = products.reduce((a, b) => {
-        
-        a.price =
+        let k = {...a}
+        k.price =
           ((a?.quantity || 1) * (a?.price || 0)) + ((b?.quantity || 1) * (b?.price || 0));
-        return a;
+        return k;
       });
       let total = products?.length
         ? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
