@@ -178,7 +178,7 @@ class AccountUserAuth {
         account.password &&
         !(await bcrypt.compare(oldPassword, account.password))
       ) {
-        return res.json(sendErrorResponse("Incorrect Password!"));
+        return res.json(sendErrorResponse("Old Password is incorrect"));
       }
 
       let password = await generateHash(newPassword);
@@ -226,16 +226,27 @@ class AccountUserAuth {
         return res.json(sendErrorResponse("Account not found"));
       }
 
-	  let accountUpdateDoc = req.body as IAccountUser; 
+      let accountUpdateDoc = req.body as IAccountUser;
 
-	  if(!accountUpdateDoc){
-		return res.json(sendErrorResponse("body to update not found"));
-	  }
+      if (!accountUpdateDoc) {
+        return res.json(sendErrorResponse("body to update not found"));
+      }
 
-	  delete accountUpdateDoc._id
-	  delete accountUpdateDoc.password;
-	  delete accountUpdateDoc.companyId
-	
+      delete accountUpdateDoc._id;
+      delete accountUpdateDoc.password;
+      delete accountUpdateDoc.companyId;
+
+      if (accountUpdateDoc.phoneNumber) {
+        let checkExisting = await AccountUser.findOne({
+          phoneNumber: accountUpdateDoc.phoneNumber,
+          _id: { $ne: new ObjectId(accountId) },
+        }).lean();
+
+		if(checkExisting){
+			return res.json(sendErrorResponse("Phone number is aldready registered"));
+		}
+      }
+
       let accountUser = await AccountUser.updateOne(
         { _id: accountId },
         { $set: { ...accountUpdateDoc } },

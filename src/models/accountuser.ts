@@ -22,7 +22,7 @@ export const AccountUserSchema = new mongoose.Schema<IAccountUser>(
     password: { type: String },
     website: { type: String },
     name: { type: String },
-    
+    phoneNumber: { type: String },
   },
   {
     timestamps: true,

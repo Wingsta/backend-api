@@ -14,6 +14,7 @@ export interface IAccountUser {
   password: string;
   website: string;
   name: string;
+  phoneNumber : string;
   
 }
 
