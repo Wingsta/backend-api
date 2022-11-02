@@ -22,5 +22,6 @@ export interface IUserProfile {
     name : string;
   companyId: Types.ObjectId;
   email: string;
+  otp : number;
   address: IAddress[];
 }

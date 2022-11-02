@@ -31,6 +31,7 @@ export const ProfileSchema = new mongoose.Schema<IUserProfile>(
     mobile: { type: String },
     name: { type: String },
     email: { type: String },
+    otp : {type : Number},
     address: [Address],
     
   },

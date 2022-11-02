@@ -46,11 +46,30 @@ router.post(
   AccountUserController.signup
 );
 
-console.log("hello");
+
 router.post(
   "/login",
   //   passport.authenticate("jwt", { session: false }),
   AccountUserController.login
+);
+
+
+router.post(
+  "/resetPassword",
+  passport.authenticate("jwt", { session: false }),
+  AccountUserController.resetPassword
+);
+
+router.get(
+  "/accountUser",
+  passport.authenticate("jwt", { session: false }),
+  AccountUserController.getAccountUser
+);
+
+router.patch(
+  "/accountUser",
+  passport.authenticate("jwt", { session: false }),
+  AccountUserController.patchAccountUser
 );
 
 router.post(

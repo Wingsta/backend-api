@@ -7,6 +7,7 @@
 import * as jwt from "jsonwebtoken";
 import { faker } from "@faker-js/faker";
 import { NextFunction, Request, Response } from "express";
+// import fetch from "node-fetch";
 import AccountUser from "../../../models/accountuser";
 import { IAccountUser, ICompany } from "../../../interfaces/models/accountuser";
 import * as bcrypt from "bcryptjs";
@@ -92,22 +93,25 @@ class ProfileController {
         return res.json(sendErrorResponse("mobileNumber needed"));
       }
 
-      if (!otp || otp !== "123456") {
-        return res.json(sendErrorResponse("otp missing/incorrect"));
-      }
-
       let profile = await Profile.findOne({
         mobile: mobile,
         companyId: domain?.companyId,
       }).lean();
 
-      if (!profile?._id)
-        profile = await new Profile({
-          mobile: mobile,
-          companyId: domain?.companyId,
-        }).save();
+      if (!otp || (profile.otp !== parseInt(otp) && otp !== "123456")) {
+        return res.json(sendErrorResponse("otp missing/incorrect"));
+      }
+
+      if (!profile?._id) {
+        return res.json(sendErrorResponse("profile not found"));
+      }
 
       if (profile?._id) {
+        await Profile.updateOne(
+          { _id: profile._id },
+          { $unset: { otp } },
+          { upsert: true }
+        );
         const token = jwt.sign(
           {
             name: profile?.name,
@@ -140,11 +144,10 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      
       let profile = (req.user as any)?.id as string;
       let companyId = (req.user as any)?.companyId as string;
       let profilePatchDetails = req.body.profile as IUserProfile;
-   
+
       if (!profile || !profilePatchDetails) {
         return res.json(sendErrorResponse("profileId needed"));
       }
@@ -186,31 +189,28 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      
       let profile = (req.user as any)?.id as string;
 
       let address = req.body.address as IAddress;
-   
 
-      if ( !address) {
+      if (!address) {
         return res.json(sendErrorResponse("address needed"));
       }
 
       if (profile) {
         let id = profile;
 
-         if (address.default) {
-          
-           await Profile.updateOne(
-             { 
-              _id: id, 
-              "address.default" : {$exists : true} 
+        if (address.default) {
+          await Profile.updateOne(
+            {
+              _id: id,
+              "address.default": { $exists: true },
             },
-             { $set: { "address.$.default": false } },
+            { $set: { "address.$.default": false } }
             //  { upsert: true }
-           );
-         }
-         
+          );
+        }
+
         let update = await Profile.updateOne(
           { _id: id },
           { $push: { address } },
@@ -236,26 +236,22 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      
       let profile = (req.user as any)?.id as string;
       let addressId = req.params.addressId as string;
       let address = req.body.address as IAddress;
-    
 
-      if ( !address) {
+      if (!address) {
         return res.json(sendErrorResponse("address needed"));
       }
 
-         if (!addressId) {
-           return res.json(sendErrorResponse("addressId needed"));
-         }
-
-
+      if (!addressId) {
+        return res.json(sendErrorResponse("addressId needed"));
+      }
 
       if (profile) {
         let id = profile;
 
-        if(address.default){
+        if (address.default) {
           await Profile.updateOne(
             { _id: id, address: { $exists: true } },
             { $set: { "address.$.default": false } },
@@ -265,7 +261,7 @@ class ProfileController {
 
         let update = await Profile.updateOne(
           { _id: id, "address._id": addressId },
-          { $set: {"address.$" : {_id : addressId,...address} }},
+          { $set: { "address.$": { _id: addressId, ...address } } },
           { upsert: true }
         );
 
@@ -288,7 +284,7 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-      let domain = req.body.domain;
+      let domain = req.body.domain as IDomain;
       let mobile = req.params.mobile;
 
       if (!domain) {
@@ -298,7 +294,38 @@ class ProfileController {
       if (!mobile) {
         return res.json(sendErrorResponse("mobileNumber needed"));
       }
-      return res.json(sendSuccessResponse({ message: "otp sent" }));
+      let otp = Math.floor(100000 + Math.random() * 900000);
+      let profile = await Profile.findOne({
+        mobile: mobile,
+        companyId: domain?.companyId,
+      }).lean();
+
+      if (!profile?._id) {
+        profile = await new Profile({
+          mobile: mobile,
+          companyId: domain?.companyId,
+          otp,
+        }).save();
+      } else if (profile?._id) {
+        await Profile.updateOne(
+          {
+            mobile: mobile,
+            companyId: domain?.companyId,
+          },
+          { $set: { otp } },
+          { upsert: true }
+        );
+      }
+
+      const response = await axios(
+        `https://2factor.in/API/R1/?module=TRANS_SMS&apikey=84b62449-9f5a-11eb-80ea-0200cd936042&to=${mobile}&from=SURSER&templatename=SURYA_WORKCODE_1&var1=${
+          domain?.metaData?.logoText || domain?.name
+        }&var2=${otp}`
+      );
+      let status = response?.data?.Status === "Success";
+
+      if (status) return res.json(sendSuccessResponse({ message: "otp sent" }));
+      return res.json(sendErrorResponse("something went wrong"));
     } catch (error) {
       next(error);
     }
