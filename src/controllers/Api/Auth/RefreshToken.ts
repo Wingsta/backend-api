@@ -41,7 +41,7 @@ class RefreshToken {
           email: decode?.email,
           name: decode?.name,
           companyId: decode?.companyId,
-          accountId: decode?._id,
+          accountId: decode?.accountId,
         },
         Locals.config().appSecret,
         {
