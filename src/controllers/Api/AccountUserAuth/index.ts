@@ -236,15 +236,17 @@ class AccountUserAuth {
       delete accountUpdateDoc.password;
       delete accountUpdateDoc.companyId;
 
-      if (accountUpdateDoc.phoneNumber) {
+      if (accountUpdateDoc.mobile) {
         let checkExisting = await AccountUser.findOne({
-          phoneNumber: accountUpdateDoc.phoneNumber,
+          mobile: accountUpdateDoc.mobile,
           _id: { $ne: new ObjectId(accountId) },
         }).lean();
 
-		if(checkExisting){
-			return res.json(sendErrorResponse("Phone number is aldready registered"));
-		}
+        if (checkExisting) {
+          return res.json(
+            sendErrorResponse("Phone number is aldready registered")
+          );
+        }
       }
 
       let accountUser = await AccountUser.updateOne(
