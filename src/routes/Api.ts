@@ -55,19 +55,19 @@ router.post(
 
 
 router.post(
-  "/resetPassword",
+  "/change-password",
   passport.authenticate("jwt", { session: false }),
   AccountUserController.resetPassword
 );
 
 router.get(
-  "/accountUser",
+  "/account-user",
   passport.authenticate("jwt", { session: false }),
   AccountUserController.getAccountUser
 );
 
 router.patch(
-  "/accountUser",
+  "/account-user",
   passport.authenticate("jwt", { session: false }),
   AccountUserController.patchAccountUser
 );
