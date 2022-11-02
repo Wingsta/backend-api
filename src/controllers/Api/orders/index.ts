@@ -222,7 +222,7 @@ class ProfileController {
       let total = products?.length
         ? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
         : 0;
-      let tax = total * 0.28;
+      let tax = 0;
       let totalAfterTax = (total + tax).toFixed(2);
 
       if (!products) {
