@@ -98,7 +98,7 @@ class ProfileController {
         companyId: domain?.companyId,
       }).lean();
 
-      if (!otp || (profile.otp !== parseInt(otp) && otp !== "123456")) {
+      if (!otp || (profile.otp !== parseInt(otp))) {
         return res.json(sendErrorResponse("otp missing/incorrect"));
       }
 
@@ -323,7 +323,7 @@ class ProfileController {
       }
 
       const response = await axios(
-        `https://2factor.in/API/R1/?module=TRANS_SMS&apikey=84b62449-9f5a-11eb-80ea-0200cd936042&to=${mobile}&from=SURSER&templatename=SURYA_WORKCODE_1&var1=${
+        `https://2factor.in/API/R1/?module=TRANS_SMS&apikey=84b62449-9f5a-11eb-80ea-0200cd936042&to=${mobile}&from=SPRMCN&templatename=saravanan_code_2&var1=${
           domain?.metaData?.logoText || domain?.name
         }&var2=${otp}`
       );
