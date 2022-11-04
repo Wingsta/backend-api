@@ -41,9 +41,7 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
     total: { type: Number },
     tax: { type: Number },
     totalAfterTax: { type: Number },
-    paymentMethod: { type: String },
-    createdAt: { type: Date },
-    updatedAt: { type: Date },
+    paymentMethod: { type: String }
   },
   {
     timestamps: true,

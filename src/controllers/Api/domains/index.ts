@@ -42,10 +42,12 @@ class Products {
         "instagram",
         "subdomain",
         "website",
-        "my-orders",
+        "orders",
         "payments",
-        "my-leads",
+        "customers",
         "analytics",
+        "profile",
+        "messages"
       ];
       if (constants.includes(name)) {
         return res.json(
@@ -132,10 +134,12 @@ class Products {
         "instagram",
         "subdomain",
         "website",
-        "my-orders",
+        "orders",
         "payments",
-        "my-leads",
+        "customers",
         "analytics",
+        "profile",
+        "messages"
       ];
       if (constants.includes(req.body.name)) {
         return res.json(sendErrorResponse("restricted keywrod"));
@@ -436,10 +440,12 @@ class Products {
         "instagram",
         "subdomain",
         "website",
-        "my-orders",
+        "orders",
         "payments",
-        "my-leads",
+        "customers",
         "analytics",
+        "profile",
+        "messages"
       ];
       if (constants.includes(name)) {
         return res.json(sendErrorResponse("restricted keywrod"));

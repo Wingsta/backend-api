@@ -109,7 +109,12 @@ class ProfileController {
       if (profile?._id) {
         await Profile.updateOne(
           { _id: profile._id },
-          { $unset: { otp } },
+          { $set: 
+            { 
+              otp: undefined,
+              verified: true
+            } 
+          },
           { upsert: true }
         );
         const token = jwt.sign(

@@ -19,9 +19,10 @@ export interface IAddress {
 export interface IUserProfile {
   _id: Types.ObjectId;
   mobile: string;
-    name : string;
+  name : string;
   companyId: Types.ObjectId;
   email: string;
   otp : number;
   address: IAddress[];
+  verified: Boolean;
 }

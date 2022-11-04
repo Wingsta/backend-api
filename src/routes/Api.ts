@@ -19,6 +19,8 @@ import ProfileController from "../controllers/Api/profile/index";
 import CartController from "../controllers/Api/cart/index";
 import OrderController from "../controllers/Api/orders/index";
 import AdminOrderController from "../controllers/Api/admin-orders/index";
+import MessageController from "../controllers/Api/message/index";
+import CustomerController from "../controllers/Api/customers/index";
 
 const router = Router();
 
@@ -407,6 +409,31 @@ router.get(
 router.get(
   "/domain/check/:domain",
   DomainController.checkSubdomain
+);
+
+router.post(
+  "/public/domain/:domain/message",
+
+  DomainController.getPublicDomainProducts,
+  MessageController.postMessage
+);
+
+router.get(
+  "/message",
+  passport.authenticate("jwt", { session: false }),
+  MessageController.getAllMessages
+);
+
+router.get(
+  "/customers",
+  passport.authenticate("jwt", { session: false }),
+  CustomerController.getCustomers
+);
+
+router.get(
+  "/customers/:customerId",
+  passport.authenticate("jwt", { session: false }),
+  CustomerController.getCustomerDetail
 );
 
 export default router;

@@ -22,8 +22,8 @@ import Company from "../../../models/company";
 import Product from "../../../models/products";
 import { IProducts } from "../../../interfaces/models/products";
 import {
-  sendErrorResponse,
-  sendSuccessResponse,
+	sendErrorResponse,
+	sendSuccessResponse,
 } from "../../../services/response/sendresponse";
 import { uploadImage } from "../../../services/gcloud/upload";
 import Domain from "../../../models/domain";
@@ -34,244 +34,267 @@ import Cart from "../../../models/cart";
 import { ICart } from "../../../interfaces/models/cart";
 import Order from "../../../models/orders";
 import OrderHistory from "../../../models/orderhistory";
+import moment = require("moment");
 
 class ProfileController {
-  public static async getOneOrder(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let { companyId } = req.user as { companyId: string };
+	public static async getOneOrder(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			let { companyId } = req.user as { companyId: string };
 
-      if (!companyId) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+			if (!companyId) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
 
-      let id = req.params.id as string;
-      if (!id) {
-        return res.json(sendErrorResponse("id missing"));
-      }
+			let id = req.params.id as string;
+			if (!id) {
+				return res.json(sendErrorResponse("id missing"));
+			}
 
-      let orderDetails = await Order.findOne({ _id: new ObjectId(id) })
-        .populate("userId")
-        .lean();
+			let orderDetails = await Order.findOne({ _id: new ObjectId(id) })
+				.populate("userId")
+				.lean();
 
-      let orderhistory = await OrderHistory.find({
-        orderId: new ObjectId(id),
-      })
-        .sort([["createdAt", -1]])
+			let orderhistory = await OrderHistory.find({
+				orderId: new ObjectId(id),
+			})
+				.sort([["createdAt", -1]])
 
-        .limit(5);
+				.limit(5);
 
-      if (orderDetails) {
-        return res.json(
-          sendSuccessResponse({
-            orderDetails,
-            orderhistory,
-          })
-        );
-      }
+			if (orderDetails) {
+				return res.json(
+					sendSuccessResponse({
+						orderDetails,
+						orderhistory,
+					})
+				);
+			}
 
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-  public static async getOrders(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let { companyId } = req.user as { companyId: string };
+	public static async getOrders(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			let { companyId } = req.user as { companyId: string };
 
-      if (!companyId) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+			if (!companyId) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
 
-      let {
-        limit = 10,
-        offset = 0,
-        startDate,
-        endDate,
-        sortBy = "createdAt",
-        sortType = "desc",
-        status,
-      } = req.query as unknown as {
-        limit: number;
-        offset: number;
-        sortBy: string;
-        startDate: string;
-        endDate: string;
-        sortType: string;
-        status: string;
-      };
+			let {
+				limit = 10,
+				offset = 0,
+				startDate,
+				endDate,
+				sortBy = "createdAt",
+				sortType = "desc",
+				status,
+				customerId
+			} = req.query as unknown as {
+				limit: number;
+				offset: number;
+				sortBy: string;
+				startDate: Date;
+				endDate: Date;
+				sortType: string;
+				status: string;
+				customerId: string
+			};
 
-      if (limit) {
-        limit = parseInt(limit.toString());
-      }
+			if (limit) {
+				limit = parseInt(limit.toString());
+			}
 
-      if (offset) {
-        offset = parseInt(offset.toString());
-      }
-      let mongoQuery = { companyId: new ObjectId(companyId) } as any;
+			if (offset) {
+				offset = parseInt(offset.toString());
+			}
+			let mongoQuery = { companyId: new ObjectId(companyId) } as any;
 
-      if (status) {
-        let statusTypes = status.split(",");
-        mongoQuery["status"] = { $in: statusTypes };
-      }
+			if (customerId) {
+				mongoQuery.userId = new ObjectId(customerId)
+			}
 
-      if (startDate) {
-        mongoQuery["createdAt"] = { $gte: new Date(startDate) };
-      }
+			if (status) {
+				let statusTypes = status.split(",");
+				mongoQuery["status"] = { $in: statusTypes };
+			}
 
-      if (endDate) {
-        mongoQuery["createdAt"] = { $lte: new Date(endDate) };
-      }
+			if (startDate) {
+				if (!mongoQuery["$and"]) {
+					mongoQuery["$and"] = []
+				}
+				mongoQuery['$and'].push({
+					createdAt: {
+						$gte: moment(startDate).startOf("day").toDate(),
+					}
+				})
+			}
 
-      console.log(mongoQuery);
-      let orderDetails = await Order.find(mongoQuery)
-        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
-        .skip(offset)
-        .limit(limit)
-        .populate("userId")
-        .lean();
+			if (endDate) {
+				if (!mongoQuery["$and"]) {
+					mongoQuery["$and"] = []
+				}
+				console.log(moment(endDate).endOf("day").toDate())
+				mongoQuery["$and"].push({
+					createdAt: {
+						$lte: moment(endDate).endOf("day").toDate(),
+					}
+				});
 
-      let count = await Order.count(mongoQuery);
+			}
 
-      if (orderDetails) {
-        return res.json(
-          sendSuccessResponse({
-            orderDetails,
-            count,
-          })
-        );
-      }
+			console.log(mongoQuery);
+			let orderDetails = await Order.find(mongoQuery)
+				.sort([[sortBy, sortType === "asc" ? 1 : -1]])
+				.skip(offset)
+				.limit(limit)
+				.populate("userId")
+				.lean();
 
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			let count = await Order.count(mongoQuery);
 
-  public static async getOrderHistory(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let { companyId } = req.user as { companyId: string };
+			if (orderDetails) {
+				return res.json(
+					sendSuccessResponse({
+						orderDetails,
+						count,
+					})
+				);
+			}
 
-      if (!companyId) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-        let id = req.params.id as string;
-        if (!id) {
-          return res.json(sendErrorResponse("id missing"));
-        }
+	public static async getOrderHistory(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			let { companyId } = req.user as { companyId: string };
 
-      let {
-        limit = 10,
-        offset = 0,
-        startDate,
-        endDate,
-        sortBy = "createdAt",
-        sortType = "desc",
-        status,
-      } = req.query as unknown as {
-        limit: number;
-        offset: number;
-        sortBy: string;
-        startDate: string;
-        endDate: string;
-        sortType: string;
-        status: string;
-      };
+			if (!companyId) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
 
-      if (limit) {
-        limit = parseInt(limit.toString());
-      }
+			let id = req.params.id as string;
+			if (!id) {
+				return res.json(sendErrorResponse("id missing"));
+			}
 
-      if (offset) {
-        offset = parseInt(offset.toString());
-      }
-      let mongoQuery = { orderId: new ObjectId(id) } as any;
+			let {
+				limit = 10,
+				offset = 0,
+				startDate,
+				endDate,
+				sortBy = "createdAt",
+				sortType = "desc",
+				status,
+			} = req.query as unknown as {
+				limit: number;
+				offset: number;
+				sortBy: string;
+				startDate: string;
+				endDate: string;
+				sortType: string;
+				status: string;
+			};
 
-      if (status) {
-        let statusTypes = status.split(",");
-        mongoQuery["status"] = { $in: statusTypes };
-      }
+			if (limit) {
+				limit = parseInt(limit.toString());
+			}
 
-      if (startDate) {
-        mongoQuery["createdAt"] = { $gte: new Date(startDate) };
-      }
+			if (offset) {
+				offset = parseInt(offset.toString());
+			}
+			let mongoQuery = { orderId: new ObjectId(id) } as any;
 
-      if (endDate) {
-        mongoQuery["createdAt"] = { $lte: new Date(endDate) };
-      }
+			if (status) {
+				let statusTypes = status.split(",");
+				mongoQuery["status"] = { $in: statusTypes };
+			}
 
-      console.log(mongoQuery);
-      let orderHistories = await OrderHistory.find(mongoQuery)
-        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
-        .skip(offset)
-        .limit(limit)
+			if (startDate) {
+				mongoQuery["createdAt"] = { $gte: new Date(startDate) };
+			}
 
-        .lean();
+			if (endDate) {
+				mongoQuery["createdAt"] = { $lte: new Date(endDate) };
+			}
 
-      let count = await OrderHistory.count(mongoQuery);
+			console.log(mongoQuery);
+			let orderHistories = await OrderHistory.find(mongoQuery)
+				.sort([[sortBy, sortType === "asc" ? 1 : -1]])
+				.skip(offset)
+				.limit(limit)
 
-      if (orderHistories) {
-        return res.json(
-          sendSuccessResponse({
-            orderHistories,
-            count,
-          })
-        );
-      }
+				.lean();
 
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			let count = await OrderHistory.count(mongoQuery);
 
-  public static async statusUpdate(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let orderId = req.params.orderId as string;
+			if (orderHistories) {
+				return res.json(
+					sendSuccessResponse({
+						orderHistories,
+						count,
+					})
+				);
+			}
 
-      let status = req.body.status as string;
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-      let { companyId } = req.user as { companyId: string };
+	public static async statusUpdate(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			let orderId = req.params.orderId as string;
 
-      if (!companyId) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+			let status = req.body.status as string;
 
-      if (!status) {
-        return res.json(sendErrorResponse("status needed"));
-      }
+			let { companyId } = req.user as { companyId: string };
 
-      let update = await Order.updateOne(
-        { companyId: companyId, _id: new ObjectId(orderId) },
-        { $set: { status } },
-        { upsert: true }
-      );
+			if (!companyId) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
 
-      if (update?.ok) {
-        await OrderHistory.insertMany([{ orderId, status }]);
-        return res.json(sendSuccessResponse({ message: "updated status" }));
-      }
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			if (!status) {
+				return res.json(sendErrorResponse("status needed"));
+			}
+
+			let update = await Order.updateOne(
+				{ companyId: companyId, _id: new ObjectId(orderId) },
+				{ $set: { status } },
+				{ upsert: true }
+			);
+
+			if (update?.ok) {
+				await OrderHistory.insertMany([{ orderId, status }]);
+				return res.json(sendSuccessResponse({ message: "updated status" }));
+			}
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 }
 export default ProfileController;

@@ -61,8 +61,8 @@ class ProfileController {
           limit: number;
           offset: number;
           sortBy: string;
-          startDate: string;
-          endDate: string;
+          startDate: Date;
+          endDate: Date;
           sortType: string;
           status: string;
         };
