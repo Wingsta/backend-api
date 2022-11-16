@@ -21,6 +21,7 @@ import OrderController from "../controllers/Api/orders/index";
 import AdminOrderController from "../controllers/Api/admin-orders/index";
 import MessageController from "../controllers/Api/message/index";
 import CustomerController from "../controllers/Api/customers/index";
+import CategoryController from "../controllers/Api/category/index";
 
 const router = Router();
 
@@ -434,6 +435,30 @@ router.get(
   "/customers/:customerId",
   passport.authenticate("jwt", { session: false }),
   CustomerController.getCustomerDetail
+);
+
+router.get(
+  "/category",
+  passport.authenticate("jwt", { session: false }),
+  CategoryController.getAllCategory
+);
+
+router.post(
+  "/category/check-duplicate",
+  passport.authenticate("jwt", { session: false }),
+  CategoryController.checkDuplicate
+);
+
+router.post(
+  "/category",
+  passport.authenticate("jwt", { session: false }),
+  CategoryController.createCategory
+);
+
+router.patch(
+  "/category/:categoryId",
+  passport.authenticate("jwt", { session: false }),
+  CategoryController.editCategory
 );
 
 export default router;

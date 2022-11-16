@@ -7,18 +7,18 @@ import { Types } from "mongoose";
 
 
 export interface IProducts {
-  _id?: Types.ObjectId;
-  companyId: Types.ObjectId;
-  name: string;
-  price: number;
-  status: number;
-  sku: string;
-  quantity: number;
-  addedDate: Date;
-  thumbnail: string;
-  carouselImages : string[];
-  category : string;
-  posts : any[]
+	_id?: Types.ObjectId;
+	companyId: Types.ObjectId;
+	name: string;
+	price: number;
+	status: number;
+	sku: string;
+	quantity: number;
+	addedDate: Date;
+	thumbnail: string;
+	carouselImages: string[];
+	categoryId?: Types.ObjectId;
+	posts: any[]
 }
 
 
