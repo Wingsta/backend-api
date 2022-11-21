@@ -6,6 +6,7 @@ import {
 } from "../../../services/response/sendresponse";
 import Category from "../../../models/category";
 import { validateCategory, validateDuplicateCategory } from "./utils";
+import Product from "../../../models/products";
 
 class Categories {
 
@@ -41,7 +42,11 @@ class Categories {
             }
 
             let category = await Category.find(mongoQuery)
-                .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+                // .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+                .sort({
+                    order: 1,
+                    createdAt: -1
+                })
                 .select({
                     name: 1,
                     productCount: 1,
@@ -177,6 +182,59 @@ class Categories {
                 name,
                 isActive
             });
+
+            return res.json(sendSuccessResponse(null, "Category updated successfully!"));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public static async deleteCategory(req: Request, res: Response, next: NextFunction) {
+        try {
+
+            let categoryId = req.params.categoryId as string;
+
+            let { companyId } = req.user as { companyId: string };
+
+            await Category.findOneAndDelete({
+                companyId,
+                _id: categoryId
+            })
+
+            await Product.updateMany({ categoryId }, {
+                categoryId: null
+            })
+
+            return res.json(sendSuccessResponse(null, "Category deleted successfully!"));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public static async sortCategory(req: Request, res: Response, next: NextFunction) {
+        try {
+
+            let categories = req.body.category as string[];
+
+            let { companyId } = req.user as { companyId: string };
+
+            let i, categoryUpdate = [];
+            for(i=0;i<categories.length;i++){
+                categoryUpdate.push({
+                    updateOne: {
+                        filter: {
+                            _id: categories[i]
+                        },
+                        update: {
+                            order: i+1
+                        }
+                    }
+                });
+            }
+
+            if (categoryUpdate.length > 0) {
+                await Category.bulkWrite(categoryUpdate);
+            }
 
             return res.json(sendSuccessResponse(null, "Category updated successfully!"));
         } catch (error) {

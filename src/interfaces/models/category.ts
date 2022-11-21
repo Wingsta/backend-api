@@ -11,5 +11,6 @@ export interface ICategory {
     name: string;
     productCount: number;
     companyId: Types.ObjectId;
-    isActive: boolean
+    isActive: boolean,
+    order: number
 }

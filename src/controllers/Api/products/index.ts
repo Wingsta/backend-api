@@ -156,7 +156,7 @@ class Products {
 				];
 			}
 
-			let products = await Product.find(mongoQuery)
+			let products = await Product.find({ ...mongoQuery, categoryId: { $in: null } })
 				.sort([[sortBy, sortType === "asc" ? 1 : -1]])
 				.skip(offset)
 				.limit(limit)
@@ -204,6 +204,53 @@ class Products {
 					productsRecent
 				})
 			);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public static async getCategory(req: Request, res: Response, next: NextFunction) {
+		try {
+
+			let { companyId } = req.user as { companyId: string };
+
+			let mongoQuery = { companyId } as any;
+
+			let category = await Category.find(mongoQuery).select({
+				name: 1,
+				isActive: 1,
+				productCount: 1
+			}).sort({ order: 1, createdAt: -1 }).lean();
+
+			mongoQuery.categoryId = { $ne: null }
+
+			let categoryProduct = await Product.aggregate([
+				{
+					$match: mongoQuery
+				},
+				{
+					$sort: { createdAt: -1 }
+				},
+				{
+					$group: {
+						_id: "$categoryId",
+						data: { $push : "$$ROOT" }
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						data: {
+							$slice: ['$data', 0, 12]
+						}
+					}
+				}
+			])
+
+			return res.json(sendSuccessResponse({
+				category,
+				product: categoryProduct 
+			}));
 		} catch (error) {
 			next(error);
 		}
@@ -401,8 +448,6 @@ class Products {
 					_id: categoryId
 				})
 
-				console.log(category)
-
 				if (!category) {
 					return res.json(sendErrorResponse("Invalid category id"));
 				}
@@ -543,7 +588,6 @@ class Products {
 				})
 			);
 		} catch (error) {
-			console.log(error);
 			next(error);
 		}
 	}
@@ -580,8 +624,6 @@ class Products {
 					companyId,
 					_id: categoryId
 				})
-
-				console.log(category)
 
 				if (!category) {
 					return res.json(sendErrorResponse("Invalid category id"));

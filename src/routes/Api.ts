@@ -395,6 +395,13 @@ router.get(
 );
 
 router.get(
+  "/public/domain/:domain/category-products",
+
+  DomainController.getPublicDomainProducts,
+  ProductController.getCategory
+);
+
+router.get(
   "/public/domain/:domain/products",
 
   DomainController.getPublicDomainProducts,
@@ -456,9 +463,21 @@ router.post(
 );
 
 router.patch(
+  "/category/sort",
+  passport.authenticate("jwt", { session: false }),
+  CategoryController.sortCategory
+);
+
+router.patch(
   "/category/:categoryId",
   passport.authenticate("jwt", { session: false }),
   CategoryController.editCategory
+);
+
+router.delete(
+  "/category/:categoryId",
+  passport.authenticate("jwt", { session: false }),
+  CategoryController.deleteCategory
 );
 
 export default router;

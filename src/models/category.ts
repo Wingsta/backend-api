@@ -20,7 +20,8 @@ export const CategorySchema = new mongoose.Schema<ICategory>(
       name: { type: String },
       companyId: { type: Types.ObjectId, ref: "Company" },
       productCount: { type: Number, default: 0 },
-      isActive: { type: Boolean, default: true }
+      isActive: { type: Boolean, default: true },
+      order: { type: Number, default: null }
    },
    {
       timestamps: true,
