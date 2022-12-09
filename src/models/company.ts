@@ -16,29 +16,31 @@ import { Types } from 'mongoose';
 
 // Define the User Schema
 export const CompanySchema = new mongoose.Schema<ICompany>(
-  {
-    companyName: { type: String },
-    meta: {
-      buisnessAccountData: { type: Object },
-      buisnessAccountId: { type: String },
-      fbPageId: { type: String },
-      subscriptions: { type: Object },
-      fbPageAccessToken: { type: String },
-      accessToken: { type: String },
-      domainName: { type: String },
-      domainId: { type: Types.ObjectId, ref: "Domain" },
-    },
-  },
-  {
-    timestamps: true,
-  }
+	{
+		companyName: { type: String },
+		meta: {
+			buisnessAccountData: { type: Object },
+			buisnessAccountId: { type: String },
+			fbPageId: { type: String },
+			subscriptions: { type: Object },
+			fbPageAccessToken: { type: String },
+			accessToken: { type: String },
+			domainName: { type: String },
+			domainId: { type: Types.ObjectId, ref: "Domain" },
+		},
+		razorpayAppId: { type: String },
+		razorpaySecretKey: { type: String }
+	},
+	{
+		timestamps: true,
+	}
 );
 
 
 
 const Company = mongoose.model<ICompany & mongoose.Document>(
-  "Company",
-  CompanySchema
+	"Company",
+	CompanySchema
 );
 
 export default Company;

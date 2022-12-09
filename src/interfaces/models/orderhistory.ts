@@ -15,12 +15,16 @@ export interface IOrderHistory {
   orderId: Types.ObjectId;
 
   status:
-    | "COMPLETED"
-    | "DISPATCHED"
+    | "PROCESSING"
+    | "PAYMENT_PROCESSING"
     | "CONFIRMED"
-    | "PENDING"
+    | "REJECTED"
     | "CANCELLED"
-    | 'EDITED'
+    | 'PAYMENT_FAILED'
+    | 'SHIPPED'
+    | 'DELIVERED'
+    | 'RETURNED'
+    | 'DELIVERY_CANCELLED'
     | string;
   
   

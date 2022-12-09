@@ -35,6 +35,7 @@ import { ICart } from "../../../interfaces/models/cart";
 import Order from "../../../models/orders";
 import OrderHistory from "../../../models/orderhistory";
 import moment = require("moment");
+import { ORDER_STATUS } from "../../../utils/constants";
 
 class ProfileController {
 	public static async getOneOrder(
@@ -128,6 +129,13 @@ class ProfileController {
 			if (status) {
 				let statusTypes = status.split(",");
 				mongoQuery["status"] = { $in: statusTypes };
+			} else {
+				mongoQuery["status"] = { 
+					$nin: [
+						ORDER_STATUS.PAYMENT_PROCESSING, 
+						// ORDER_STATUS.PAYMENT_FAILED
+					] 
+				};
 			}
 
 			if (startDate) {
@@ -145,7 +153,6 @@ class ProfileController {
 				if (!mongoQuery["$and"]) {
 					mongoQuery["$and"] = []
 				}
-				console.log(moment(endDate).endOf("day").toDate())
 				mongoQuery["$and"].push({
 					createdAt: {
 						$lte: moment(endDate).endOf("day").toDate(),
@@ -154,7 +161,6 @@ class ProfileController {
 
 			}
 
-			console.log(mongoQuery);
 			let orderDetails = await Order.find(mongoQuery)
 				.sort([[sortBy, sortType === "asc" ? 1 : -1]])
 				.skip(offset)
@@ -236,7 +242,6 @@ class ProfileController {
 				mongoQuery["createdAt"] = { $lte: new Date(endDate) };
 			}
 
-			console.log(mongoQuery);
 			let orderHistories = await OrderHistory.find(mongoQuery)
 				.sort([[sortBy, sortType === "asc" ? 1 : -1]])
 				.skip(offset)

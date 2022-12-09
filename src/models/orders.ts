@@ -41,7 +41,11 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
     total: { type: Number },
     tax: { type: Number },
     totalAfterTax: { type: Number },
-    paymentMethod: { type: String }
+    paymentMethod: { type: String },
+    mode: { type: String },
+    razorpayOrderId: { type: String },
+    razorpayPaymentId: { type: String },
+    returnData: { type: mongoose.Schema.Types.Mixed }
   },
   {
     timestamps: true,

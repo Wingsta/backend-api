@@ -22,15 +22,24 @@ export interface IOrder {
   userId: Types.ObjectId;
   companyId: Types.ObjectId;
   status:
-    | "COMPLETED"
-    | "DISPATCHED"
+    | "PROCESSING"
+    | "PAYMENT_PROCESSING"
     | "CONFIRMED"
-    | "PENDING"
+    | "REJECTED"
     | "CANCELLED"
+    | 'PAYMENT_FAILED'
+    | 'SHIPPED'
+    | 'DELIVERED'
+    | 'RETURNED'
+    | 'DELIVERY_CANCELLED'
     | string;
   deliveryAddress: IAddress;
   total : number;
   tax : number;
   totalAfterTax : number;
   paymentMethod: "CARD" | "CASH" | "UPI" | "NET-BANKING" | "FREE";
+  mode: string;
+  razorpayOrderId?: string,
+  razorpayPaymentId?: string,
+  returnData?: Object;
 }

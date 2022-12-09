@@ -22,6 +22,8 @@ export interface ICompany {
   _id: Types.ObjectId;
   companyName: string;
   meta: { [key : string] : any};
+  razorpayAppId?: string;
+  razorpaySecretKey?: string
 }
 
 

@@ -6,6 +6,7 @@
 
 import Log from '../middlewares/Log';
 import Locals from '../providers/Locals';
+import { sendErrorResponse } from '../services/response/sendresponse';
 
 class Handler {
 	/**
@@ -53,6 +54,11 @@ class Handler {
 	public static errorHandler(err, req, res, next): any {
 		Log.error(err.stack);
 		res.status(500);
+
+		err.status = err?.status || 500;
+		err.message = err?.message || "message";
+
+		return res.status(err.status).send(sendErrorResponse(err.message));
 
 		const apiPrefix = Locals.config().apiPrefix;
 		if (req.originalUrl.includes(`/${apiPrefix}/`)) {

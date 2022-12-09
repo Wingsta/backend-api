@@ -26,339 +26,351 @@ import CategoryController from "../controllers/Api/category/index";
 const router = Router();
 
 router.post(
-  "/upload",
-  passport.authenticate("jwt", { session: false }),
-  CommonController.upload
+	"/upload",
+	passport.authenticate("jwt", { session: false }),
+	CommonController.upload
 );
 
 router.post(
-  "/uploadForSocialLink",
-  passport.authenticate("jwt", { session: false }),
-  CommonController.uploadForSocialLink
+	"/uploadForSocialLink",
+	passport.authenticate("jwt", { session: false }),
+	CommonController.uploadForSocialLink
 );
 
 router.post(
-  "/bulkupload",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.bulkUpload
+	"/bulkupload",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.bulkUpload
 );
 
 router.post(
-  "/signup",
-  //   passport.authenticate("jwt", { session: false }),
-  AccountUserController.signup
-);
-
-
-router.post(
-  "/login",
-  //   passport.authenticate("jwt", { session: false }),
-  AccountUserController.login
+	"/signup",
+	//   passport.authenticate("jwt", { session: false }),
+	AccountUserController.signup
 );
 
 
 router.post(
-  "/change-password",
-  passport.authenticate("jwt", { session: false }),
-  AccountUserController.resetPassword
+	"/login",
+	//   passport.authenticate("jwt", { session: false }),
+	AccountUserController.login
+);
+
+
+router.post(
+	"/change-password",
+	passport.authenticate("jwt", { session: false }),
+	AccountUserController.resetPassword
 );
 
 router.get(
-  "/account-user",
-  passport.authenticate("jwt", { session: false }),
-  AccountUserController.getAccountUser
+	"/account-user",
+	passport.authenticate("jwt", { session: false }),
+	AccountUserController.getAccountUser
 );
 
 router.patch(
-  "/account-user",
-  passport.authenticate("jwt", { session: false }),
-  AccountUserController.patchAccountUser
+	"/account-user",
+	passport.authenticate("jwt", { session: false }),
+	AccountUserController.patchAccountUser
 );
 
 router.post(
-  "/insta/login",
-  passport.authenticate("jwt", { session: false }),
-  InstaAuthController.login
+	"/insta/login",
+	passport.authenticate("jwt", { session: false }),
+	InstaAuthController.login
 );
 
 router.get(
-  "/insta/post",
-  passport.authenticate("jwt", { session: false }),
-  InstaAuthController.get
+	"/insta/post",
+	passport.authenticate("jwt", { session: false }),
+	InstaAuthController.get
 );
 
 router.post(
-  "/insta/carousel",
-  passport.authenticate("jwt", { session: false }),
-  InstaAuthController.createCarousel
+	"/insta/carousel",
+	passport.authenticate("jwt", { session: false }),
+	InstaAuthController.createCarousel
 );
 
 router.get(
-  "/insta/post/:postId",
-  passport.authenticate("jwt", { session: false }),
-  InstaAuthController.login
+	"/insta/post/:postId",
+	passport.authenticate("jwt", { session: false }),
+	InstaAuthController.login
 );
 
 router.delete(
-  "/insta/post/:postId",
-  passport.authenticate("jwt", { session: false }),
-  InstaAuthController.login
+	"/insta/post/:postId",
+	passport.authenticate("jwt", { session: false }),
+	InstaAuthController.login
 );
 
 router.patch(
-  "/insta/post/:postId",
-  passport.authenticate("jwt", { session: false }),
-  InstaAuthController.login
+	"/insta/post/:postId",
+	passport.authenticate("jwt", { session: false }),
+	InstaAuthController.login
 );
 
 router.get(
-  "/refreshToken",
-  passport.authenticate("jwt", { session: false }),
-  AuthRefreshController.perform
+	"/refreshToken",
+	passport.authenticate("jwt", { session: false }),
+	AuthRefreshController.perform
 );
 
 router.post(
-  "/products",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.post
+	"/products",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.post
 );
 
 router.patch(
-  "/products",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.patch
+	"/products",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.patch
 );
 
 router.get(
-  "/products",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.get
+	"/products",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.get
 );
 
 router.get(
-  "/product/:productId/analytics",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.getIdPosts
+	"/product/:productId/analytics",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.getIdPosts
 );
 
 router.get(
-  "/product/:productId",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.getId
+	"/product/:productId",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.getId
 );
 
 router.get(
-  "/product/sku/:skuId",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.getSKU
+	"/product/sku/:skuId",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.getSKU
 );
 
 router.delete(
-  "/products",
-  passport.authenticate("jwt", { session: false }),
-  ProductController.delete
+	"/products",
+	passport.authenticate("jwt", { session: false }),
+	ProductController.delete
 );
 
 router.post(
-  "/domain/",
-  passport.authenticate("jwt", { session: false }),
-  DomainController.post
+	"/domain/",
+	passport.authenticate("jwt", { session: false }),
+	DomainController.post
 );
 
 router.get(
-  "/domain/exists",
-  passport.authenticate("jwt", { session: false }),
-  DomainController.get
+	"/domain/exists",
+	passport.authenticate("jwt", { session: false }),
+	DomainController.get
 );
 
 router.get(
-  "/domain/:domain",
-  passport.authenticate("jwt", { session: false }),
-  DomainController.getDomainMiddleWare,
-  DomainController.getDomain
+	"/domain/:domain",
+	passport.authenticate("jwt", { session: false }),
+	DomainController.getDomainMiddleWare,
+	DomainController.getDomain
 );
 
 router.post(
-  "/domain/toggle-publish/:domain",
-  passport.authenticate("jwt", { session: false }),
-  DomainController.togglePublish
+	"/domain/toggle-publish/:domain",
+	passport.authenticate("jwt", { session: false }),
+	DomainController.togglePublish
 );
 
 router.post(
-  "/domain/:domain/meta",
-  passport.authenticate("jwt", { session: false }),
-  DomainController.patchDomainMeta
+	"/domain/:domain/meta",
+	passport.authenticate("jwt", { session: false }),
+	DomainController.patchDomainMeta
 );
 
 router.post(
-  "/domain/:domain",
-  passport.authenticate("jwt", { session: false }),
-  DomainController.patchDomain
+	"/domain/:domain",
+	passport.authenticate("jwt", { session: false }),
+	DomainController.patchDomain
 );
 
 // admin orders
 router.get(
-  "/order/:id",
-  passport.authenticate("jwt", { session: false }),
+	"/order/:id",
+	passport.authenticate("jwt", { session: false }),
 
-  AdminOrderController.getOneOrder
+	AdminOrderController.getOneOrder
 );
 
 router.get(
-  "/orderhistory/:id",
-  passport.authenticate("jwt", { session: false }),
+	"/orderhistory/:id",
+	passport.authenticate("jwt", { session: false }),
 
-  AdminOrderController.getOrderHistory
+	AdminOrderController.getOrderHistory
 );
 
 router.get(
-  "/order/",
-  passport.authenticate("jwt", { session: false }),
+	"/order/",
+	passport.authenticate("jwt", { session: false }),
 
-  AdminOrderController.getOrders
+	AdminOrderController.getOrders
 );
 
 
 
 router.post(
-  "/order/updateStatus/:orderId",
-  passport.authenticate("jwt", { session: false }),
+	"/order/updateStatus/:orderId",
+	passport.authenticate("jwt", { session: false }),
 
-  AdminOrderController.statusUpdate
+	AdminOrderController.statusUpdate
 );
 
 /// profile 
 
 
 router.get(
-  "/public/profile",
-  passport.authenticate("profile", { session: false }),
-  
-  ProfileController.getProfile
+	"/public/profile",
+	passport.authenticate("profile", { session: false }),
+
+	ProfileController.getProfile
 );
 
 router.post(
-  "/public/domain/:domain/verifyProfile/:mobile",
-  DomainController.getPublicDomainMiddleWare,
-  ProfileController.verifyProfile
+	"/public/domain/:domain/verifyProfile/:mobile",
+	DomainController.getPublicDomainMiddleWare,
+	ProfileController.verifyProfile
 );
 
 router.post(
-  "/public/domain/:domain/profile",
-  DomainController.getPublicDomainMiddleWare,
-  ProfileController.postProfile
+	"/public/domain/:domain/profile",
+	DomainController.getPublicDomainMiddleWare,
+	ProfileController.postProfile
 );
 
 router.patch(
-  "/public/profile",
-  passport.authenticate("profile", { session: false }),
-  
-  ProfileController.patchProfile
+	"/public/profile",
+	passport.authenticate("profile", { session: false }),
+
+	ProfileController.patchProfile
 );
 
 router.post(
-  "/public/profile/address",
-  passport.authenticate("profile", { session: false }),
-  
-  ProfileController.postAddress
+	"/public/profile/address",
+	passport.authenticate("profile", { session: false }),
+
+	ProfileController.postAddress
 );
 
 router.patch(
-  "/public/profile/address/:addressId",
-  passport.authenticate("profile", { session: false }),
-  
-  ProfileController.patchAddress
+	"/public/profile/address/:addressId",
+	passport.authenticate("profile", { session: false }),
+
+	ProfileController.patchAddress
 );
 
 //// cart 
 
 router.get(
-  "/public/cart/",
-  passport.authenticate("profile", { session: false }),
-  
-  CartController.getCart
+	"/public/cart/",
+	passport.authenticate("profile", { session: false }),
+
+	CartController.getCart
 );
 
 router.get(
-  "/public/cart/count",
-  passport.authenticate("profile", { session: false }),
-  
-  CartController.getCartCount
+	"/public/cart/count",
+	passport.authenticate("profile", { session: false }),
+
+	CartController.getCartCount
 );
 
 router.post(
-  "/public/cart/add",
-  passport.authenticate("profile", { session: false }),
-  
-  CartController.postCart
+	"/public/cart/add",
+	passport.authenticate("profile", { session: false }),
+
+	CartController.postCart
 );
 
 router.post(
-  "/public/cart/alter",
-  passport.authenticate("profile", { session: false }),
+	"/public/cart/alter",
+	passport.authenticate("profile", { session: false }),
 
-  CartController.alterCart
+	CartController.alterCart
 );
 
 router.delete(
-  "/public/cart/deleteAll",
-  passport.authenticate("profile", { session: false }),
-  
-  CartController.deleteCartAll
+	"/public/cart/deleteAll",
+	passport.authenticate("profile", { session: false }),
+
+	CartController.deleteCartAll
 );
 
 router.delete(
-  "/public/cart/delete",
-  passport.authenticate("profile", { session: false }),
-  
-  CartController.deleteCart
+	"/public/cart/delete",
+	passport.authenticate("profile", { session: false }),
+
+	CartController.deleteCart
 );
 
 
 //// order
 
 router.get(
-  "/public/order/count",
-  passport.authenticate("profile", { session: false }),
-  
-  OrderController.getOrdersCount
+	"/public/order/count",
+	passport.authenticate("profile", { session: false }),
+
+	OrderController.getOrdersCount
 );
 
 router.get(
-  "/public/order/:id",
-  passport.authenticate("profile", { session: false }),
+	"/public/order/:id",
+	passport.authenticate("profile", { session: false }),
 
-  AdminOrderController.getOneOrder
+	AdminOrderController.getOneOrder
 );
 
 router.get(
-  "/public/orderhisotry/:id",
-  passport.authenticate("profile", { session: false }),
+	"/public/orderhisotry/:id",
+	passport.authenticate("profile", { session: false }),
 
-  AdminOrderController.getOrderHistory
+	AdminOrderController.getOrderHistory
 );
 
 router.get(
-  "/public/order/",
-  passport.authenticate("profile", { session: false }),
-  
-  OrderController.getOrders
+	"/public/order/",
+	passport.authenticate("profile", { session: false }),
+
+	OrderController.getOrders
 );
 
 
 
 router.post(
-  "/public/order/placeOrder",
-  passport.authenticate("profile", { session: false }),
-  
-  OrderController.postOrder
+	"/public/order/placeOrder",
+	passport.authenticate("profile", { session: false }),
+
+	OrderController.postOrder
 );
 
-router.post(
-  "/public/order/updateStatus/:orderId",
-  passport.authenticate("profile", { session: false }),
-  
-  OrderController.statusUpdate
+router.patch(
+	"/public/order/razorpay-response",
+	passport.authenticate("profile", { session: false }),
+
+	OrderController.updateRazorpayPayment
+);
+
+router.patch(
+	"/public/order/webhook/razorpay-response",
+	OrderController.updateRazorpayPaymentWebhook
+);
+
+router.patch(
+	"/public/order/razorpay-cancel",
+	passport.authenticate("profile", { session: false }),
+
+	OrderController.cancelRazorpayPayment
 );
 
 // router.patch(
@@ -381,103 +393,103 @@ router.post(
 //   DomainController.getPublicDomainMiddleWare
 // );
 router.get(
-  "/public/domain/:domain/products/:skuId",
+	"/public/domain/:domain/products/:skuId",
 
-  DomainController.getPublicDomainProducts,
-  ProductController.getSKU
+	DomainController.getPublicDomainProducts,
+	ProductController.getSKU
 );
 
 router.get(
-  "/public/domain/:domain/all-products",
+	"/public/domain/:domain/all-products",
 
-  DomainController.getPublicDomainProducts,
-  ProductController.getAllProducts
+	DomainController.getPublicDomainProducts,
+	ProductController.getAllProducts
 );
 
 router.get(
-  "/public/domain/:domain/category-products",
+	"/public/domain/:domain/category-products",
 
-  DomainController.getPublicDomainProducts,
-  ProductController.getCategory
+	DomainController.getPublicDomainProducts,
+	ProductController.getCategory
 );
 
 router.get(
-  "/public/domain/:domain/products",
+	"/public/domain/:domain/products",
 
-  DomainController.getPublicDomainProducts,
-  ProductController.get
+	DomainController.getPublicDomainProducts,
+	ProductController.get
 );
 
 router.get(
-  "/public/domain/:domain",
+	"/public/domain/:domain",
 
-  DomainController.getPublicDomain
+	DomainController.getPublicDomain
 );
 
 router.get(
-  "/domain/check/:domain",
-  DomainController.checkSubdomain
+	"/domain/check/:domain",
+	DomainController.checkSubdomain
 );
 
 router.post(
-  "/public/domain/:domain/message",
+	"/public/domain/:domain/message",
 
-  DomainController.getPublicDomainProducts,
-  MessageController.postMessage
+	DomainController.getPublicDomainProducts,
+	MessageController.postMessage
 );
 
 router.get(
-  "/message",
-  passport.authenticate("jwt", { session: false }),
-  MessageController.getAllMessages
+	"/message",
+	passport.authenticate("jwt", { session: false }),
+	MessageController.getAllMessages
 );
 
 router.get(
-  "/customers",
-  passport.authenticate("jwt", { session: false }),
-  CustomerController.getCustomers
+	"/customers",
+	passport.authenticate("jwt", { session: false }),
+	CustomerController.getCustomers
 );
 
 router.get(
-  "/customers/:customerId",
-  passport.authenticate("jwt", { session: false }),
-  CustomerController.getCustomerDetail
+	"/customers/:customerId",
+	passport.authenticate("jwt", { session: false }),
+	CustomerController.getCustomerDetail
 );
 
 router.get(
-  "/category",
-  passport.authenticate("jwt", { session: false }),
-  CategoryController.getAllCategory
+	"/category",
+	passport.authenticate("jwt", { session: false }),
+	CategoryController.getAllCategory
 );
 
 router.post(
-  "/category/check-duplicate",
-  passport.authenticate("jwt", { session: false }),
-  CategoryController.checkDuplicate
+	"/category/check-duplicate",
+	passport.authenticate("jwt", { session: false }),
+	CategoryController.checkDuplicate
 );
 
 router.post(
-  "/category",
-  passport.authenticate("jwt", { session: false }),
-  CategoryController.createCategory
+	"/category",
+	passport.authenticate("jwt", { session: false }),
+	CategoryController.createCategory
 );
 
 router.patch(
-  "/category/sort",
-  passport.authenticate("jwt", { session: false }),
-  CategoryController.sortCategory
+	"/category/sort",
+	passport.authenticate("jwt", { session: false }),
+	CategoryController.sortCategory
 );
 
 router.patch(
-  "/category/:categoryId",
-  passport.authenticate("jwt", { session: false }),
-  CategoryController.editCategory
+	"/category/:categoryId",
+	passport.authenticate("jwt", { session: false }),
+	CategoryController.editCategory
 );
 
 router.delete(
-  "/category/:categoryId",
-  passport.authenticate("jwt", { session: false }),
-  CategoryController.deleteCategory
+	"/category/:categoryId",
+	passport.authenticate("jwt", { session: false }),
+	CategoryController.deleteCategory
 );
 
 export default router;
