@@ -410,7 +410,7 @@ class ProfileController {
 			const { payload } = req.body;
 			
 			if (payload?.payment?.entity) {
-				const { order_id } = payload?.payment?.entity;
+				const { order_id, id } = payload?.payment?.entity;
 
 				const order = await Order.findOne({ 
 					razorpayOrderId: order_id,
@@ -424,11 +424,11 @@ class ProfileController {
 					if (company && company?.razorpayAppId && company?.razorpaySecretKey) {
 
 						const { razorpayAppId, razorpaySecretKey  } = company;
-						
+
 						let mode = "Others";
 
 						// Get payment method from razorpay
-						const paymentData = await axios.get(`https://${razorpayAppId}:${razorpaySecretKey}@api.razorpay.com/v1/payments/${req.body.razorpay_payment_id}/?expand[]=card`);
+						const paymentData = await axios.get(`https://${razorpayAppId}:${razorpaySecretKey}@api.razorpay.com/v1/payments/${id}/?expand[]=card`);
 						if (paymentData?.data) {
 
 							const { method } = paymentData?.data;
