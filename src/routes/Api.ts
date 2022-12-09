@@ -361,7 +361,7 @@ router.patch(
 	OrderController.updateRazorpayPayment
 );
 
-router.patch(
+router.post(
 	"/public/order/webhook/razorpay-response",
 	OrderController.updateRazorpayPaymentWebhook
 );
