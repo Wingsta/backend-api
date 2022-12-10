@@ -29,26 +29,28 @@ import { uploadImage } from "../../../services/gcloud/upload";
 import Domain from "../../../models/domain";
 import { IDomain } from "../../../interfaces/models/domains";
 
+let constants = [
+	"subdomain",
+	"auth",
+	"dashboard",
+	"product",
+	"instagram",
+	"subdomain",
+	"website",
+	"orders",
+	"payments",
+	"customers",
+	"analytics",
+	"profile",
+	"messages",
+	"delivery"
+];
+
 class Products {
 	public static async get(req: Request, res: Response, next: NextFunction) {
 		try {
 			let name = req.query.name as string;
 
-			let constants = [
-				"subdomain",
-				"auth",
-				"dashboard",
-				"product",
-				"instagram",
-				"subdomain",
-				"website",
-				"orders",
-				"payments",
-				"customers",
-				"analytics",
-				"profile",
-				"messages"
-			];
 			if (constants.includes(name)) {
 				return res.json(
 					sendSuccessResponse({
@@ -126,21 +128,7 @@ class Products {
 	public static async post(req: Request, res: Response, next: NextFunction) {
 		try {
 			let name = req.body.name as string;
-			let constants = [
-				"subdomain",
-				"auth",
-				"dashboard",
-				"product",
-				"instagram",
-				"subdomain",
-				"website",
-				"orders",
-				"payments",
-				"customers",
-				"analytics",
-				"profile",
-				"messages"
-			];
+			
 			if (constants.includes(req.body.name)) {
 				return res.json(sendErrorResponse("restricted keywrod"));
 			}
@@ -432,21 +420,6 @@ class Products {
 				return res.json(sendErrorResponse("name not found", 1002));
 			}
 
-			let constants = [
-				"subdomain",
-				"auth",
-				"dashboard",
-				"product",
-				"instagram",
-				"subdomain",
-				"website",
-				"orders",
-				"payments",
-				"customers",
-				"analytics",
-				"profile",
-				"messages"
-			];
 			if (constants.includes(name)) {
 				return res.json(sendErrorResponse("restricted keywrod"));
 			}

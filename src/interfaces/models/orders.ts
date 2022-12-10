@@ -36,6 +36,7 @@ export interface IOrder {
   deliveryAddress: IAddress;
   total : number;
   tax : number;
+  delivery: number;
   totalAfterTax : number;
   paymentMethod: "CARD" | "CASH" | "UPI" | "NET-BANKING" | "FREE";
   mode: string;

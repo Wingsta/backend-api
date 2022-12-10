@@ -63,3 +63,19 @@ export const createRazorpayOrder = (key_id: string, key_secret: string, amount:n
         });
     })
 }
+
+export const deliveryZoneConstants = {
+    NO_LIMITATION: "NO_LIMITATION",
+    ADVANCED: "ADVANCED"
+}
+
+export const deliveryFeeConstants = {
+    "FREE": "FREE",
+    "FLAT": "FLAT",
+    "CUSTOM": "CUSTOM"
+}
+
+export const deliveryFlatFeeConstants = {
+    "AMOUNT": "AMOUNT",
+    "PERCENTAGE": "PERCENTAGE"
+}

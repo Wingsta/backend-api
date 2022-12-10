@@ -22,6 +22,8 @@ import AdminOrderController from "../controllers/Api/admin-orders/index";
 import MessageController from "../controllers/Api/message/index";
 import CustomerController from "../controllers/Api/customers/index";
 import CategoryController from "../controllers/Api/category/index";
+import PostalCodeController from "../controllers/Api/postalCode/index";
+import DeliveryController from "../controllers/Api/delivery/index";
 
 const router = Router();
 
@@ -490,6 +492,23 @@ router.delete(
 	"/category/:categoryId",
 	passport.authenticate("jwt", { session: false }),
 	CategoryController.deleteCategory
+);
+
+router.post(
+	"/postal-code",
+	PostalCodeController.getPostalCode
+);
+
+router.get(
+	"/delivery",
+	passport.authenticate("jwt", { session: false }),
+	DeliveryController.getDeliverySettings
+);
+
+router.post(
+	"/delivery",
+	passport.authenticate("jwt", { session: false }),
+	DeliveryController.saveDeliverySettings
 );
 
 export default router;
