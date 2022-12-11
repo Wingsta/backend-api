@@ -16,136 +16,142 @@ import {
   ORDER_STATUS,
   PAYMENT_METHOD,
 } from "../../../utils/constants";
+
+import { calculateDeliveryCharge } from "../common/common";
 const crypto = require("crypto");
 const axios = require("axios");
 import puppeteer from "puppeteer";
 import Domain from "../../../models/domain";
-import { Blob } from "buffer";
+
 
 
 class ProfileController {
-  public static async getOrders(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let { id, companyId } = req.user as { companyId: string; id: string };
+	public static async getOrders(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
 
-      if (!id) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
-      let {
-        limit = 10,
-        offset = 0,
-        startDate,
-        endDate,
-        sortBy = "createdAt",
-        sortType = "desc",
-        status,
-      } = req.query as unknown as {
-        limit: number;
-        offset: number;
-        sortBy: string;
-        startDate: Date;
-        endDate: Date;
-        sortType: string;
-        status: string;
-      };
+			let { id, companyId } = req.user as { companyId: string; id: string };
 
-      if (limit) {
-        limit = parseInt(limit.toString());
-      }
+			if (!id) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
+			let {
+				limit = 10,
+				offset = 0,
+				startDate,
+				endDate,
+				sortBy = "createdAt",
+				sortType = "desc",
+				status,
+			} = req.query as unknown as {
+				limit: number;
+				offset: number;
+				sortBy: string;
+				startDate: Date;
+				endDate: Date;
+				sortType: string;
+				status: string;
+			};
 
-      if (offset) {
-        offset = parseInt(offset.toString());
-      }
-      let mongoQuery = {
-        companyId: new ObjectId(companyId),
-        userId: new ObjectId(id),
-      } as any;
+			if (limit) {
+				limit = parseInt(limit.toString());
+			}
 
-      if (status) {
-        let statusTypes = status.split(",");
-        mongoQuery["status"] = { $in: statusTypes };
-      }
+			if (offset) {
+				offset = parseInt(offset.toString());
+			}
+			let mongoQuery = {
+				companyId: new ObjectId(companyId),
+				userId: new ObjectId(id),
+			} as any;
 
-      if (startDate) {
-        if (!mongoQuery["$and"]) {
-          mongoQuery["$and"] = [];
-        }
-        mongoQuery["$and"].push({
-          createdAt: {
-            $gte: moment(startDate).startOf("day").toDate(),
-          },
-        });
-      }
+			if (status) {
+				let statusTypes = status.split(",");
+				mongoQuery["status"] = { $in: statusTypes };
+			}
 
-      if (endDate) {
-        if (!mongoQuery["$and"]) {
-          mongoQuery["$and"] = [];
-        }
-        mongoQuery["$and"].push({
-          createdAt: {
-            $lte: moment(endDate).endOf("day").toDate(),
-          },
-        });
-      }
+			if (startDate) {
+				if (!mongoQuery["$and"]) {
+					mongoQuery["$and"] = []
+				}
+				mongoQuery['$and'].push({
+					createdAt: {
+						$gte: moment(startDate).startOf("day").toDate(),
+					}
+				})
+			}
 
-      let orderDetails = await Order.find(mongoQuery)
-        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
-        .skip(offset)
-        .limit(limit)
-        // .populate("userId")
-        .lean();
+			if (endDate) {
+				if (!mongoQuery["$and"]) {
+					mongoQuery["$and"] = []
+				}
+				mongoQuery["$and"].push({
+					createdAt: {
+						$lte: moment(endDate).endOf("day").toDate(),
+					}
+				});
 
-      let count = await Order.count(mongoQuery);
+			}
 
-      if (orderDetails) {
-        return res.json(
-          sendSuccessResponse({
-            orderDetails: orderDetails,
-            count,
-          })
-        );
-      }
+			let orderDetails = await Order.find(mongoQuery)
+				.sort([[sortBy, sortType === "asc" ? 1 : -1]])
+				.skip(offset)
+				.limit(limit)
+				// .populate("userId")
+				.lean();
 
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			let count = await Order.count(mongoQuery);
 
-  public static async getOrdersCount(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let { id, companyId } = req.user as { companyId: string; id: string };
+			if (orderDetails) {
+				return res.json(
+					sendSuccessResponse({
+						orderDetails: orderDetails,
+						count,
+					})
+				);
+			}
 
-      if (!id) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-      let orderDetails = await Order.count({
-        userId: new ObjectId(id),
-        companyId: new ObjectId(companyId),
-      });
+	public static async getOrdersCount(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
 
-      if (orderDetails !== undefined) {
-        return res.json(
-          sendSuccessResponse({
-            count: orderDetails,
-          })
-        );
-      }
+			let { id, companyId } = req.user as { companyId: string; id: string };
 
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			if (!id) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
+
+
+			let orderDetails = await Order.count({
+				userId: new ObjectId(id),
+				companyId: new ObjectId(companyId),
+			})
+
+			if (orderDetails !== undefined) {
+				return res.json(
+					sendSuccessResponse({
+						count: orderDetails,
+					})
+				);
+			}
+
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
   public static async getPdfBlob(
     req: Request,
@@ -452,427 +458,433 @@ class ProfileController {
       next(error);
     }
   }
+	public static async postOrder(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
 
-  public static async postOrder(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let cartId = req.body.cartId as string[];
-      let deliveryAddress = req.body.deliveryAddress as IAddress;
-      let paymentMethod = req.body.paymentMethod;
-      let preview = req.body.preview;
+			let cartId = req.body.cartId as string[];
+			let deliveryAddress = req.body.deliveryAddress as IAddress;
+			let paymentMethod = req.body.paymentMethod;
+			let preview = req.body.preview;
 
-      let { id, companyId } = req.user as { companyId: string; id: string };
+			let { id, companyId } = req.user as { companyId: string; id: string };
 
-      if (!id) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+			if (!id) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
 
-      if (!preview && !deliveryAddress) {
-        return res.json(sendErrorResponse("deliveryAddress needed"));
-      }
+			if (!preview && !deliveryAddress) {
+				return res.json(sendErrorResponse("deliveryAddress needed"));
+			}
 
-      if (!preview && !paymentMethod) {
-        return res.json(sendErrorResponse("deliveryAddress needed"));
-      }
+			if (!preview && !paymentMethod) {
+				return res.json(sendErrorResponse("deliveryAddress needed"));
+			}
 
-      let query = {} as any;
-      if (cartId?.length) {
-        query = { _id: { $in: cartId.map((it) => new ObjectId(it)) } };
-      }
-      let cartIdFound = [] as string[];
-      let products = (
-        await Cart.find({
-          ...query,
-          userId: new ObjectId(id),
-        })
-          .populate("productId")
-          .lean()
-      )?.map((it) => {
-        let product = it?.productId as any as IProducts;
-        cartIdFound.push(it._id);
-        return {
-          name: product?.name,
-          sku: product?.sku,
-          quantity: it?.quantity || 1,
-          thumbnail: product?.thumbnail,
-          productId: product?._id,
-          price: product?.price,
-        };
-      });
+			let query = {} as any;
+			if (cartId?.length) {
+				query = { _id: { $in: cartId.map((it) => new ObjectId(it)) } };
+			}
+			let cartIdFound = [] as string[]
+			let products = (
+				await Cart.find({
+					...query,
+					userId: new ObjectId(id),
+				})
+					.populate("productId")
+					.lean()
+			)?.map((it) => {
+				let product = it?.productId as any as IProducts;
+				cartIdFound.push(it._id)
+				return {
+					name: product?.name,
+					sku: product?.sku,
+					quantity: it?.quantity || 1,
+					thumbnail: product?.thumbnail,
+					productId: product?._id,
+					price: product?.price,
+				};
+			});
 
-      const reducedProduct = products.reduce((a, b) => {
-        let k = { ...a };
-        k.price =
-          (a?.quantity || 1) * (a?.price || 0) +
-          (b?.quantity || 1) * (b?.price || 0);
-        return k;
-      });
-      let total = products?.length
-        ? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
-        : 0;
-      let tax = 0;
-      let totalAfterTax = (total + tax).toFixed(2);
+			const reducedProduct = products.reduce((a, b) => {
+				let k = { ...a }
+				k.price =
+					((a?.quantity || 1) * (a?.price || 0)) + ((b?.quantity || 1) * (b?.price || 0));
+				return k;
+			});
+			let total = products?.length
+				? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
+				: 0;
+			let tax = 0;
 
-      if (!products) {
-        return res.json(sendErrorResponse("products not found"));
-      }
+			if (!products) {
+				return res.json(sendErrorResponse("products not found"));
+			}
 
-      if (preview)
-        return res.json(
-          sendSuccessResponse({
-            userId: id,
-            products: products,
-            total,
-            tax,
-            totalAfterTax,
-            deliveryAddress,
-            paymentMethod,
-          })
-        );
+			const orderAmount = (total + tax).toFixed(2)
 
-      let status = ORDER_STATUS.PROCESSING;
+			const {
+				pincode,
+            	deliveryCost
+			} = await calculateDeliveryCharge(companyId, orderAmount);
 
-      let razorpayData = {};
+			let totalAfterTax = (total + tax + deliveryCost).toFixed(2);
 
-      if (paymentMethod === PAYMENT_METHOD.RAZORPAY) {
-        const company = await Company.findById(companyId);
+			if (preview)
+				return res.json(
+					sendSuccessResponse({
+						userId: id,
+						products: products,
+						total,
+						tax,
+						delivery: deliveryCost,
+						totalAfterTax,
+						deliveryAddress,
+						paymentMethod,
+						pincode
+					})
+				);
+			
+			let status = ORDER_STATUS.PROCESSING;
 
-        if (!company) {
-          throw new Error("Store details not found!");
-        }
+			let razorpayData = {};
 
-        const { razorpayAppId, razorpaySecretKey } = company;
+			if (paymentMethod === PAYMENT_METHOD.RAZORPAY) {
+				
+				const company = await Company.findById(companyId);
 
-        if (!(razorpayAppId && razorpaySecretKey)) {
-          throw new Error("Razorpay creds not found!");
-        }
+				if (!company) {
+					throw new Error("Store details not found!");
+				}
 
-        const orderData = await createRazorpayOrder(
-          razorpayAppId,
-          razorpaySecretKey,
-          +totalAfterTax
-        );
+				const {
+					razorpayAppId,
+					razorpaySecretKey
+				} = company;
 
-        razorpayData = {
-          razorpayOrderId: orderData?.id,
-          returnData: orderData,
-        };
+				if (!(razorpayAppId && razorpaySecretKey)) {
+					throw new Error("Razorpay creds not found!");
+				}
 
-        status = ORDER_STATUS.PAYMENT_PROCESSING;
-      }
+				const orderData = await createRazorpayOrder(razorpayAppId, razorpaySecretKey, +totalAfterTax);
 
-      let order = await new Order({
-        userId: new ObjectId(id),
-        companyId: companyId,
-        products: products,
-        status,
-        total,
-        tax,
-        totalAfterTax,
-        deliveryAddress,
-        paymentMethod,
-        ...razorpayData,
-      }).save();
+				razorpayData = {
+					razorpayOrderId: orderData?.id,
+					returnData: orderData
+				}
 
-      if (order?._id) {
-        await Cart.deleteMany({
-          _id: { $in: cartIdFound.map((it) => new ObjectID(it)) },
-        });
-        return res.json(
-          sendSuccessResponse({
-            ...order.toJSON(),
-          })
-        );
-      }
+				status = ORDER_STATUS.PAYMENT_PROCESSING
+			}
 
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			let order = await new Order({
+				userId: new ObjectId(id),
+				companyId: companyId,
+				products: products,
+				status,
+				total,
+				tax,
+				delivery: deliveryCost,
+				totalAfterTax,
+				deliveryAddress,
+				paymentMethod,
+				...razorpayData
+			}).save();
 
-  public static async updateRazorpayPayment(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let razorpay_order_id = req.body.razorpay_order_id as string;
+			if (order?._id) {
+				await Cart.deleteMany({ _id: { $in: cartIdFound.map(it => new ObjectID(it)) } });
+				return res.json(
+					sendSuccessResponse({
+						...order.toJSON(),
+					})
+				);
+			}
 
-      let { id, companyId } = req.user as { companyId: string; id: string };
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-      if (!id) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+	public static async updateRazorpayPayment(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
 
-      if (!razorpay_order_id) {
-        throw new Error("Razorpay order id is required!");
-      }
+			let razorpay_order_id = req.body.razorpay_order_id as string;
 
-      const company = await Company.findById(companyId);
+			let { id, companyId } = req.user as { companyId: string; id: string };
 
-      if (!company) {
-        throw new Error("company details not found!");
-      }
+			if (!id) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
 
-      const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
+			if (!razorpay_order_id) {
+				throw new Error("Razorpay order id is required!");
+			}
 
-      if (!order) {
-        throw new Error("order details not found!");
-      }
+			const company = await Company.findById(companyId);
 
-      const { razorpayAppId, razorpaySecretKey } = company;
+			if (!company) {
+				throw new Error("company details not found!");
+			}
 
-      const generatedSignature = crypto
-        .createHmac("SHA256", razorpaySecretKey)
-        .update(req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id)
-        .digest("hex");
+			const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
 
-      if (generatedSignature !== req.body.razorpay_signature) {
-        await Order.findOneAndUpdate(
-          {
-            razorpayOrderId: req.body.razorpay_order_id,
-          },
-          {
-            status: ORDER_STATUS.PAYMENT_FAILED,
-          }
-        );
+			if (!order) {
+				throw new Error("order details not found!");
+			}
 
-        return res.json(sendErrorResponse("Invalid Transaction!"));
-      }
+			const { razorpayAppId, razorpaySecretKey  } = company;
 
-      let mode = "Others";
+			const generatedSignature = crypto.createHmac("SHA256", razorpaySecretKey)
+				.update(req.body.razorpay_order_id + '|' + req.body.razorpay_payment_id)
+				.digest('hex');
 
-      // Get payment method from razorpay
-      const paymentData = await axios.get(
-        `https://${razorpayAppId}:${razorpaySecretKey}@api.razorpay.com/v1/payments/${req.body.razorpay_payment_id}/?expand[]=card`
-      );
-      if (paymentData?.data) {
-        const { method } = paymentData.data;
-        if (method) {
-          switch (method) {
-            case "card":
-              if (paymentData.data.card) {
-                const { type } = paymentData.data.card;
-                if (type) {
-                  if (type === "debit") {
-                    mode = "Debit";
-                  } else if (type === "credit") {
-                    mode = "Credit";
-                  }
-                }
-              }
-              break;
-            case "upi":
-              mode = "UPI";
-              break;
-            case "netbanking":
-              mode = "Netbanking";
-              break;
-            case "wallet":
-              mode = "Wallet";
-              break;
-            case "emi":
-            case "cardless_emi":
-              mode = "EMI";
-              break;
-            default:
-              break;
-          }
-        }
+			if (generatedSignature !== req.body.razorpay_signature) {
 
-        if (paymentData?.data?.status === "captured") {
-          await Order.findOneAndUpdate(
-            {
-              razorpayOrderId: razorpay_order_id,
-            },
-            {
-              status: ORDER_STATUS.CONFIRMED,
-              mode: mode,
-              returnData: { ...order.returnData, ...req.body },
-              razorpayPaymentId: req.body.razorpay_payment_id,
-            }
-          );
-        } else if (paymentData?.data?.status === "failed") {
-          await Order.findOneAndUpdate(
-            {
-              razorpayOrderId: razorpay_order_id,
-            },
-            {
-              status: ORDER_STATUS.PAYMENT_FAILED,
-            }
-          );
-        }
-      }
+				await Order.findOneAndUpdate(
+					{
+						razorpayOrderId: req.body.razorpay_order_id
+					},
+					{ 
+						status: ORDER_STATUS.PAYMENT_FAILED 
+					}
+				);
 
-      return res.json(
-        sendSuccessResponse(null, "Payment status updated successfully!")
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+				return res.json(sendErrorResponse("Invalid Transaction!"));
+			}
 
-  public static async updateRazorpayPaymentWebhook(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { payload } = req.body;
+			let mode = "Others";
 
-      if (payload?.payment?.entity) {
-        const { order_id, id } = payload?.payment?.entity;
+			// Get payment method from razorpay
+			const paymentData = await axios.get(`https://${razorpayAppId}:${razorpaySecretKey}@api.razorpay.com/v1/payments/${req.body.razorpay_payment_id}/?expand[]=card`);
+			if (paymentData?.data) {
+				
+				const { method } = paymentData.data;
+				if (method) {
+					switch (method) {
+						case 'card':
+							if (paymentData.data.card) {
+								const { type } = paymentData.data.card;
+								if (type) {
+									if (type === 'debit') {
+										mode = 'Debit';
+									} else if (type === 'credit') {
+										mode = 'Credit';
+									}
+								}
+							}
+							break;
+						case 'upi':
+							mode = 'UPI';
+							break;
+						case 'netbanking':
+							mode = 'Netbanking';
+							break;
+						case 'wallet':
+							mode = 'Wallet';
+							break;
+						case 'emi':
+						case 'cardless_emi':
+							mode = 'EMI';
+							break;
+						default:
+							break;
+					}
+				}
 
-        const order = await Order.findOne({
-          razorpayOrderId: order_id,
-          status: ORDER_STATUS.PAYMENT_PROCESSING,
-        });
+				if (paymentData?.data?.status === "captured") {
+					await Order.findOneAndUpdate(
+						{
+							razorpayOrderId: razorpay_order_id
+						},
+						{
+							status: ORDER_STATUS.CONFIRMED,
+							mode: mode,
+							returnData: { ...order.returnData, ...req.body },
+							razorpayPaymentId: req.body.razorpay_payment_id
+						}
+					);
+				} else if (paymentData?.data?.status === "failed") {
+					await Order.findOneAndUpdate(
+						{
+							razorpayOrderId: razorpay_order_id
+						},
+						{
+							status: ORDER_STATUS.PAYMENT_FAILED
+						}
+					);
+				}
+			}
 
-        if (order) {
-          const company = await Company.findById(order?.companyId);
+			return res.json(sendSuccessResponse(null, "Payment status updated successfully!"));
+		} catch (error) {
+			next(error);
+		}
+	}
 
-          if (company && company?.razorpayAppId && company?.razorpaySecretKey) {
-            const { razorpayAppId, razorpaySecretKey } = company;
+	public static async updateRazorpayPaymentWebhook(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
 
-            let mode = "Others";
+			const { payload } = req.body;
+			
+			if (payload?.payment?.entity) {
+				const { order_id, id } = payload?.payment?.entity;
 
-            // Get payment method from razorpay
-            const paymentData = await axios.get(
-              `https://${razorpayAppId}:${razorpaySecretKey}@api.razorpay.com/v1/payments/${id}/?expand[]=card`
-            );
-            if (paymentData?.data) {
-              const { method } = paymentData?.data;
-              if (method) {
-                switch (method) {
-                  case "card":
-                    if (paymentData.data.card) {
-                      const { type } = paymentData.data.card;
-                      if (type) {
-                        if (type === "debit") {
-                          mode = "Debit";
-                        } else if (type === "credit") {
-                          mode = "Credit";
-                        }
-                      }
-                    }
-                    break;
-                  case "upi":
-                    mode = "UPI";
-                    break;
-                  case "netbanking":
-                    mode = "Netbanking";
-                    break;
-                  case "wallet":
-                    mode = "Wallet";
-                    break;
-                  case "emi":
-                  case "cardless_emi":
-                    mode = "EMI";
-                    break;
-                  default:
-                    break;
-                }
-              }
+				const order = await Order.findOne({ 
+					razorpayOrderId: order_id,
+					status: ORDER_STATUS.PAYMENT_PROCESSING
+				});
 
-              if (paymentData?.data?.status === "captured") {
-                await Order.findOneAndUpdate(
-                  {
-                    razorpayOrderId: order_id,
-                  },
-                  {
-                    status: ORDER_STATUS.CONFIRMED,
-                    mode: mode,
-                    returnData: {
-                      ...order.returnData,
-                      ...payload.payment.entity,
-                    },
-                    razorpayPaymentId: paymentData?.data?.id,
-                  }
-                );
-              } else if (paymentData?.data?.status === "failed") {
-                await Order.findOneAndUpdate(
-                  {
-                    razorpayOrderId: order_id,
-                  },
-                  {
-                    status: ORDER_STATUS.PAYMENT_FAILED,
-                  }
-                );
-              }
-            }
-          }
-        }
-      }
+				if (order) {
 
-      res.status(200).send("Success");
-    } catch (error) {
-      next(error);
-    }
-  }
+					const company = await Company.findById(order?.companyId);
 
-  public static async cancelRazorpayPayment(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let razorpay_order_id = req.body.razorpay_order_id as string;
+					if (company && company?.razorpayAppId && company?.razorpaySecretKey) {
 
-      await Order.findOneAndUpdate(
-        {
-          razorpayOrderId: razorpay_order_id,
-        },
-        {
-          status: ORDER_STATUS.PAYMENT_FAILED,
-        }
-      );
+						const { razorpayAppId, razorpaySecretKey  } = company;
 
-      return res.json(
-        sendErrorResponse("Payment status updated successfully!")
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
+						let mode = "Others";
 
-  public static async statusUpdate(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      let orderId = req.params.orderId as string;
+						// Get payment method from razorpay
+						const paymentData = await axios.get(`https://${razorpayAppId}:${razorpaySecretKey}@api.razorpay.com/v1/payments/${id}/?expand[]=card`);
+						if (paymentData?.data) {
 
-      let status = req.body.status as string;
+							const { method } = paymentData?.data;
+							if (method) {
+								switch (method) {
+									case 'card':
+										if (paymentData.data.card) {
+											const { type } = paymentData.data.card;
+											if (type) {
+												if (type === 'debit') {
+													mode = 'Debit';
+												} else if (type === 'credit') {
+													mode = 'Credit';
+												}
+											}
+										}
+										break;
+									case 'upi':
+										mode = 'UPI';
+										break;
+									case 'netbanking':
+										mode = 'Netbanking';
+										break;
+									case 'wallet':
+										mode = 'Wallet';
+										break;
+									case 'emi':
+									case 'cardless_emi':
+										mode = 'EMI';
+										break;
+									default:
+										break;
+								}
+							}
 
-      let { id, companyId } = req.user as { companyId: string; id: string };
+							if (paymentData?.data?.status === "captured") {
+								await Order.findOneAndUpdate(
+									{
+										razorpayOrderId: order_id
+									},
+									{
+										status: ORDER_STATUS.CONFIRMED,
+										mode: mode,
+										returnData: { ...order.returnData, ...payload.payment.entity },
+										razorpayPaymentId: paymentData?.data?.id
+									}
+								);
+							} else if (paymentData?.data?.status === "failed") {
+								await Order.findOneAndUpdate(
+									{
+										razorpayOrderId: order_id
+									},
+									{
+										status: ORDER_STATUS.PAYMENT_FAILED 
+									}
+								);
+							}
 
-      if (!id) {
-        return res.json(sendErrorResponse("unauthorised"));
-      }
+						}
+					}
+				}
+			}
 
-      if (!status) {
-        return res.json(sendErrorResponse("status needed"));
-      }
+			res.status(200).send('Success')
+		} catch (error) {
+			next(error);
+		}
+	}
 
-      let update = await Order.updateOne(
-        { companyId: companyId, _id: new ObjectId(orderId) },
-        { $set: { status } },
-        { upsert: true }
-      );
+	public static async cancelRazorpayPayment(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
 
-      if (update?.ok) {
-        await OrderHistory.insertMany([{ orderId: id, status }]);
-        return res.json(sendSuccessResponse({ message: "updated status" }));
-      }
-      return res.json(sendErrorResponse("something went wrong"));
-    } catch (error) {
-      next(error);
-    }
-  }
+			let razorpay_order_id = req.body.razorpay_order_id as string;
+
+			await Order.findOneAndUpdate(
+				{
+					razorpayOrderId: razorpay_order_id
+				},
+				{ 
+					status: ORDER_STATUS.PAYMENT_FAILED 
+				}
+			);
+
+			return res.json(sendErrorResponse("Payment status updated successfully!"));
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public static async statusUpdate(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+
+			let orderId = req.params.orderId as string;
+
+			let status = req.body.status as string;
+
+			let { id, companyId } = req.user as { companyId: string; id: string };
+
+			if (!id) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
+
+			if (!status) {
+				return res.json(sendErrorResponse("status needed"));
+			}
+
+			let update = await Order.updateOne(
+				{ companyId: companyId, _id: new ObjectId(orderId) },
+				{ $set: { status } },
+				{ upsert: true }
+			);
+
+			if (update?.ok) {
+				await OrderHistory.insertMany([{ orderId: id, status }]);
+				return res.json(sendSuccessResponse({ message: "updated status" }));
+			}
+			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
 }
 export default ProfileController;
