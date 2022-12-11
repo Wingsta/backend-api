@@ -513,6 +513,7 @@ class ProfileController {
 				let k = { ...a }
 				k.price =
 					((a?.quantity || 1) * (a?.price || 0)) + ((b?.quantity || 1) * (b?.price || 0));
+				k.quantity = undefined;
 				return k;
 			});
 			let total = products?.length
