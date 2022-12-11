@@ -327,6 +327,13 @@ router.get(
 );
 
 router.get(
+  "/public/order/pdf/:id",
+  passport.authenticate("profile", { session: false }),
+
+  OrderController.getPdfBlob
+);
+
+router.get(
 	"/public/order/:id",
 	passport.authenticate("profile", { session: false }),
 

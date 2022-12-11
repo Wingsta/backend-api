@@ -23,9 +23,10 @@ class Local {
         
         Profile.findOne({ _id: jwt_payload.id }, function (err, user) {
           if (err) {
-            
+            console.log(err)
             return done(err, false);
           }
+          console.log(user,"sds")
           if (user) {
             
             return done(null, jwt_payload);
