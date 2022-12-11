@@ -12,6 +12,7 @@ import Order from "../../../models/orders";
 import moment = require("moment");
 import OrderHistory from "../../../models/orderhistory";
 import { createRazorpayOrder, ORDER_STATUS, PAYMENT_METHOD } from "../../../utils/constants";
+import { calculateDeliveryCharge } from "../common/common";
 const crypto = require("crypto");
 const axios = require("axios");
 class ProfileController {
@@ -202,11 +203,19 @@ class ProfileController {
 				? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
 				: 0;
 			let tax = 0;
-			let totalAfterTax = (total + tax).toFixed(2);
 
 			if (!products) {
 				return res.json(sendErrorResponse("products not found"));
 			}
+
+			const orderAmount = (total + tax).toFixed(2)
+
+			const {
+				pincode,
+            	deliveryCost
+			} = await calculateDeliveryCharge(companyId, orderAmount);
+
+			let totalAfterTax = (total + tax + deliveryCost).toFixed(2);
 
 			if (preview)
 				return res.json(
@@ -215,9 +224,11 @@ class ProfileController {
 						products: products,
 						total,
 						tax,
+						delivery: deliveryCost,
 						totalAfterTax,
 						deliveryAddress,
 						paymentMethod,
+						pincode
 					})
 				);
 			
@@ -259,6 +270,7 @@ class ProfileController {
 				status,
 				total,
 				tax,
+				delivery: deliveryCost,
 				totalAfterTax,
 				deliveryAddress,
 				paymentMethod,
