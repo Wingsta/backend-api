@@ -43,4 +43,6 @@ export interface IOrder {
   razorpayOrderId?: string,
   razorpayPaymentId?: string,
   returnData?: Object;
+  createdAt: string;
+  updatedAt: string;
 }
