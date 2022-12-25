@@ -27,7 +27,12 @@ export const DeliverySchema = new mongoose.Schema<IDelivery>(
             deliveryCharge: {
                 type: Number
             }
-        }]
+        }],
+
+        selfPickup: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps: true,

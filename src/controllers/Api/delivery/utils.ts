@@ -17,7 +17,9 @@ export const validateDeliverySetting = (input: object) => {
         flatFeeType: Joi.string().allow("", null).valid(...Object.values(deliveryFlatFeeConstants)).required(),
         flatFeeAmount: Joi.number().allow("", null).required(),
 
-        customAmount: Joi.array().items(customAmount).required()
+        customAmount: Joi.array().items(customAmount).required(),
+
+        selfPickup: Joi.boolean().required()
     });
     
     return schema.validate(input);

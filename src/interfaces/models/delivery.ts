@@ -17,5 +17,7 @@ export interface IDelivery {
     deliveryFee: string,
     flatFeeType: string,
     flatFeeAmount: number,
-    customAmount: ICustomAmount[]
+    customAmount: ICustomAmount[],
+
+    selfPickup: boolean
 }

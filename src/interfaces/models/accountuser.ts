@@ -24,6 +24,7 @@ export interface ICompany {
   meta: { [key : string] : any};
   razorpayAppId?: string;
   razorpaySecretKey?: string
+  promoCode: string
 }
 
 

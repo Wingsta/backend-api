@@ -49,7 +49,15 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
 		mode: { type: String },
 		razorpayOrderId: { type: String },
 		razorpayPaymentId: { type: String },
-		returnData: { type: mongoose.Schema.Types.Mixed }
+		returnData: { type: mongoose.Schema.Types.Mixed },
+		selfPickup: { 
+			type: Boolean,
+			default: false
+		},
+		offline: {
+			type: Boolean,
+			default: false
+		}
 	},
 	{
 		timestamps: true,

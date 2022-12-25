@@ -43,6 +43,7 @@ export interface IOrder {
   razorpayOrderId?: string,
   razorpayPaymentId?: string,
   returnData?: Object;
+  selfPickup: boolean;
   createdAt: string;
   updatedAt: string;
 }

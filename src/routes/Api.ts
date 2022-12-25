@@ -229,6 +229,13 @@ router.post(
 	AdminOrderController.statusUpdate
 );
 
+router.post(
+	"/order/offline",
+	passport.authenticate("jwt", { session: false }),
+
+	AdminOrderController.createOfflineOrder
+);
+
 /// profile 
 
 
@@ -270,6 +277,13 @@ router.patch(
 	passport.authenticate("profile", { session: false }),
 
 	ProfileController.patchAddress
+);
+
+router.get(
+	"/profile/check-mobile/:mobile",
+	passport.authenticate("jwt", { session: false }),
+
+	ProfileController.checkMobile
 );
 
 //// cart 

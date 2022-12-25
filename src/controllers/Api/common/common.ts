@@ -19,10 +19,11 @@ export const calculateDeliveryCharge = async (companyId, orderAmount) => {
     try {
         let data = await Delivery.findOne({ companyId });
 
-        let deliveryCost = 0, pincode = [];
+        let deliveryCost = 0, pincode = [], selfPickup = false;
 
         if (!data) {
             return {
+                enableSelfPickup: selfPickup,
                 pincode,
                 deliveryCost
             };
@@ -61,12 +62,16 @@ export const calculateDeliveryCharge = async (companyId, orderAmount) => {
             }
         }
 
+        selfPickup = data?.selfPickup;
+
         return {
+            enableSelfPickup: selfPickup,
             pincode,
             deliveryCost
         };
     } catch (error) {
         return {
+            enableSelfPickup: false,
             pincode: [],
             deliveryCost: 0
         };

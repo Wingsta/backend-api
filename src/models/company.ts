@@ -29,7 +29,8 @@ export const CompanySchema = new mongoose.Schema<ICompany>(
 			domainId: { type: Types.ObjectId, ref: "Domain" },
 		},
 		razorpayAppId: { type: String },
-		razorpaySecretKey: { type: String }
+		razorpaySecretKey: { type: String },
+		promoCode: { type: String },
 	},
 	{
 		timestamps: true,

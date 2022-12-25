@@ -347,5 +347,31 @@ class ProfileController {
 			next(error);
 		}
 	}
+
+	public static async checkMobile(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			let { companyId } = req.user as { companyId: string };
+			let mobile = req.params.mobile;
+
+			if (!mobile) {
+				return res.json(sendErrorResponse("mobileNumber needed"));
+			}
+
+			let profile = await Profile.findOne({
+				mobile: mobile,
+				companyId,
+			}).lean();
+
+			return res.json(
+                sendSuccessResponse(profile)
+            );
+		} catch (error) {
+			next(error);
+		}
+	}
 }
 export default ProfileController;

@@ -469,6 +469,7 @@ class ProfileController {
 			let deliveryAddress = req.body.deliveryAddress as IAddress;
 			let paymentMethod = req.body.paymentMethod;
 			let preview = req.body.preview;
+			let selfPickup = req.body.selfPickup;
 
 			let { id, companyId } = req.user as { companyId: string; id: string };
 
@@ -527,10 +528,16 @@ class ProfileController {
 
 			const orderAmount = (total + tax).toFixed(2)
 
-			const {
+			let {
+				enableSelfPickup,
 				pincode,
             	deliveryCost
 			} = await calculateDeliveryCharge(companyId, orderAmount);
+
+			if (selfPickup) {
+				pincode = [];
+				deliveryCost = 0;
+			}
 
 			let totalAfterTax = (total + tax + deliveryCost).toFixed(2);
 
@@ -545,7 +552,8 @@ class ProfileController {
 						totalAfterTax,
 						deliveryAddress,
 						paymentMethod,
-						pincode
+						pincode,
+						enableSelfPickup
 					})
 				);
 			
@@ -591,6 +599,7 @@ class ProfileController {
 				totalAfterTax,
 				deliveryAddress,
 				paymentMethod,
+				selfPickup,
 				...razorpayData
 			}).save();
 

@@ -35,7 +35,8 @@ import { ICart } from "../../../interfaces/models/cart";
 import Order from "../../../models/orders";
 import OrderHistory from "../../../models/orderhistory";
 import moment = require("moment");
-import { ORDER_STATUS } from "../../../utils/constants";
+import { ORDER_STATUS, PAYMENT_METHOD } from "../../../utils/constants";
+import { validateOfflineOrder } from "./utils";
 
 class ProfileController {
 	public static async getOneOrder(
@@ -297,6 +298,61 @@ class ProfileController {
 				return res.json(sendSuccessResponse({ message: "updated status" }));
 			}
 			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public static async createOfflineOrder(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+
+			const { error } = validateOfflineOrder(req.body);
+
+            if (error) {
+                return res.status(400).send(sendErrorResponse(error.details[0].message));
+            }
+
+			let { companyId } = req.user as { companyId: string };
+
+			const {
+				products,
+				total,
+				mobile,
+				name
+			} = req.body;
+
+			let profileUpdate = {
+				mobile,
+				companyId,
+				verified: true
+			} as any;
+
+			if (name.trim()) {
+				profileUpdate.name = name.trim();
+			}
+
+			const profileData = await Profile.findOneAndUpdate({ mobile, companyId }, profileUpdate, { upsert: true, new: true });
+
+			await Order.create({
+				companyId,
+				products,
+				userId: profileData?._id,
+				status: ORDER_STATUS.DELIVERED,
+				total,
+				tax: 0,
+				totalAfterTax: total,
+				paymentMethod: PAYMENT_METHOD.CASH,
+				offline: true
+			});
+
+			return res.json(
+                sendSuccessResponse(null, "Order created successfully!")
+            );
+			
 		} catch (error) {
 			next(error);
 		}

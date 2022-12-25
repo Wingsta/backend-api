@@ -40,7 +40,9 @@ class DeliverySettings {
                 flatFeeType,
                 flatFeeAmount,
         
-                customAmount
+                customAmount,
+
+                selfPickup
             } = req.body;
 
             await Delivery.findOneAndUpdate({
@@ -52,7 +54,8 @@ class DeliverySettings {
                 deliveryFee,
                 flatFeeType,
                 flatFeeAmount,
-                customAmount
+                customAmount,
+                selfPickup
             },{ upsert: true })
 
             return res.json(sendSuccessResponse(null, "Delivery settings updated successfully!"));
