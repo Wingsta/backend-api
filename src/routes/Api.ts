@@ -24,6 +24,7 @@ import CustomerController from "../controllers/Api/customers/index";
 import CategoryController from "../controllers/Api/category/index";
 import PostalCodeController from "../controllers/Api/postalCode/index";
 import DeliveryController from "../controllers/Api/delivery/index";
+import InventoryController from "../controllers/Api/inventory/index";
 
 const router = Router();
 
@@ -530,6 +531,19 @@ router.post(
 	"/delivery",
 	passport.authenticate("jwt", { session: false }),
 	DeliveryController.saveDeliverySettings
+);
+
+
+router.get(
+  "/inventory",
+  passport.authenticate("jwt", { session: false }),
+  InventoryController.getInventory
+);
+
+router.post(
+  "/inventory",
+  passport.authenticate("jwt", { session: false }),
+  InventoryController.postInventory
 );
 
 export default router;
