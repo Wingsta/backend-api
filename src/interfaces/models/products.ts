@@ -18,7 +18,11 @@ export interface IProducts {
 	thumbnail: string;
 	carouselImages: string[];
 	categoryId?: Types.ObjectId;
-	posts: any[]
+	posts: any[],
+	originalPrice: number;
+	description: string;
+	productUnitCount: number;
+	productUnitLabel: string;
 }
 
 
