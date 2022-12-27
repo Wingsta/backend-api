@@ -15,6 +15,9 @@ const productSchema = new mongoose.Schema({
   productId: { type: Types.ObjectId, ref: "Product" },
   count: { type: Number },
   purchasePrice: { type: Number },
+  skuId: { type: String },
+  size: { type: Number },
+  color: { type: Number },
 });
 
 
@@ -38,6 +41,7 @@ export const IventorySchema = new mongoose.Schema<IIventory>(
       type: String,
     },
     notes: { type: String },
+    invoiceNumber: { type: String },
     createdAt: { type: Date },
     updatedAt: { type: Date },
   },

@@ -157,6 +157,7 @@ class InventoryController {
         contactPersonNumber: req.body.contactPersonNumber,
         products: req.body.products,
         status: req.body.status || "IN_STOCK",
+		invoiceNumber : req.body.invoiceNumber ,
         notes: req.body.notes,
       });
 

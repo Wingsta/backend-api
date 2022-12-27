@@ -534,11 +534,11 @@ class Products {
 					}
 
 					if (!typeCheckService.isText(it.name)) {
-						it.name = it.name.toString();
+						it.name = it.name.trim().toString();
 					}
 
 					if (!typeCheckService.isText(it.sku)) {
-						it.sku = it.sku.toString();
+						it.sku = it.sku.trim().toString();
 					}
 					if (it.status) {
 						it.status = statusMap[it.status] || 1;

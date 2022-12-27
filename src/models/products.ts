@@ -7,11 +7,50 @@
 import * as crypto from "crypto";
 import * as bcrypt from "bcrypt-nodejs";
 
-import { IProducts } from "../interfaces/models/products";
+import { IProducts,IVariant } from "../interfaces/models/products";
 import mongoose from "../providers/Database";
 import { Types } from "mongoose";
 
 // Create the model schema & register your custom methods here
+
+export const VariantSchema = new mongoose.Schema<IVariant>({
+  sku: {
+    type: String,
+    
+  },
+  price: {
+    type: Number,
+    
+  },
+  originalPrice: {
+    type: Number,
+    
+  },
+  quantity: {
+    type: Number,
+    
+  },
+  size: {
+    label: {
+      type: String,
+      
+    },
+    value: {
+      type: String,
+      
+    },
+  },
+  color: {
+    label: {
+      type: String,
+      
+    },
+    value: {
+      type: String,
+      
+    },
+  },
+});
 
 // Define the User Schema
 export const ProductSchema = new mongoose.Schema<IProducts>(
@@ -31,6 +70,7 @@ export const ProductSchema = new mongoose.Schema<IProducts>(
 		description: { type: String },
 		productUnitCount: { type: Number },
 		productUnitLabel: { type: String },
+		variants : [VariantSchema],
 		createdAt: { type: Date },
 		updatedAt: { type: Date },
 	},

@@ -18,10 +18,17 @@ export interface IIventory {
   contactPersonName: string;
   contactPersonNumber: string;
   purchaseDate: string;
-  products: { productId: string; count: number; purchasePrice: number }[];
+  products: {
+    productId: string;
+    count: number;
+    purchasePrice: number;
+    skuId: string;
+    size : string,
+    color : string;
+  }[];
   userId: Types.ObjectId;
   companyId: Types.ObjectId;
   status: "IN_STOCK" | "OUT_STOCK" | "RETURNED" | "CANCELLED" | string;
-
+  invoiceNumber : string;
   notes: string;
 }
