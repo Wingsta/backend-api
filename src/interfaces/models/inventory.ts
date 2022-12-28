@@ -7,7 +7,7 @@ import { Types } from "mongoose";
 
 
 
-export interface IIventory {
+export interface IInventory {
   _id: Types.ObjectId;
 
   customerName: string;

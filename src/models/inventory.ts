@@ -7,7 +7,7 @@
 import * as crypto from "crypto";
 import * as bcrypt from "bcrypt-nodejs";
 
-import { IIventory } from "../interfaces/models/inventory"
+import { IInventory } from "../interfaces/models/inventory"
 import mongoose from "../providers/Database";
 import { Schema, Types } from "mongoose";
 
@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema({
 
 
 // Define the Profile Schema
-export const IventorySchema = new mongoose.Schema<IIventory>(
+export const InventorySchema = new mongoose.Schema<IInventory>(
   {
     companyId: { type: Types.ObjectId, ref: "Company" },
 
@@ -50,9 +50,9 @@ export const IventorySchema = new mongoose.Schema<IIventory>(
   }
 );
 
-const Iventory = mongoose.model<IIventory & mongoose.Document>(
-  "Iventory",
-  IventorySchema
+const Iventory = mongoose.model<IInventory & mongoose.Document>(
+  "Inventory",
+  InventorySchema
 );
 
 export default Iventory;
