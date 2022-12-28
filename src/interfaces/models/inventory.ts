@@ -17,14 +17,20 @@ export interface IIventory {
   total: number;
   contactPersonName: string;
   contactPersonNumber: string;
-  purchaseDate: string;
+  purchaseDate: Date;
   products: {
     productId: string;
     count: number;
     purchasePrice: number;
     skuId: string;
-    size : string,
-    color : string;
+    size: {
+      label: string;
+      value: string;
+    };
+    color: {
+      label: string;
+      value: string;
+    };
   }[];
   userId: Types.ObjectId;
   companyId: Types.ObjectId;
