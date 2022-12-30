@@ -342,10 +342,10 @@ router.get(
 );
 
 router.get(
-  "/public/order/pdf/:id",
-  passport.authenticate("profile", { session: false }),
+	"/public/order/pdf/:id",
+	passport.authenticate("profile", { session: false }),
 
-  OrderController.getPdfBlob
+	OrderController.getPdfBlob
 );
 
 router.get(
@@ -535,15 +535,21 @@ router.post(
 
 
 router.get(
-  "/inventory",
-  passport.authenticate("jwt", { session: false }),
-  InventoryController.getInventory
+	"/inventory",
+	passport.authenticate("jwt", { session: false }),
+	InventoryController.getInventory
+);
+
+router.get(
+	"/inventory/:inventoryId",
+	passport.authenticate("jwt", { session: false }),
+	InventoryController.getInventoryDetail
 );
 
 router.post(
-  "/inventory",
-  passport.authenticate("jwt", { session: false }),
-  InventoryController.postInventory
+	"/inventory",
+	passport.authenticate("jwt", { session: false }),
+	InventoryController.postInventory
 );
 
 export default router;

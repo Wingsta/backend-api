@@ -43,7 +43,8 @@ let constants = [
 	"analytics",
 	"profile",
 	"messages",
-	"delivery"
+	"delivery",
+	"inventory"
 ];
 
 class Products {

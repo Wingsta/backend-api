@@ -47,7 +47,6 @@ class InventoryController {
 		try {
 			let { companyId } = req.user as { companyId: string; id: string };
 
-			console.log(req.user)
 			if (!companyId) {
 				return res.json(sendErrorResponse("unauthorised"));
 			}
@@ -126,6 +125,39 @@ class InventoryController {
 			}
 
 			return res.json(sendErrorResponse("something went wrong"));
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public static async getInventoryDetail(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			let { companyId } = req.user as { companyId: string; id: string };
+
+			if (!companyId) {
+				return res.json(sendErrorResponse("unauthorised"));
+			}
+
+			let inventoryId = req.params.inventoryId;
+
+			let inventoryDetails = await Inventory.findOne({
+				_id: inventoryId,
+				companyId
+			}).populate({ 
+				path: "products.productId",
+				select: {
+					name: 1,
+					sku: 1,
+					thumbnail: 1
+				}
+			}).lean();
+
+			return res.json(sendSuccessResponse(inventoryDetails));
+
 		} catch (error) {
 			next(error);
 		}
