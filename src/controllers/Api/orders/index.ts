@@ -26,7 +26,6 @@ import Domain from "../../../models/domain";
 import { createInvoice } from "./pdfkit";
 const PDFDocument = require("pdf-lib").PDFDocument;
 
-
 class ProfileController {
   public static async getOrders(
     req: Request,
@@ -262,11 +261,11 @@ class ProfileController {
 
       const buf = await mergedPdf.save(); // Uint8Array
 
-        if (buf) {
-          res.contentType("application/pdf");
-          res.send(buf);
-          return;
-        }
+      if (buf) {
+        res.contentType("application/pdf");
+        res.send(buf);
+        return;
+      }
 
       // await fs.writeFileSync("invoice.pdf", buf);
 
@@ -329,16 +328,11 @@ class ProfileController {
       });
 
       const reducedProduct = products.reduce((a, b) => {
-        let k = { ...a };
-        k.price =
-          (a?.quantity || 1) * (a?.price || 0) +
-          (b?.quantity || 1) * (b?.price || 0);
-        k.quantity = undefined;
-        return k;
-      });
-      let total = products?.length
-        ? (reducedProduct?.quantity || 1) * (reducedProduct?.price || 0)
-        : 0;
+        a = a + (b?.quantity || 1) * (b?.price || 0);
+
+        return a;
+      }, 0);
+      let total = products?.length ? reducedProduct : 0;
       let tax = 0;
 
       if (!products) {
