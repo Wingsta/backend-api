@@ -11,6 +11,7 @@ export type IVariant = {
 	price: number;
 	originalPrice: number;
 	quantity: number;
+	thumbnail: string;
 	size: {
 		label: string;
 		value: string;
@@ -19,27 +20,28 @@ export type IVariant = {
 		label: string;
 		value: string;
 	};
+	outOfStock: boolean
 };
 
 export interface IProducts {
-  _id?: Types.ObjectId;
-  companyId: Types.ObjectId;
-  name: string;
-  price: number;
-  originalPrice: number;
-  status: number;
-  sku: string;
-  quantity: number;
-  addedDate: Date;
-  thumbnail: string;
-  carouselImages: string[];
-  categoryId?: Types.ObjectId;
-  posts: any[];
+	_id?: Types.ObjectId;
+	companyId: Types.ObjectId;
+	name: string;
+	price: number;
+	originalPrice: number;
+	status: number;
+	sku: string;
+	quantity: number;
+	addedDate: Date;
+	thumbnail: string;
+	carouselImages: string[];
+	categoryId?: Types.ObjectId;
+	posts: any[];
 
-  description: string;
-  productUnitCount: number;
-  productUnitLabel: string;
-  variants?: IVariant[];
+	description: string;
+	productUnitCount: number;
+	productUnitLabel: string;
+	variants?: IVariant[];
 }
 
 
