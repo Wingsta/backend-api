@@ -14,7 +14,7 @@ import * as typeCheckService from "../../../services/validations/typecheck";
 // import { Types  } from "mongoose";
 import Locals from "../../../providers/Locals";
 import { ObjectId } from "mongodb";
-
+import * as slug from "slug";
 import axios, { AxiosRequestConfig } from "axios";
 
 import * as XLSX from "xlsx";
@@ -435,18 +435,60 @@ class Products {
     }
   }
 
+  public static async checkAndUpdateSlug(slug) {
+    let updatedSlug = slug;
+
+    // check if the exact slug already exists in the collection
+    const slugExists = await Product.findOne({ slug: updatedSlug });
+    console.log(slugExists);
+    // if the exact slug doesn't exist, find the last document in the collection with a matching slug and suffix
+    if (slugExists) {
+      const regex = new RegExp(`^${slug}-(\\d+)$`);
+      const lastDoc = await Product.find({ slug: regex })
+        .sort({ $natural: -1 })
+        .limit(1)
+        .lean();
+
+      // if a matching document was found, extract the suffix and increment it
+      if (lastDoc.length > 0) {
+        const matches = regex.exec(lastDoc[0].slug);
+        const suffix = parseInt(matches[1], 10) + 1;
+        updatedSlug = `${slug}-${suffix}`;
+      } else {
+        updatedSlug = `${slug}-1`;
+      }
+    }
+
+    // return the updated slug
+    return updatedSlug;
+  }
+
   public static async post(req: Request, res: Response, next: NextFunction) {
     try {
       let productArr = req.body.products as IProducts[];
       let { companyId } = req.user as { companyId: string };
 
+      let names = await Promise.all(
+        productArr
+          .map((it) => it.name)
+          .filter((it) => !!it)
+          .map(async (it) => {
+            let slugValue = slug(it);
+            slugValue = await Products.checkAndUpdateSlug(slugValue);
+            return { name: it, slug: slugValue };
+          })
+      );
+
+      // console.log(names);
+      // return res.json(names);
       productArr = productArr
         ?.filter((it) => it.name)
         ?.map((it) => ({
           ...it,
-
+          slug : names.find(nt => nt.name === it.name)?.slug,
           companyId: new ObjectId(companyId),
-        }));
+        }))
+        ?.filter((it) => it.slug);
 
       if (!productArr || !productArr.length) {
         return res.json(sendErrorResponse("product not array / empty"));
@@ -612,7 +654,7 @@ class Products {
       let productId = productArr[0]?._id;
 
       productArr = productArr
-        ?.filter((it) => it.sku && it?._id)
+        ?.filter((it) => it && it?.name)
         ?.map((it) => ({
           ...it,
 

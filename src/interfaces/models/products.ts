@@ -31,6 +31,7 @@ export interface IProducts {
 	originalPrice: number;
 	status: number;
 	sku: string;
+  slug: string;
 	quantity: number;
 	addedDate: Date;
 	thumbnail: string;

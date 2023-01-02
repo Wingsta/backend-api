@@ -59,29 +59,30 @@ export const VariantSchema = new mongoose.Schema<IVariant>({
 
 // Define the User Schema
 export const ProductSchema = new mongoose.Schema<IProducts>(
-	{
-		companyId: { type: Types.ObjectId, ref: "Company" },
-		name: { type: String },
-		price: { type: Number },
-		status: { type: Number },
-		sku: { type: String },
-		quantity: { type: Number },
-		addedDate: { type: Date },
-		thumbnail: { type: String },
-		carouselImages: { type: Array },
-		categoryId: { type: Types.ObjectId, ref: "Category" },
-		posts: [{ type: Types.ObjectId, ref: "Post" }],
-		originalPrice: { type: Number },
-		description: { type: String },
-		productUnitCount: { type: Number },
-		productUnitLabel: { type: String },
-		variants: [VariantSchema],
-		createdAt: { type: Date },
-		updatedAt: { type: Date },
-	},
-	{
-		timestamps: true,
-	}
+  {
+    companyId: { type: Types.ObjectId, ref: "Company" },
+    name: { type: String },
+    price: { type: Number },
+    status: { type: Number },
+    sku: { type: String },
+    slug: { type: String },
+    quantity: { type: Number },
+    addedDate: { type: Date },
+    thumbnail: { type: String },
+    carouselImages: { type: Array },
+    categoryId: { type: Types.ObjectId, ref: "Category" },
+    posts: [{ type: Types.ObjectId, ref: "Post" }],
+    originalPrice: { type: Number },
+    description: { type: String },
+    productUnitCount: { type: Number },
+    productUnitLabel: { type: String },
+    variants: [VariantSchema],
+    createdAt: { type: Date },
+    updatedAt: { type: Date },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 const Product = mongoose.model<IProducts & mongoose.Document>(
