@@ -440,7 +440,7 @@ class Products {
 
     // check if the exact slug already exists in the collection
     const slugExists = await Product.findOne({ slug: updatedSlug });
-    console.log(slugExists);
+    
     // if the exact slug doesn't exist, find the last document in the collection with a matching slug and suffix
     if (slugExists) {
       const regex = new RegExp(`^${slug}-(\\d+)$`);
@@ -473,7 +473,7 @@ class Products {
           .map((it) => it.name)
           .filter((it) => !!it)
           .map(async (it) => {
-            let slugValue = slug(it);
+            let slugValue = slug(it,companyId);
             slugValue = await Products.checkAndUpdateSlug(slugValue);
             return { name: it, slug: slugValue };
           })
@@ -485,7 +485,7 @@ class Products {
         ?.filter((it) => it.name)
         ?.map((it) => ({
           ...it,
-          slug : names.find(nt => nt.name === it.name)?.slug,
+          slug: names.find((nt) => nt.name === it.name)?.slug,
           companyId: new ObjectId(companyId),
         }))
         ?.filter((it) => it.slug);
@@ -554,21 +554,16 @@ class Products {
         return res.json(sendSuccessResponse([]));
       }
       let errorRows = [];
+      let names = [] as any;
       let finalData = worksheets[0].data
         .filter((it: any) => {
-          if (!it.sku) {
+          if (!it.name) {
             errorRows.push(it);
             return false;
           }
 
-          if (
-            !typeCheckService.isText(it.sku) ||
-            !typeCheckService.isText(it.name)
-          ) {
-            if (
-              !typeCheckService.isText(it?.sku?.toString()) &&
-              !typeCheckService.isText(it?.name?.toString())
-            ) {
+          if (!typeCheckService.isText(it.name)) {
+            if (!typeCheckService.isText(it?.name?.toString())) {
               errorRows.push(it);
               return false;
             }
@@ -577,6 +572,7 @@ class Products {
           return true;
         })
         .map((it: any) => {
+          
           if (it.carouselImages instanceof String) {
             it.carouselImages = it.carouselImages
               ?.split(",")
@@ -588,11 +584,11 @@ class Products {
           }
 
           if (!typeCheckService.isText(it.name)) {
-            it.name = it.name.trim().toString();
+            it.name = it.name.toString().trim();
           }
-
+names.push(it.name)
           if (!typeCheckService.isText(it.sku)) {
-            it.sku = it.sku.trim().toString();
+            it.sku = it.sku.toString().trim();
           }
           if (it.status) {
             it.status = statusMap[it.status] || 1;
@@ -601,6 +597,17 @@ class Products {
           return it;
         });
 
+      names = names?.filter((i, n, a) => !!i && a.indexOf(i) === n);
+        names = await Promise.all(
+         names
+           .map(async (it) => {
+             let slugValue = slug(it);
+             slugValue = await Products.checkAndUpdateSlug(slugValue);
+             return { name: it, slug: slugValue };
+           })
+       );
+
+    console.log(names)
       let productArr = finalData.map((it) => ({
         sku: typeCheckService.isText(it["sku"]),
         name: typeCheckService.isText(it["name"]),
@@ -612,8 +619,9 @@ class Products {
           : new Date(),
         thumbnail: it["thumbnail"],
         carouselImages: it["carouselImages"] || [],
+        slug : names.find(st => st.name === it.name)?.slug,
         // category: it["category"],
-      })) as IProducts[];
+      }))?.filter(it => !!it.slug) as IProducts[];
 
       let productArrInsert = productArr
         ?.filter((it) => it.sku)
