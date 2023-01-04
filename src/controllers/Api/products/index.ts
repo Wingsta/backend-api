@@ -386,7 +386,11 @@ class Products {
     }
   }
 
-  public static async getProductDetail(req: Request, res: Response, next: NextFunction) {
+  public static async getProductDetail(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       let slug = req.params.slug;
       let { companyId } = req.user as { companyId: string };
@@ -440,7 +444,7 @@ class Products {
 
     // check if the exact slug already exists in the collection
     const slugExists = await Product.findOne({ slug: updatedSlug });
-    
+
     // if the exact slug doesn't exist, find the last document in the collection with a matching slug and suffix
     if (slugExists) {
       const regex = new RegExp(`^${slug}-(\\d+)$`);
@@ -473,7 +477,7 @@ class Products {
           .map((it) => it.name)
           .filter((it) => !!it)
           .map(async (it) => {
-            let slugValue = slug(it,companyId);
+            let slugValue = slug(it, companyId);
             slugValue = await Products.checkAndUpdateSlug(slugValue);
             return { name: it, slug: slugValue };
           })
@@ -572,7 +576,6 @@ class Products {
           return true;
         })
         .map((it: any) => {
-          
           if (it.carouselImages instanceof String) {
             it.carouselImages = it.carouselImages
               ?.split(",")
@@ -586,7 +589,7 @@ class Products {
           if (!typeCheckService.isText(it.name)) {
             it.name = it.name.toString().trim();
           }
-names.push(it.name)
+          names.push(it.name);
           if (!typeCheckService.isText(it.sku)) {
             it.sku = it.sku.toString().trim();
           }
@@ -598,30 +601,31 @@ names.push(it.name)
         });
 
       names = names?.filter((i, n, a) => !!i && a.indexOf(i) === n);
-        names = await Promise.all(
-         names
-           .map(async (it) => {
-             let slugValue = slug(it);
-             slugValue = await Products.checkAndUpdateSlug(slugValue);
-             return { name: it, slug: slugValue };
-           })
-       );
+      names = await Promise.all(
+        names.map(async (it) => {
+          let slugValue = slug(it);
+          slugValue = await Products.checkAndUpdateSlug(slugValue);
+          return { name: it, slug: slugValue };
+        })
+      );
 
-    console.log(names)
-      let productArr = finalData.map((it) => ({
-        sku: typeCheckService.isText(it["sku"]),
-        name: typeCheckService.isText(it["name"]),
-        price: typeCheckService.isNumber(it["price"]) || 0,
-        status: it["status"] || 1,
-        quantity: typeCheckService.isNumber(it["quantity"]) || 0,
-        addedDate: typeCheckService.isDate(it["addedDate"])
-          ? new Date(typeCheckService.isDate(it["addedDate"]) as string)
-          : new Date(),
-        thumbnail: it["thumbnail"],
-        carouselImages: it["carouselImages"] || [],
-        slug : names.find(st => st.name === it.name)?.slug,
-        // category: it["category"],
-      }))?.filter(it => !!it.slug) as IProducts[];
+      console.log(names);
+      let productArr = finalData
+        .map((it) => ({
+          sku: typeCheckService.isText(it["sku"]),
+          name: typeCheckService.isText(it["name"]),
+          price: typeCheckService.isNumber(it["price"]) || 0,
+          status: it["status"] || 1,
+          quantity: typeCheckService.isNumber(it["quantity"]) || 0,
+          addedDate: typeCheckService.isDate(it["addedDate"])
+            ? new Date(typeCheckService.isDate(it["addedDate"]) as string)
+            : new Date(),
+          thumbnail: it["thumbnail"],
+          carouselImages: it["carouselImages"] || [],
+          slug: names.find((st) => st.name === it.name)?.slug,
+          // category: it["category"],
+        }))
+        ?.filter((it) => !!it.slug) as IProducts[];
 
       let productArrInsert = productArr
         ?.filter((it) => it.sku)
@@ -660,14 +664,37 @@ names.push(it.name)
       let { companyId } = req.user as { companyId: string };
 
       let productId = productArr[0]?._id;
-
+      let names = [] as any;
       productArr = productArr
         ?.filter((it) => it && it?.name)
-        ?.map((it) => ({
-          ...it,
+        ?.map((it) => {
+          if (!it.slug) names.push(it.name);
 
-          companyId: new ObjectId(companyId),
-        }));
+          return {
+            ...it,
+
+            companyId: new ObjectId(companyId),
+          };
+        });
+
+      names = names?.filter((i, n, a) => !!i && a.indexOf(i) === n);
+      names = await Promise.all(
+        names.map(async (it) => {
+          let slugValue = slug(it);
+          slugValue = await Products.checkAndUpdateSlug(slugValue);
+          return { name: it, slug: slugValue };
+        })
+      );
+
+      productArr = productArr?.map((it) => {
+        if (!it.slug)
+          return {
+            ...it,
+
+            slug: names.find((st) => st.name === it.name)?.slug,
+          };
+        else it;
+      });
 
       if (!productArr || !productArr.length) {
         return res.json(sendErrorResponse("product not array / empty"));
