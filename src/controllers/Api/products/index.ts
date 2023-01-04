@@ -386,18 +386,18 @@ class Products {
     }
   }
 
-  public static async getSKU(req: Request, res: Response, next: NextFunction) {
+  public static async getProductDetail(req: Request, res: Response, next: NextFunction) {
     try {
-      let skuId = req.params.skuId;
+      let slug = req.params.slug;
       let { companyId } = req.user as { companyId: string };
 
-      if (!skuId) {
+      if (!slug) {
         return res.json(sendErrorResponse("product not found", 1002));
       }
       let mongoQuery = { companyId } as any;
 
-      if (skuId) {
-        mongoQuery["sku"] = skuId;
+      if (slug) {
+        mongoQuery["slug"] = slug;
       }
 
       let product = await Product.findOne(mongoQuery).populate("posts");

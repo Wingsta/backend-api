@@ -151,9 +151,9 @@ router.get(
 );
 
 router.get(
-	"/product/sku/:skuId",
+	"/product/sku/:slug",
 	passport.authenticate("jwt", { session: false }),
-	ProductController.getSKU
+	ProductController.getProductDetail
 );
 
 router.delete(
@@ -417,10 +417,10 @@ router.patch(
 //   DomainController.getPublicDomainMiddleWare
 // );
 router.get(
-	"/public/domain/:domain/products/:skuId",
+	"/public/domain/:domain/products/:slug",
 
 	DomainController.getPublicDomainProducts,
-	ProductController.getSKU
+	ProductController.getProductDetail
 );
 
 router.get(
