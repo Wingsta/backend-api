@@ -7,6 +7,7 @@ import { Types } from "mongoose";
 
 
 export type IVariant = {
+	_id?: Types.ObjectId;
 	sku: string;
 	price: number;
 	originalPrice: number;
@@ -31,7 +32,7 @@ export interface IProducts {
 	originalPrice: number;
 	status: number;
 	sku: string;
-  slug: string;
+  	slug: string;
 	quantity: number;
 	addedDate: Date;
 	thumbnail: string;

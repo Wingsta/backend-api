@@ -28,6 +28,27 @@ const OrderProducts = new Schema({
 	thumbnail: { type: String },
 	productId: { type: Types.ObjectId, ref: "Product" },
 	price: { type: Number },
+	variantSKU: { type: String },
+	size: {
+		label: {
+			type: String,
+
+		},
+		value: {
+			type: String,
+
+		},
+	},
+	color: {
+		label: {
+			type: String,
+
+		},
+		value: {
+			type: String,
+
+		},
+	}
 });
 // Define the Profile Schema
 export const OrderSchema = new mongoose.Schema<IOrder>(
@@ -50,7 +71,7 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
 		razorpayOrderId: { type: String },
 		razorpayPaymentId: { type: String },
 		returnData: { type: mongoose.Schema.Types.Mixed },
-		selfPickup: { 
+		selfPickup: {
 			type: Boolean,
 			default: false
 		},

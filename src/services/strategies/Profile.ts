@@ -26,7 +26,7 @@ class Local {
             console.log(err)
             return done(err, false);
           }
-          console.log(user,"sds")
+          
           if (user) {
             
             return done(null, jwt_payload);
