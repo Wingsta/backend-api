@@ -349,6 +349,7 @@ class Products {
         mongoQuery["_id"] = productId;
       }
 
+      console.log(mongoQuery)
       let product = await Product.findOne(mongoQuery)
         .populate("posts")
         .populate("categoryId", { name: 1 });
@@ -439,7 +440,7 @@ class Products {
     }
   }
 
-  public static async checkAndUpdateSlug(slug) {
+  public static async checkAndUpdateSlug(slug, companyId) {
     let updatedSlug = slug;
 
     // check if the exact slug already exists in the collection
@@ -448,7 +449,10 @@ class Products {
     // if the exact slug doesn't exist, find the last document in the collection with a matching slug and suffix
     if (slugExists) {
       const regex = new RegExp(`^${slug}-(\\d+)$`);
-      const lastDoc = await Product.find({ slug: regex })
+      const lastDoc = await Product.find({
+        slug: regex,
+        companyId: new ObjectId(companyId),
+      })
         .sort({ $natural: -1 })
         .limit(1)
         .lean();
@@ -477,8 +481,8 @@ class Products {
           .map((it) => it.name)
           .filter((it) => !!it)
           .map(async (it) => {
-            let slugValue = slug(it, companyId);
-            slugValue = await Products.checkAndUpdateSlug(slugValue);
+            let slugValue = slug(it);
+            slugValue = await Products.checkAndUpdateSlug(slugValue, companyId);
             return { name: it, slug: slugValue };
           })
       );
@@ -604,7 +608,7 @@ class Products {
       names = await Promise.all(
         names.map(async (it) => {
           let slugValue = slug(it);
-          slugValue = await Products.checkAndUpdateSlug(slugValue);
+          slugValue = await Products.checkAndUpdateSlug(slugValue, companyId);
           return { name: it, slug: slugValue };
         })
       );
@@ -663,7 +667,11 @@ class Products {
       let productArr = req.body.products as IProducts[];
       let { companyId } = req.user as { companyId: string };
 
-      let productId = productArr[0]?._id;
+      if (productArr?.length > 1) {
+        return res.json(sendErrorResponse("Only one product allowed now"));
+      }
+      let updateProductData = productArr[0];
+      let productId = updateProductData?._id;
       let names = [] as any;
       productArr = productArr
         ?.filter((it) => it && it?.name)
@@ -676,15 +684,6 @@ class Products {
             companyId: new ObjectId(companyId),
           };
         });
-
-      names = names?.filter((i, n, a) => !!i && a.indexOf(i) === n);
-      names = await Promise.all(
-        names.map(async (it) => {
-          let slugValue = slug(it);
-          slugValue = await Products.checkAndUpdateSlug(slugValue);
-          return { name: it, slug: slugValue };
-        })
-      );
 
       productArr = productArr?.map((it) => {
         if (!it.slug)
@@ -706,7 +705,7 @@ class Products {
         return res.json(sendErrorResponse("Invalid product id"));
       }
 
-      let categoryId = productArr[0]?.categoryId;
+      let categoryId = updateProductData?.categoryId;
 
       if (categoryId) {
         let category = await Category.findOne({
@@ -719,6 +718,20 @@ class Products {
         }
       }
 
+      if (
+        !product.slug ||
+        (updateProductData?.name?.toLowerCase()?.trim() &&
+          updateProductData?.name?.toLowerCase()?.trim() !==
+            product?.name?.toLowerCase()?.trim())
+      ) {
+         let slugValue = slug(updateProductData?.name);
+         slugValue = await Products.checkAndUpdateSlug(slugValue, companyId);
+         updateProductData.slug = slugValue
+      }
+
+      productArr[0] = updateProductData
+
+      console.log(updateProductData);
       let products = await Promise.all(
         productArr.map(async (it) => {
           let _id = it?._id;

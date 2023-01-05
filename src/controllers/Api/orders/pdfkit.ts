@@ -68,7 +68,7 @@ async function generateCustomerInformation(doc, invoice) {
     .font("Helvetica")
     .text("Invoice Date:", 50, customerInformationTop + 15)
     .text(formatDate(new Date()), 150, customerInformationTop + 15)
-    .text("Balance Due:", 50, customerInformationTop + 30)
+    .text("Total Amount:", 50, customerInformationTop + 30)
     .font("Roboto")
     .text(
       formatCurrency(invoice.subtotal - invoice.paid),
@@ -82,7 +82,9 @@ async function generateCustomerInformation(doc, invoice) {
     .text(invoice.shipping.address, 300, customerInformationTop + 15)
     .text(invoice?.shipping?.addressLine2, 300, customerInformationTop + 30)
     .text(
-      invoice.shipping.city + ", " + invoice.shipping.postal_code,
+      (invoice.shipping.city || " ") +
+        `${invoice.shipping.city ? ", " : ""}` +
+        (invoice.shipping.postal_code || ""),
       300,
       customerInformationTop + 45
     )
@@ -141,9 +143,9 @@ async function generateInvoiceTable(doc, invoice) {
     paidToDatePosition,
     "",
     "",
-    "Paid To Date",
     "",
-    formatCurrency(invoice.paid)
+    "",
+    ""
   );
 
   const duePosition = paidToDatePosition + 25;
@@ -153,7 +155,7 @@ async function generateInvoiceTable(doc, invoice) {
     duePosition,
     "",
     "",
-    "Balance Due",
+    "Total Amount",
     "",
     formatCurrency(invoice.subtotal - invoice.paid)
   );
@@ -164,7 +166,7 @@ async function generateFooter(doc) {
   doc
     .fontSize(10)
     .text(
-      "Payment is due within 15 days. Thank you for your business.",
+      "This is a computer generated invoice.",
       50,
       780,
       { align: "center", width: 500 }
@@ -201,7 +203,7 @@ async function generateHr(doc, y) {
 }
 
 function formatCurrency(cents) {
-  return "\u20B9" + (cents / 100).toFixed(2);
+  return "\u20B9" + (parseFloat(cents)).toFixed(2);
 }
 
 function formatDate(date) {
