@@ -453,9 +453,10 @@ class ProfileController {
         let update = await Promise.all(
           products.map(async (it) => {
             let sku = it?.sku;
-
+          console.log(it);
             if (!sku) {
               if (it?.variantSKU) {
+                console.log(it);
                 let update = await Product.updateOne(
                   {
                     "variants.sku": it?.variantSKU,
@@ -472,6 +473,7 @@ class ProfileController {
                 return { update: !!update.ok, _id: sku };
               }
             } else {
+              console.log(it)
               let update = await Product.updateOne(
                 { sku: sku, companyId, _id: it?.productId },
                 { $inc: { quantity: -it.quantity } },

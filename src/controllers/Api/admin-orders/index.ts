@@ -311,6 +311,7 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
+		console.log(req.body)
       const { error } = validateOfflineOrder(req.body);
 
       if (error) {

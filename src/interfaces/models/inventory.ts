@@ -23,6 +23,7 @@ export interface IInventory {
     count: number;
     purchasePrice: number;
     skuId: string;
+    variantSKUId: string;
     size: {
       label: string;
       value: string;

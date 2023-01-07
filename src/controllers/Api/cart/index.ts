@@ -248,6 +248,7 @@ class ProfileController {
 				...query
 			}).lean();
 
+			
 			if ((previousCart?.quantity || 0) + (cartDetails?.quantity || 0) > 50) {
 				return res.json(sendErrorResponse("quantity exceeded", "2050"));
 			}
@@ -264,6 +265,7 @@ class ProfileController {
 				},
 				{ upsert: true }
 			);
+			console.log(cartDetails,"cartdetails");
 
 			let finalValue = await Cart.findOne({
 				productId: cartDetails?.productId,

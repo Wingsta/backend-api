@@ -16,8 +16,23 @@ const productSchema = new mongoose.Schema({
   count: { type: Number },
   purchasePrice: { type: Number },
   skuId: { type: String },
-  size: { type: Number },
-  color: { type: Number },
+  variantSKUId: { type: String },
+  size: {
+    label: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+  },
+  color: {
+    label: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+  },
 });
 
 
