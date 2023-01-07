@@ -27,25 +27,33 @@ export async function createInvoice(invoice) {
 }
 
 async function generateHeader(doc, invoice) {
+  
+  let x = 50
+  if(invoice?.logo)
+ {
   const logo = await fetchImage(invoice?.logo);
+   await doc.image(logo, 50, 45, { width: 50 });
+   x = x+60
+ }
 
   await doc
-    .image(logo, 50, 45, { width: 50 })
     .fillColor("#444444")
     .fontSize(20)
-    .text(invoice?.shipping?.name, 110, 57)
+    .text(invoice?.storeAddress?.name, x, 57)
     .fontSize(10)
-    .text(invoice?.shipping?.name, 200, 50, { align: "right" })
-    .text(invoice?.shipping?.address, 200, 65, {
+    .text("Store Address", 200, 50, { align: "right" })
+    .text(invoice?.storeAddress?.address, 200, 65, {
       align: "right",
     })
-    .text(invoice?.shipping?.addressLine2, 200, 75, {
+    .text(invoice?.storeAddress?.addressLine2, 200, 80, {
       align: "right",
     })
     .text(
-      invoice.shipping.city + ", " + invoice.shipping.postal_code,
+      (invoice?.storeAddress?.city || " ") +
+        `${invoice?.storeAddress?.city ? ", " : ""}` +
+        (invoice?.shipping?.postal_code || ""),
       200,
-      85,
+      95,
       {
         align: "right",
       }
@@ -77,7 +85,7 @@ async function generateCustomerInformation(doc, invoice) {
     )
 
     .font("Helvetica-Bold")
-    .text(invoice.shipping.name, 300, customerInformationTop)
+    .text(invoice.shipping?.name || '', 300, customerInformationTop)
     .font("Helvetica")
     .text(invoice.shipping.address, 300, customerInformationTop + 15)
     .text(invoice?.shipping?.addressLine2, 300, customerInformationTop + 30)

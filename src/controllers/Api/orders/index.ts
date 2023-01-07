@@ -176,6 +176,7 @@ class ProfileController {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
       let {
+        logo,
         bannerImg,
         logoText = "No Company Name",
         addressLine1 = "Address Line 1",
@@ -186,6 +187,7 @@ class ProfileController {
         mobile = "mobile",
         email = "email",
       } = domainDetails?.metaData;
+      
 
       //   function repeatElements(arr, n) {
       //     const newArr = [];
@@ -197,10 +199,11 @@ class ProfileController {
       //   orderDetails.products = repeatElements(orderDetails?.products, 15);
 
       let orderAddres = orderDetails?.deliveryAddress;
+      console.log(orderDetails);
       let data = {
         invoice_nr: orderId,
 
-        logo: bannerImg,
+        logo: logo,
         storeAddress: {
           name: logoText,
           address: addressLine1,
@@ -209,9 +212,9 @@ class ProfileController {
           postal_code: pincode,
         },
         shipping: {
-          name: logoText,
+          name: orderAddres?.name,
           address: orderAddres?.addressLine1,
-          addressLine2,
+          addressLine2: orderAddres?.addressLine2,
           city: orderAddres?.city,
 
           postal_code: orderAddres?.pincode,
@@ -262,7 +265,7 @@ class ProfileController {
 
       const buf = await mergedPdf.save(); // Uint8Array
 
-    //   await fs.writeFileSync("invoice.pdf", buf);
+      // await fs.writeFileSync("invoice.pdf", buf);
       if (buf) {
         res.contentType("application/pdf");
         res.send(Buffer.from(buf));
