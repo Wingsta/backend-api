@@ -201,6 +201,13 @@ router.post(
 
 // admin orders
 router.get(
+  "/order/pdf/:id",
+  passport.authenticate("jwt", { session: false }),
+
+  AdminOrderController.getPdfBlob
+);
+
+router.get(
 	"/order/:id",
 	passport.authenticate("jwt", { session: false }),
 
@@ -213,6 +220,8 @@ router.get(
 
 	AdminOrderController.getOrderHistory
 );
+
+
 
 router.get(
 	"/order/",

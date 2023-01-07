@@ -457,20 +457,23 @@ class ProfileController {
             if (!sku) {
               if (it?.variantSKU) {
                 let update = await Product.updateOne(
-                  { "variants.sku": it?.variantSKU },
+                  {
+                    "variants.sku": it?.variantSKU,
+                    companyId,
+                    _id: it?.productId,
+                  },
                   { $inc: { ["variants.$[elem].quantity"]: -it.quantity } },
                   {
                     arrayFilters: [{ "elem.sku": it?.variantSKU }],
-					upsert : true
-                  },
-                 
+                    upsert: true,
+                  }
                 );
 
                 return { update: !!update.ok, _id: sku };
               }
             } else {
               let update = await Product.updateOne(
-                { sku: sku },
+                { sku: sku, companyId, _id: it?.productId },
                 { $inc: { quantity: -it.quantity } },
                 {
                   upsert: true,
