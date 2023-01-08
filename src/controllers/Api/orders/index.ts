@@ -25,6 +25,7 @@ import puppeteer from "puppeteer";
 import Domain from "../../../models/domain";
 import { createInvoice } from "./pdfkit";
 import Product from "../../../models/products";
+import AdminOrderController from "../admin-orders";
 const PDFDocument = require("pdf-lib").PDFDocument;
 
 class ProfileController {
@@ -402,6 +403,16 @@ class ProfileController {
           })
         );
 
+      let findInvalidProducts = await AdminOrderController.findInvalidProducts(products, companyId);
+
+      if (findInvalidProducts) {
+        return res
+          .json(sendErrorResponse("Product quantity is invalid", 403));
+      }
+
+
+      
+
       let status = ORDER_STATUS.PROCESSING;
 
       let razorpayData = {};
@@ -453,42 +464,7 @@ class ProfileController {
           _id: { $in: cartIdFound.map((it) => new ObjectID(it)) },
         });
 
-        let update = await Promise.all(
-          products.map(async (it) => {
-            let sku = it?.sku;
-          console.log(it);
-            if (!sku) {
-              if (it?.variantSKU) {
-                console.log(it);
-                let update = await Product.updateOne(
-                  {
-                    "variants.sku": it?.variantSKU,
-                    companyId,
-                    _id: it?.productId,
-                  },
-                  { $inc: { ["variants.$[elem].quantity"]: -it.quantity } },
-                  {
-                    arrayFilters: [{ "elem.sku": it?.variantSKU }],
-                    upsert: true,
-                  }
-                );
-
-                return { update: !!update.ok, _id: sku };
-              }
-            } else {
-              console.log(it)
-              let update = await Product.updateOne(
-                { sku: sku, companyId, _id: it?.productId },
-                { $inc: { quantity: -it.quantity } },
-                {
-                  upsert: true,
-                }
-              );
-
-              return { update: !!update.ok, _id: sku };
-            }
-          })
-        );
+        let update = await AdminOrderController.updateProducts(products,companyId, 'DEC')
         return res.json(
           sendSuccessResponse({
             ...order.toJSON(),
@@ -784,3 +760,4 @@ class ProfileController {
   }
 }
 export default ProfileController;
+

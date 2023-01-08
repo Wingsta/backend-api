@@ -41,7 +41,7 @@ import puppeteer from "puppeteer";
 const PDFDocument = require("pdf-lib").PDFDocument;
 import { createInvoice } from "../orders/pdfkit";
 
-class ProfileController {
+class AdminOrderController {
   public static async getOneOrder(
     req: Request,
     res: Response,
@@ -289,13 +289,29 @@ class ProfileController {
         return res.json(sendErrorResponse("status needed"));
       }
 
-      let update = await Order.updateOne(
+      let update = await Order.findOneAndUpdate(
         { companyId: companyId, _id: new ObjectId(orderId) },
         { $set: { status } },
         { upsert: true }
       );
 
-      if (update?.ok) {
+      if (update?._id) {
+        if (status === "REJECTED") {
+          let productUpdate = await AdminOrderController.updateProducts(
+            update.products,
+            companyId,
+            "INC"
+          );
+        }
+
+        if (status === "CONFIRMED") {
+          let productUpdate = await AdminOrderController.updateProducts(
+            update.products,
+            companyId,
+            "DEC"
+          );
+        }
+
         await OrderHistory.insertMany([{ orderId, status }]);
         return res.json(sendSuccessResponse({ message: "updated status" }));
       }
@@ -311,7 +327,6 @@ class ProfileController {
     next: NextFunction
   ) {
     try {
-		console.log(req.body)
       const { error } = validateOfflineOrder(req.body);
 
       if (error) {
@@ -334,6 +349,18 @@ class ProfileController {
         profileUpdate.name = name.trim();
       }
 
+
+      let findInvalidProducts = await AdminOrderController.findInvalidProducts(
+        products,
+        companyId
+      );
+
+      if (findInvalidProducts) {
+        return res
+          .json(sendErrorResponse("Product quantity is invalid",403));
+      }
+
+
       const profileData = await Profile.findOneAndUpdate(
         { mobile, companyId },
         profileUpdate,
@@ -352,37 +379,10 @@ class ProfileController {
         offline: true,
       });
 
-	    let update = await Promise.all(
-        products.map(async (it) => {
-          let sku = it?.sku;
-
-          if (!sku) {
-            if (it?.variantSKU) {
-              let update = await Product.updateOne(
-                { "variants.sku": it?.variantSKU, companyId, _id: it?.productId },
-                { $inc: { ["variants.$[elem].quantity"]: -it.quantity } },
-                {
-                  arrayFilters: [{ "elem.sku": it?.variantSKU }],
-                  upsert: true,
-                }
-              );
-
-              return { update: !!update.ok, _id: sku };
-            }
-          } else {
-            let update = await Product.updateOne(
-              { sku: sku, companyId, _id: it?.productId },
-              { $inc: { quantity: -it.quantity } },
-              {
-                upsert: true,
-              }
-            );
-
-			console.log(it)
-			
-            return { update: !!update.ok, _id: sku };
-          }
-        })
+      let update = await AdminOrderController.updateProducts(
+        products,
+        companyId,
+        "DEC"
       );
 
       return res.json(sendSuccessResponse(null, "Order created successfully!"));
@@ -391,15 +391,58 @@ class ProfileController {
     }
   }
 
+  public static async updateProducts(
+    products: any,
+    companyId: string,
+    type: string
+  ) {
+    return await Promise.all(
+      products.map(async (it) => {
+        let sku = it?.sku;
+
+        if (!sku) {
+          if (it?.variantSKU) {
+            let update = await Product.updateOne(
+              { "variants.sku": it?.variantSKU, companyId, _id: it?.productId },
+              {
+                $inc: {
+                  ["variants.$[elem].quantity"]:
+                    type === "INC" ? it.quantity : -it.quantity,
+                },
+              },
+              {
+                arrayFilters: [{ "elem.sku": it?.variantSKU }],
+                upsert: true,
+              }
+            );
+
+            return { update: !!update.ok, _id: sku };
+          }
+        } else {
+          let update = await Product.updateOne(
+            { sku: sku, companyId, _id: it?.productId },
+            { $inc: { quantity: type === "INC" ? it.quantity : -it.quantity } },
+            {
+              upsert: true,
+            }
+          );
+
+          console.log(it);
+
+          return { update: !!update.ok, _id: sku };
+        }
+      })
+    );
+  }
+
   public static async getPdfBlob(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      let {  companyId } = req.user as { companyId: string; };
+      let { companyId } = req.user as { companyId: string };
 
-     
       let { id: orderId } = req.params as unknown as {
         id: string;
       };
@@ -411,8 +454,8 @@ class ProfileController {
         return res.json(sendErrorResponse("domain details missing"));
       }
 
-    //   const browser = await puppeteer.launch();
-    //   const page = await browser.newPage();
+      //   const browser = await puppeteer.launch();
+      //   const page = await browser.newPage();
       let {
         bannerImg,
         logoText = "No Company Name",
@@ -500,7 +543,7 @@ class ProfileController {
 
       const buf = await mergedPdf.save(); // Uint8Array
 
-        await fs.writeFileSync("invoice.pdf", buf);
+      await fs.writeFileSync("invoice.pdf", buf);
       if (buf) {
         res.contentType("application/pdf");
         res.send(Buffer.from(buf));
@@ -513,5 +556,56 @@ class ProfileController {
       next(error);
     }
   }
+
+  public static async findInvalidProducts(
+    products: {
+      name: string;
+      sku: string;
+      quantity: number;
+      thumbnail: string;
+      productId: import("mongoose").Types.ObjectId;
+      price: number;
+      variantSKU: string;
+      size: { label: string; value: string };
+      color: { label: string; value: string };
+      valid: boolean;
+    }[],
+    companyId: string
+  ) {
+    let productsPresent = await Product.find({
+      _id: { $in: products?.map((it) => it.productId) || [] },
+      companyId,
+    }).lean();
+
+    let findInvalidProducts = products.find((it) => {
+      let productPresent = productsPresent.find(
+        (pt) => pt._id.toString() === it.productId.toString()
+      );
+
+      if (!it.sku) {
+        if (it.variantSKU) {
+          let quantity = productPresent.variants?.find(
+            (vt) => vt.sku === it.variantSKU
+          )?.quantity;
+          let outOfStock = productPresent.variants?.find(
+            (vt) => vt.sku === it.variantSKU
+          )?.outOfStock;
+
+          if (!quantity || quantity < it.quantity || outOfStock) {
+            return true;
+          }
+        }
+      } else {
+        let quantity = productPresent?.quantity;
+
+        if (!quantity || quantity < it.quantity) {
+          return true;
+        }
+      }
+    });
+    return findInvalidProducts;
+  }
 }
-export default ProfileController;
+export default AdminOrderController;
+
+
