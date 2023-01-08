@@ -14,7 +14,7 @@ export const validateOfflineOrder = (input: object) => {
             size: Joi.object({ label: Joi.string(), value: Joi.string() })
               .allow(null, "")
               .optional(),
-            color: Joi.object({ label: Joi.string(), value: Joi.string() })
+            color: Joi.object({ label: Joi.string(), value: Joi.string(), alias : Joi.string() })
               .allow(null, "")
               .optional(),
             quantity: Joi.number().required(),

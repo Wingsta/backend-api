@@ -240,6 +240,8 @@ class ProfileController {
 				variantData.variantSKU = cartDetails?.variantSKU;
 				variantData.size = productDetails?.variants[index]?.size;
 				variantData.color = productDetails?.variants[index]?.color;
+
+				console.log(variantData);
 			}
 
 			let previousCart = await Cart.findOne({

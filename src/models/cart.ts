@@ -16,39 +16,41 @@ import { Schema, Types } from "mongoose";
 
 // Define the Profile Schema
 export const CartSchema = new mongoose.Schema<ICart>(
-	{
-		companyId: { type: Types.ObjectId, ref: "Company" },
-		mobile: { type: String },
-		sku: { type: String },
-		name: { type: String },
-		productId: { type: Types.ObjectId, ref: "Product" },
-		userId: { type: Types.ObjectId, ref: "Profile" },
-		quantity: { type: Number },
-		variantSKU: { type: String },
-		size: {
-			label: {
-				type: String,
-
-			},
-			value: {
-				type: String,
-
-			},
-		},
-		color: {
-			label: {
-				type: String,
-
-			},
-			value: {
-				type: String,
-
-			},
-		}
-	},
-	{
-		timestamps: true,
-	}
+  {
+    companyId: { type: Types.ObjectId, ref: "Company" },
+    mobile: { type: String },
+    sku: { type: String },
+    name: { type: String },
+    productId: { type: Types.ObjectId, ref: "Product" },
+    userId: { type: Types.ObjectId, ref: "Profile" },
+    quantity: { type: Number },
+    variantSKU: { type: String },
+    size: {
+      label: {
+        type: String,
+      },
+      value: {
+        type: String,
+      },
+      alias: {
+        type: String,
+      },
+    },
+    color: {
+      label: {
+        type: String,
+      },
+      value: {
+        type: String,
+      },
+      alias: {
+        type: String,
+      },
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 const Cart = mongoose.model<ICart & mongoose.Document>("Cart", CartSchema);
