@@ -282,7 +282,7 @@ class ProfileController {
 
       const buf = await mergedPdf.save(); // Uint8Array
 
-      await fs.writeFileSync("invoice.pdf", buf);
+      // await fs.writeFileSync("invoice.pdf", buf);
       if (buf) {
         res.contentType("application/pdf");
         res.send(Buffer.from(buf));
