@@ -720,14 +720,23 @@ class ProfileController {
     try {
       let razorpay_order_id = req.body.razorpay_order_id as string;
 
-      await Order.findOneAndUpdate(
+     let order =  await Order.findOneAndUpdate(
         {
           razorpayOrderId: razorpay_order_id,
         },
         {
           status: ORDER_STATUS.PAYMENT_FAILED,
         }
-      );
+      ).lean();
+
+      if(order.products){
+        let update = await AdminOrderController.updateProducts(
+          order.products,
+          order.companyId.toString() as string,
+          "DEC"
+        );
+      }
+
 
       return res.json(
         sendErrorResponse("Payment status updated successfully!")
