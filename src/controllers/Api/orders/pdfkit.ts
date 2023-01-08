@@ -29,6 +29,7 @@ export async function createInvoice(invoice) {
 async function generateHeader(doc, invoice) {
   
   let x = 50
+  console.log(invoice?.logo)
   if(invoice?.logo)
  {
   const logo = await fetchImage(invoice?.logo);
@@ -41,7 +42,6 @@ async function generateHeader(doc, invoice) {
     .fontSize(20)
     .text(invoice?.storeAddress?.name, x, 57)
     .fontSize(10)
-    .text("Store Address", 200, 50, { align: "right" })
     .text(invoice?.storeAddress?.address, 200, 65, {
       align: "right",
     })
@@ -51,9 +51,17 @@ async function generateHeader(doc, invoice) {
     .text(
       (invoice?.storeAddress?.city || " ") +
         `${invoice?.storeAddress?.city ? ", " : ""}` +
-        (invoice?.shipping?.postal_code || ""),
+        (invoice?.storeAddress?.postal_code || ""),
       200,
       95,
+      {
+        align: "right",
+      }
+    )
+    .text(
+      (invoice?.storeAddress?.state || " "),
+      200,
+      110,
       {
         align: "right",
       }
@@ -62,11 +70,11 @@ async function generateHeader(doc, invoice) {
 }
 
 async function generateCustomerInformation(doc, invoice) {
-  await doc.fillColor("#444444").fontSize(20).text("Invoice", 50, 160);
+  await doc.fillColor("#444444").fontSize(20).text("Invoice", 50, 140);
 
-  await generateHr(doc, 185);
+  await generateHr(doc, 165);
 
-  const customerInformationTop = 200;
+  const customerInformationTop = 180;
 
   await doc
     .fontSize(10)
@@ -85,26 +93,43 @@ async function generateCustomerInformation(doc, invoice) {
     )
 
     .font("Helvetica-Bold")
-    .text(invoice.shipping?.name || '', 300, customerInformationTop)
+    .text(invoice.shipping?.name || "", 300, customerInformationTop)
     .font("Helvetica")
-    .text(invoice.shipping.address, 300, customerInformationTop + 15)
-    .text(invoice?.shipping?.addressLine2, 300, customerInformationTop + 30)
-    .text(
-      (invoice.shipping.city || " ") +
-        `${invoice.shipping.city ? ", " : ""}` +
-        (invoice.shipping.postal_code || ""),
-      300,
-      customerInformationTop + 45
-    )
-    .moveDown();
+    .text(invoice.shipping?.mobile || "", 300, customerInformationTop + 15)
 
-  await generateHr(doc, 270);
+    if (invoice.shipping.address)
+    {
+        await doc
+          .text(invoice.shipping.address, 300, customerInformationTop + 30)
+          .text(
+            invoice?.shipping?.addressLine2,
+            300,
+            customerInformationTop + 45
+          )
+          .text(
+            (invoice.shipping.city || " ") +
+              `${invoice.shipping.city ? ", " : ""}` +
+              (invoice.shipping.postal_code || ""),
+            300,
+            customerInformationTop + 60
+          )
+          .text(invoice.shipping.state || " ", 300, customerInformationTop + 75)
+          .moveDown();
+
+          await generateHr(doc, customerInformationTop + 90);
+    }
+    else await generateHr(doc, customerInformationTop + 50);
+
+  
 }
 
 async function generateInvoiceTable(doc, invoice) {
   let i;
-  const invoiceTableTop = 330;
+  let invoiceTableTop = 330;
 
+  if (!invoice.shipping.address){
+       invoiceTableTop = 270;
+  } 
   await doc.font("Helvetica-Bold");
   await generateTableRow(
     doc,

@@ -14,47 +14,46 @@ import { Types } from "mongoose";
 // Create the model schema & register your custom methods here
 
 export const VariantSchema = new mongoose.Schema<IVariant>({
-	sku: {
-		type: String,
+  sku: {
+    type: String,
+  },
+  price: {
+    type: Number,
+  },
+  originalPrice: {
+    type: Number,
+  },
+  thumbnail: { type: String },
+  quantity: {
+    type: Number,
+  },
+  size: {
+    label: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+    alias: {
+      type: String,
+    },
+  },
+  color: {
+    label: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+    alias: {
+      type: String,
+    },
+  },
 
-	},
-	price: {
-		type: Number,
-
-	},
-	originalPrice: {
-		type: Number,
-
-	},
-	thumbnail: { type: String },
-	quantity: {
-		type: Number,
-
-	},
-	size: {
-		label: {
-			type: String,
-
-		},
-		value: {
-			type: String,
-
-		},
-	},
-	color: {
-		label: {
-			type: String,
-
-		},
-		value: {
-			type: String,
-
-		},
-	},
-	outOfStock: {
-		type: Boolean,
-		default: false
-	}
+  outOfStock: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Define the User Schema

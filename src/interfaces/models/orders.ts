@@ -7,21 +7,23 @@ import { Types } from "mongoose";
 import { IAddress } from "./profile";
 
 export interface IOrderProducts {
-	name: string;
-	sku: string;
-	quantity: string;
-	thumbnail: string;
-	productId: Types.ObjectId;
-	price: number,
-	variantSKU: string;
-	size: {
-		label: string;
-		value: string;
-	};
-	color: {
-		label: string;
-		value: string;
-	};
+  name: string;
+  sku: string;
+  quantity: string;
+  thumbnail: string;
+  productId: Types.ObjectId;
+  price: number;
+  variantSKU: string;
+  size: {
+    label: string;
+    value: string;
+    alias: string;
+  };
+  color: {
+    label: string;
+    value: string;
+    alias: string;
+  };
 }
 
 export interface IOrder {

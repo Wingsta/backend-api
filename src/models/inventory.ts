@@ -24,12 +24,18 @@ const productSchema = new mongoose.Schema({
     value: {
       type: String,
     },
+    alias: {
+      type: String,
+    },
   },
   color: {
     label: {
       type: String,
     },
     value: {
+      type: String,
+    },
+    alias: {
       type: String,
     },
   },

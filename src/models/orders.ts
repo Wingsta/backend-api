@@ -22,33 +22,35 @@ const Address = new Schema({
 });
 
 const OrderProducts = new Schema({
-	name: { type: String },
-	sku: { type: String },
-	quantity: { type: String },
-	thumbnail: { type: String },
-	productId: { type: Types.ObjectId, ref: "Product" },
-	price: { type: Number },
-	variantSKU: { type: String },
-	size: {
-		label: {
-			type: String,
-
-		},
-		value: {
-			type: String,
-
-		},
-	},
-	color: {
-		label: {
-			type: String,
-
-		},
-		value: {
-			type: String,
-
-		},
-	}
+  name: { type: String },
+  sku: { type: String },
+  quantity: { type: String },
+  thumbnail: { type: String },
+  productId: { type: Types.ObjectId, ref: "Product" },
+  price: { type: Number },
+  variantSKU: { type: String },
+  size: {
+    label: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+    alias: {
+      type: String,
+    },
+  },
+  color: {
+    label: {
+      type: String,
+    },
+    value: {
+      type: String,
+    },
+    alias: {
+      type: String,
+    },
+  },
 });
 // Define the Profile Schema
 export const OrderSchema = new mongoose.Schema<IOrder>(

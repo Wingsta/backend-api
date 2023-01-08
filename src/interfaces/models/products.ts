@@ -7,21 +7,23 @@ import { Types } from "mongoose";
 
 
 export type IVariant = {
-	_id?: Types.ObjectId;
-	sku: string;
-	price: number;
-	originalPrice: number;
-	quantity: number;
-	thumbnail: string;
-	size: {
-		label: string;
-		value: string;
-	};
-	color: {
-		label: string;
-		value: string;
-	};
-	outOfStock: boolean
+  _id?: Types.ObjectId;
+  sku: string;
+  price: number;
+  originalPrice: number;
+  quantity: number;
+  thumbnail: string;
+  size: {
+    label: string;
+    value: string;
+    alias: string;
+  };
+  color: {
+    label: string;
+    value: string;
+    alias: string;
+  };
+  outOfStock: boolean;
 };
 
 export interface IProducts {

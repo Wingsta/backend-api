@@ -27,15 +27,17 @@ export interface IInventory {
     size: {
       label: string;
       value: string;
+      alias: string;
     };
     color: {
       label: string;
       value: string;
+      alias: string;
     };
   }[];
   userId: Types.ObjectId;
   companyId: Types.ObjectId;
   status: "IN_STOCK" | "OUT_STOCK" | "RETURNED" | "CANCELLED" | string;
-  invoiceNumber : string;
+  invoiceNumber: string;
   notes: string;
 }

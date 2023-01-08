@@ -168,7 +168,9 @@ class ProfileController {
       };
       let domainDetails = (await Domain.find({ companyId }).lean())[0];
 
-      let orderDetails = await Order.findOne({ _id: orderId }).lean();
+      let orderDetails = await Order.findOne({ _id: orderId })
+        .populate("userId")
+        .lean();
 
       if (!domainDetails || !domainDetails.metaData) {
         return res.json(sendErrorResponse("domain details missing"));
@@ -200,7 +202,8 @@ class ProfileController {
       //   orderDetails.products = repeatElements(orderDetails?.products, 15);
 
       let orderAddres = orderDetails?.deliveryAddress;
-      console.log(orderDetails);
+      let userDetails = orderDetails?.userId as any;
+      
       let data = {
         invoice_nr: orderId,
 
@@ -210,36 +213,47 @@ class ProfileController {
           address: addressLine1,
           addressLine2,
           city: city,
+          state :state,
+          mobile : mobile,
           postal_code: pincode,
         },
         shipping: {
-          name: orderAddres?.name,
+          name: orderAddres?.name || userDetails?.name,
+          mobile: userDetails?.mobile || orderAddres,
           address: orderAddres?.addressLine1,
           addressLine2: orderAddres?.addressLine2,
           city: orderAddres?.city,
-
+          state : orderAddres?.state,
           postal_code: orderAddres?.pincode,
         },
-        items: orderDetails?.products?.map((it) => ({
-          item: it?.name,
+        items: orderDetails?.products?.map((it) => {
+          
+          return {
+            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
+              it.color?.value ? `| ${it.color?.value}` : ""
+            }`,
 
-          quantity: it?.quantity,
-          amount: (
-            parseFloat(it.price?.toString()) * parseFloat(it.quantity)
-          )?.toFixed(2),
-        })),
+            quantity: it?.quantity,
+            amount: (
+              parseFloat(it.price?.toString()) * parseFloat(it.quantity)
+            )?.toFixed(2),
+          };
+        }),
         subtotal: orderDetails?.totalAfterTax || 0,
         paid: 0,
         delivery: orderDetails?.delivery || 0,
       } as any;
 
+      
       let batchSize = 8;
       let buffers = [] as any;
 
       for (let i = 0; i <= orderDetails?.products?.length; i = i + batchSize) {
         data.items =
           orderDetails?.products?.slice(i, i + batchSize)?.map((it) => ({
-            item: it?.name,
+            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
+              it.color?.value ? `| ${it.color?.value}` : ""
+            }`,
 
             quantity: it?.quantity,
             amount: (
@@ -266,7 +280,7 @@ class ProfileController {
 
       const buf = await mergedPdf.save(); // Uint8Array
 
-      // await fs.writeFileSync("invoice.pdf", buf);
+      await fs.writeFileSync("invoice.pdf", buf);
       if (buf) {
         res.contentType("application/pdf");
         res.send(Buffer.from(buf));

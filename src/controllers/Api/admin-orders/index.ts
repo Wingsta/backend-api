@@ -296,21 +296,7 @@ class AdminOrderController {
       );
 
       if (update?._id) {
-        if (status === "REJECTED") {
-          let productUpdate = await AdminOrderController.updateProducts(
-            update.products,
-            companyId,
-            "INC"
-          );
-        }
-
-        if (status === "CONFIRMED") {
-          let productUpdate = await AdminOrderController.updateProducts(
-            update.products,
-            companyId,
-            "DEC"
-          );
-        }
+    
 
         await OrderHistory.insertMany([{ orderId, status }]);
         return res.json(sendSuccessResponse({ message: "updated status" }));
@@ -448,7 +434,9 @@ class AdminOrderController {
       };
       let domainDetails = (await Domain.find({ companyId }).lean())[0];
 
-      let orderDetails = await Order.findOne({ _id: orderId }).lean();
+      let orderDetails = await Order.findOne({ _id: orderId })
+        .populate("userId")
+        .lean();
 
       if (!domainDetails || !domainDetails.metaData) {
         return res.json(sendErrorResponse("domain details missing"));
@@ -457,6 +445,7 @@ class AdminOrderController {
       //   const browser = await puppeteer.launch();
       //   const page = await browser.newPage();
       let {
+        logo,
         bannerImg,
         logoText = "No Company Name",
         addressLine1 = "Address Line 1",
@@ -478,27 +467,34 @@ class AdminOrderController {
       //   orderDetails.products = repeatElements(orderDetails?.products, 15);
 
       let orderAddres = orderDetails?.deliveryAddress;
+let userDetails = orderDetails?.userId as any;
+      
       let data = {
         invoice_nr: orderId,
 
-        logo: bannerImg,
+        logo: logo,
         storeAddress: {
           name: logoText,
           address: addressLine1,
           addressLine2,
           city: city,
+          state: state,
+          mobile: mobile,
           postal_code: pincode,
         },
         shipping: {
-          name: logoText,
+          name: orderAddres?.name || userDetails?.name,
+          mobile: userDetails?.mobile || orderAddres,
           address: orderAddres?.addressLine1,
-          addressLine2,
+          addressLine2: orderAddres?.addressLine2,
           city: orderAddres?.city,
-
+          state: orderAddres?.state,
           postal_code: orderAddres?.pincode,
         },
         items: orderDetails?.products?.map((it) => ({
-          item: it?.name,
+          item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
+            it.color?.value ? `| ${it.color?.value}` : ""
+          }`,
 
           quantity: it?.quantity,
           amount: (
@@ -516,7 +512,7 @@ class AdminOrderController {
       for (let i = 0; i <= orderDetails?.products?.length; i = i + batchSize) {
         data.items =
           orderDetails?.products?.slice(i, i + batchSize)?.map((it) => ({
-            item: it?.name,
+            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${it.color?.value ? `| ${it.color?.value}` : ""}`,
 
             quantity: it?.quantity,
             amount: (
@@ -543,7 +539,7 @@ class AdminOrderController {
 
       const buf = await mergedPdf.save(); // Uint8Array
 
-      await fs.writeFileSync("invoice.pdf", buf);
+      // await fs.writeFileSync("invoice.pdf", buf);
       if (buf) {
         res.contentType("application/pdf");
         res.send(Buffer.from(buf));
