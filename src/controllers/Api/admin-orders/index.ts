@@ -37,7 +37,7 @@ import OrderHistory from "../../../models/orderhistory";
 import moment = require("moment");
 import { ORDER_STATUS, PAYMENT_METHOD } from "../../../utils/constants";
 import { validateOfflineOrder } from "./utils";
-import puppeteer from "puppeteer";
+
 const PDFDocument = require("pdf-lib").PDFDocument;
 import { createInvoice } from "../orders/pdfkit";
 
@@ -442,8 +442,6 @@ class AdminOrderController {
         return res.json(sendErrorResponse("domain details missing"));
       }
 
-      //   const browser = await puppeteer.launch();
-      //   const page = await browser.newPage();
       let {
         logo,
         bannerImg,

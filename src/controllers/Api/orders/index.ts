@@ -21,7 +21,7 @@ import * as fs from "fs";
 import { calculateDeliveryCharge } from "../common/common";
 const crypto = require("crypto");
 const axios = require("axios");
-import puppeteer from "puppeteer";
+
 import Domain from "../../../models/domain";
 import { createInvoice } from "./pdfkit";
 import Product from "../../../models/products";
@@ -176,8 +176,7 @@ class ProfileController {
         return res.json(sendErrorResponse("domain details missing"));
       }
 
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
+
       let {
         logo,
         bannerImg,
