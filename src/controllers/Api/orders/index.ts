@@ -230,7 +230,11 @@ class ProfileController {
           
           return {
             item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
-              it.color?.value ? `| ${it.color?.value}` : ""
+              it.color?.alias
+                ? `| ${it.color?.alias}`
+                : it.color?.value
+                ? `| ${it.color?.value}`
+                : ""
             }`,
 
             quantity: it?.quantity,
@@ -251,9 +255,7 @@ class ProfileController {
       for (let i = 0; i <= orderDetails?.products?.length; i = i + batchSize) {
         data.items =
           orderDetails?.products?.slice(i, i + batchSize)?.map((it) => ({
-            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
-              it.color?.value ? `| ${it.color?.value}` : ""
-            }`,
+            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${it.color?.alias ? `| ${it.color?.alias}` : it.color?.value ? `| ${it.color?.value}` : ""}`,
 
             quantity: it?.quantity,
             amount: (

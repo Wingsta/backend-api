@@ -492,9 +492,7 @@ let userDetails = orderDetails?.userId as any;
           postal_code: orderAddres?.pincode,
         },
         items: orderDetails?.products?.map((it) => ({
-          item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
-            it.color?.value ? `| ${it.color?.value}` : ""
-          }`,
+         item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${it.color?.alias ? `| ${it.color?.alias}` : it.color?.value ? `| ${it.color?.value}` : ""}`,
 
           quantity: it?.quantity,
           amount: (
@@ -512,7 +510,7 @@ let userDetails = orderDetails?.userId as any;
       for (let i = 0; i <= orderDetails?.products?.length; i = i + batchSize) {
         data.items =
           orderDetails?.products?.slice(i, i + batchSize)?.map((it) => ({
-            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${it.color?.value ? `| ${it.color?.value}` : ""}`,
+            item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${it.color?.alias ? `| ${it.color?.alias}` : it.color?.value ? `| ${it.color?.value}` : ""}`,
 
             quantity: it?.quantity,
             amount: (
