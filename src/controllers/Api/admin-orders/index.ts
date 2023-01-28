@@ -353,8 +353,19 @@ class AdminOrderController {
         { upsert: true, new: true }
       );
 
+        let latestorderId =
+          parseInt(
+            (
+              await Order.find({ companyId: companyId })
+                .sort({ _id: -1 })
+                .limit(1)
+                .lean()
+            )?.[0]?.orderId
+          ) || 0;
+             let orderId = latestorderId + 1;
       await Order.create({
         companyId,
+        orderId,
         products,
         userId: profileData?._id,
         status: ORDER_STATUS.DELIVERED,

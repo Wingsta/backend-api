@@ -28,7 +28,7 @@ export interface IOrderProducts {
 
 export interface IOrder {
 	_id: Types.ObjectId;
-
+	orderId : string;
 	products: IOrderProducts[];
 	userId: Types.ObjectId;
 	companyId: Types.ObjectId;

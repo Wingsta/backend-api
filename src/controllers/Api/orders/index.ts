@@ -325,6 +325,8 @@ class ProfileController {
       if (cartId?.length) {
         query = { _id: { $in: cartId.map((it) => new ObjectId(it)) } };
       }
+
+      
       let cartIdFound = [] as string[];
       let products = (
         await Cart.find({
@@ -459,9 +461,12 @@ class ProfileController {
         status = ORDER_STATUS.PAYMENT_PROCESSING;
       }
 
+      let latestorderId = parseInt((await Order.find({companyId : companyId ,}).sort({_id : -1}).limit(1).lean())?.[0]?.orderId) || 0;
+      let orderId = latestorderId + 1;
       let order = await new Order({
         userId: new ObjectId(id),
         companyId: companyId,
+        orderId,
         products: products,
         status,
         total,
