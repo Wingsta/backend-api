@@ -84,7 +84,7 @@ export const sendStatusUpdateEmail = async (companyId, orderDetails, status) => 
 
             sendEmail(
                 "orderUpdate", 
-                user?.email,
+                user?.email, 
                 {
                     iLogo: companyDetails?.metaData?.logo|| undefined,
                     name: Capitalize(profileUser?.name) || "User",
