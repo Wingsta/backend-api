@@ -479,7 +479,7 @@ class ProfileController {
       let order = await new Order({
         userId: new ObjectId(id),
         companyId: companyId,
-        orderId: `${prefix}-${orderNumber}`,
+        orderId: `${prefix}${orderNumber}`,
         orderNumber,
         products: products,
         status,

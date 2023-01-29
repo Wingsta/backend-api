@@ -374,7 +374,7 @@ class AdminOrderController {
              const prefix = (await Domain.findOne({ companyId }).lean())?.metaData?.invoice?.prefix || 'INV';
       await Order.create({
         companyId,
-        orderId: `${prefix}-${orderNumber}`,
+        orderId: `${prefix}${orderNumber}`,
         orderNumber,
         products,
         userId: profileData?._id,
