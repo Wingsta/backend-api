@@ -57,7 +57,7 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
 	{
 		companyId: { type: Types.ObjectId, ref: "Company" },
 		products: [OrderProducts],
-
+		orderId : {type : String},
 		userId: { type: Types.ObjectId, ref: "Profile" },
 		status: { type: String },
 		deliveryAddress: Address,

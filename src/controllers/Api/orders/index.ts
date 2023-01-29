@@ -21,7 +21,7 @@ import * as fs from "fs";
 import { calculateDeliveryCharge } from "../common/common";
 const crypto = require("crypto");
 const axios = require("axios");
-import puppeteer from "puppeteer";
+
 import Domain from "../../../models/domain";
 import { createInvoice } from "./pdfkit";
 import Product from "../../../models/products";
@@ -177,8 +177,7 @@ class ProfileController {
         return res.json(sendErrorResponse("domain details missing"));
       }
 
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
+
       let {
         logo,
         bannerImg,
@@ -327,6 +326,8 @@ class ProfileController {
       if (cartId?.length) {
         query = { _id: { $in: cartId.map((it) => new ObjectId(it)) } };
       }
+
+      
       let cartIdFound = [] as string[];
       let products = (
         await Cart.find({
@@ -461,9 +462,12 @@ class ProfileController {
         status = ORDER_STATUS.PAYMENT_PROCESSING;
       }
 
+      let latestorderId = parseInt((await Order.find({companyId : companyId ,}).sort({_id : -1}).limit(1).lean())?.[0]?.orderId) || 0;
+      let orderId = latestorderId + 1;
       let order = await new Order({
         userId: new ObjectId(id),
         companyId: companyId,
+        orderId,
         products: products,
         status,
         total,

@@ -37,7 +37,7 @@ import OrderHistory from "../../../models/orderhistory";
 import moment = require("moment");
 import { ORDER_STATUS, PAYMENT_METHOD } from "../../../utils/constants";
 import { validateOfflineOrder } from "./utils";
-import puppeteer from "puppeteer";
+
 const PDFDocument = require("pdf-lib").PDFDocument;
 import { createInvoice } from "../orders/pdfkit";
 import { sendStatusUpdateEmail } from "../../../utils/notification";
@@ -359,8 +359,19 @@ class AdminOrderController {
         { upsert: true, new: true }
       );
 
+        let latestorderId =
+          parseInt(
+            (
+              await Order.find({ companyId: companyId })
+                .sort({ _id: -1 })
+                .limit(1)
+                .lean()
+            )?.[0]?.orderId
+          ) || 0;
+             let orderId = latestorderId + 1;
       await Order.create({
         companyId,
+        orderId,
         products,
         userId: profileData?._id,
         status: ORDER_STATUS.DELIVERED,
@@ -448,8 +459,6 @@ class AdminOrderController {
         return res.json(sendErrorResponse("domain details missing"));
       }
 
-      //   const browser = await puppeteer.launch();
-      //   const page = await browser.newPage();
       let {
         logo,
         bannerImg,
