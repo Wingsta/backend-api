@@ -205,7 +205,7 @@ class ProfileController {
       let userDetails = orderDetails?.userId as any;
       
       let data = {
-        invoice_nr: orderId,
+        invoice_nr: orderDetails?.orderId || orderId,
 
         logo: logo,
         storeAddress: {
@@ -213,8 +213,8 @@ class ProfileController {
           address: addressLine1,
           addressLine2,
           city: city,
-          state :state,
-          mobile : mobile,
+          state: state,
+          mobile: mobile,
           postal_code: pincode,
         },
         shipping: {
@@ -223,11 +223,10 @@ class ProfileController {
           address: orderAddres?.addressLine1,
           addressLine2: orderAddres?.addressLine2,
           city: orderAddres?.city,
-          state : orderAddres?.state,
+          state: orderAddres?.state,
           postal_code: orderAddres?.pincode,
         },
         items: orderDetails?.products?.map((it) => {
-          
           return {
             item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
               it.color?.alias
@@ -462,12 +461,26 @@ class ProfileController {
         status = ORDER_STATUS.PAYMENT_PROCESSING;
       }
 
-      let latestorderId = parseInt((await Order.find({companyId : companyId ,}).sort({_id : -1}).limit(1).lean())?.[0]?.orderId) || 0;
-      let orderId = latestorderId + 1;
+     let latestorderId =
+       parseInt(
+         `${
+           (
+             await Order.find({ companyId: companyId })
+               .sort({ _id: -1 })
+               .limit(1)
+               .lean()
+           )?.[0]?.orderNumber
+         }`
+       ) || 0;
+     let orderNumber = latestorderId + 1;
+     const prefix =
+       (await Domain.findOne({ companyId }).lean())?.metaData?.invoice
+         ?.prefix || "INV";
       let order = await new Order({
         userId: new ObjectId(id),
         companyId: companyId,
-        orderId,
+        orderId: `${prefix}-${orderNumber}`,
+        orderNumber,
         products: products,
         status,
         total,

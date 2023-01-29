@@ -361,17 +361,21 @@ class AdminOrderController {
 
         let latestorderId =
           parseInt(
-            (
-              await Order.find({ companyId: companyId })
-                .sort({ _id: -1 })
-                .limit(1)
-                .lean()
-            )?.[0]?.orderId
+            `${
+              (
+                await Order.find({ companyId: companyId })
+                  .sort({ _id: -1 })
+                  .limit(1)
+                  .lean()
+              )?.[0]?.orderNumber
+            }`
           ) || 0;
-             let orderId = latestorderId + 1;
+             let orderNumber = latestorderId + 1;
+             const prefix = (await Domain.findOne({ companyId }).lean())?.metaData?.invoice?.prefix || 'INV';
       await Order.create({
         companyId,
-        orderId,
+        orderId: `${prefix}-${orderNumber}`,
+        orderNumber,
         products,
         userId: profileData?._id,
         status: ORDER_STATUS.DELIVERED,
@@ -485,7 +489,7 @@ class AdminOrderController {
 let userDetails = orderDetails?.userId as any;
       
       let data = {
-        invoice_nr: orderId,
+        invoice_nr: orderDetails?.orderId || orderId,
 
         logo: logo,
         storeAddress: {
@@ -507,7 +511,13 @@ let userDetails = orderDetails?.userId as any;
           postal_code: orderAddres?.pincode,
         },
         items: orderDetails?.products?.map((it) => ({
-         item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${it.color?.alias ? `| ${it.color?.alias}` : it.color?.value ? `| ${it.color?.value}` : ""}`,
+          item: `${it?.name} ${it.size?.value ? `| ${it.size?.value}` : ""} ${
+            it.color?.alias
+              ? `| ${it.color?.alias}`
+              : it.color?.value
+              ? `| ${it.color?.value}`
+              : ""
+          }`,
 
           quantity: it?.quantity,
           amount: (
