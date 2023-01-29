@@ -26,6 +26,7 @@ import Domain from "../../../models/domain";
 import { createInvoice } from "./pdfkit";
 import Product from "../../../models/products";
 import AdminOrderController from "../admin-orders";
+import { sendNewOrderEmail } from "../../../utils/notification";
 const PDFDocument = require("pdf-lib").PDFDocument;
 
 class ProfileController {
@@ -480,7 +481,10 @@ class ProfileController {
           _id: { $in: cartIdFound.map((it) => new ObjectID(it)) },
         });
 
-        let update = await AdminOrderController.updateProducts(products,companyId, 'DEC')
+        let update = await AdminOrderController.updateProducts(products,companyId, 'DEC');
+
+        sendNewOrderEmail(companyId, order);
+
         return res.json(
           sendSuccessResponse({
             ...order.toJSON(),
@@ -518,10 +522,16 @@ class ProfileController {
         throw new Error("company details not found!");
       }
 
-      const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
+      const order = await Order.findOne({ razorpayOrderId: razorpay_order_id }).lean();
 
       if (!order) {
         throw new Error("order details not found!");
+      }
+
+      if (order?.status === ORDER_STATUS.CONFIRMED) {
+        return res.json(
+          sendSuccessResponse(null, "Payment status updated successfully!")
+        );
       }
 
       const { razorpayAppId, razorpaySecretKey } = company;
@@ -596,6 +606,8 @@ class ProfileController {
               razorpayPaymentId: req.body.razorpay_payment_id,
             }
           );
+
+          sendNewOrderEmail(companyId, { ...order, status: ORDER_STATUS.CONFIRMED }, false);
         } else if (paymentData?.data?.status === "failed") {
           await Order.findOneAndUpdate(
             {
@@ -630,7 +642,7 @@ class ProfileController {
         const order = await Order.findOne({
           razorpayOrderId: order_id,
           status: ORDER_STATUS.PAYMENT_PROCESSING,
-        });
+        }).lean();
 
         if (order) {
           const company = await Company.findById(order?.companyId);
@@ -693,6 +705,8 @@ class ProfileController {
                     razorpayPaymentId: paymentData?.data?.id,
                   }
                 );
+
+                sendNewOrderEmail(order?.companyId, { ...order, status: ORDER_STATUS.CONFIRMED }, false);
               } else if (paymentData?.data?.status === "failed") {
                 await Order.findOneAndUpdate(
                   {

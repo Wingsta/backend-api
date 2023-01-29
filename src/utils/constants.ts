@@ -1,5 +1,3 @@
-import { reject, resolve } from "bluebird";
-
 export const ORDER_STATUS = {
     PROCESSING: "PROCESSING",
     PAYMENT_PROCESSING: "PAYMENT_PROCESSING",
@@ -79,3 +77,27 @@ export const deliveryFlatFeeConstants = {
     "AMOUNT": "AMOUNT",
     "PERCENTAGE": "PERCENTAGE"
 }
+
+export const currencyFormatter = (input, needSymbol = true) => {
+    let options = needSymbol ? {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0
+    } : {
+        minimumFractionDigits: 0
+    }
+
+    if (input) {
+        return (input).toLocaleString('en-IN', options)
+    } else {
+        return (0).toLocaleString('en-IN', options)
+    }
+};
+
+export const Capitalize = text => {
+    try {
+        return text ? text[0].toUpperCase() + text.slice(1) : "";
+    } catch (e) {
+        return "";
+    }
+};

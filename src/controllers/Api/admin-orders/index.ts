@@ -40,6 +40,7 @@ import { validateOfflineOrder } from "./utils";
 import puppeteer from "puppeteer";
 const PDFDocument = require("pdf-lib").PDFDocument;
 import { createInvoice } from "../orders/pdfkit";
+import { sendStatusUpdateEmail } from "../../../utils/notification";
 
 class AdminOrderController {
   public static async getOneOrder(
@@ -297,6 +298,11 @@ class AdminOrderController {
 
       if (update?._id) {
     
+        const sendEmail = req.body.sendEmail as boolean;
+
+        if (sendEmail) {
+          sendStatusUpdateEmail(companyId, update, status);
+        }
 
         await OrderHistory.insertMany([{ orderId, status }]);
         return res.json(sendSuccessResponse({ message: "updated status" }));
