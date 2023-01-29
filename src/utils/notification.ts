@@ -21,7 +21,7 @@ export const sendNewOrderEmail = async (companyId, orderDetails, sendToAdmin = t
         if (sendToAdmin) {
             sendEmail('orderAdmin', user?.email, {
                 name: Capitalize(user?.name),
-                orderId: orderDetails?._id,
+                orderId: orderDetails?.orderId,
                 total: currencyFormatter(orderDetails?.totalAfterTax),
                 orderLink: `${APP_LINK}/orders/${orderDetails?._id}`
             });
@@ -50,7 +50,7 @@ export const sendNewOrderEmail = async (companyId, orderDetails, sendToAdmin = t
                     user?.email, {
                         iLogo: companyDetails?.metaData?.logo|| undefined,
                         name: Capitalize(profileUser?.name) || "User",
-                        orderId: orderDetails?._id,
+                        orderId: orderDetails?.orderId,
                         total: currencyFormatter(orderDetails?.totalAfterTax),
                         email: companyDetails?.metaData?.email || user?.email,
                         storeName: companyDetails?.metaData?.logoText || companyDetails?.name,
@@ -88,7 +88,7 @@ export const sendStatusUpdateEmail = async (companyId, orderDetails, status) => 
                 {
                     iLogo: companyDetails?.metaData?.logo|| undefined,
                     name: Capitalize(profileUser?.name) || "User",
-                    orderId: orderDetails?._id,
+                    orderId: orderDetails?.orderId,
                     total: currencyFormatter(orderDetails?.totalAfterTax),
                     email: companyDetails?.metaData?.email || user?.email,
                     storeName: companyDetails?.metaData?.logoText || companyDetails?.name,
