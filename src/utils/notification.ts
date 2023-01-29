@@ -18,7 +18,11 @@ export const sendNewOrderEmail = async (companyId, orderDetails, sendToAdmin = t
             email: 1
         }).lean();
         
-        if (sendToAdmin) {
+        if (
+            orderDetails?.paymentMethod === PAYMENT_METHOD.CASH
+            ||
+            orderDetails?.status === ORDER_STATUS.CONFIRMED
+        ) {
             sendEmail('orderAdmin', user?.email, {
                 name: Capitalize(user?.name),
                 orderId: orderDetails?.orderId,
@@ -40,6 +44,8 @@ export const sendNewOrderEmail = async (companyId, orderDetails, sendToAdmin = t
                 name: 1,
                 email: 1
             }).lean();
+
+            console.log(profileUser);
     
             if (profileUser?.email) {
     
@@ -47,7 +53,7 @@ export const sendNewOrderEmail = async (companyId, orderDetails, sendToAdmin = t
     
                 sendEmail(
                     orderDetails?.paymentMethod === PAYMENT_METHOD.CASH ? 'orderCustomer' : 'orderCustomerPG', 
-                    user?.email, {
+                    profileUser?.email, {
                         iLogo: companyDetails?.metaData?.logo|| undefined,
                         name: Capitalize(profileUser?.name) || "User",
                         orderId: orderDetails?.orderId,
@@ -84,7 +90,7 @@ export const sendStatusUpdateEmail = async (companyId, orderDetails, status) => 
 
             sendEmail(
                 "orderUpdate", 
-                user?.email, 
+                profileUser?.email, 
                 {
                     iLogo: companyDetails?.metaData?.logo|| undefined,
                     name: Capitalize(profileUser?.name) || "User",

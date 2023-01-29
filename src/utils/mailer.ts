@@ -37,7 +37,7 @@ export const sendEmail = async function (template, to, locals, bcc?) {
         const data = await email.send({
             template,
             message: {
-                from: "noreply@myclassroom.digital",
+                from: "noreply@sociallink.one",
                 to,
                 bcc
             },
