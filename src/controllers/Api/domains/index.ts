@@ -183,6 +183,7 @@ class Products {
       if (!company) {
         return res.json(sendErrorResponse("company not found"));
       }
+
       if (!name) {
         return res.json(sendErrorResponse("name should not be empty"));
       }
