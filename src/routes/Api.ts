@@ -28,6 +28,18 @@ import InventoryController from "../controllers/Api/inventory/index";
 
 const router = Router();
 
+router.get(
+  "/domain-path",
+
+  DomainController.getPaths
+);
+
+router.get(
+  "/slug-path",
+  
+  DomainController.getPathSlugs
+);
+
 router.post(
 	"/upload",
 	passport.authenticate("jwt", { session: false }),
