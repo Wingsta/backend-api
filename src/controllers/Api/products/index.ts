@@ -16,7 +16,7 @@ import * as typeCheckService from "../../../services/validations/typecheck";
 import Locals from "../../../providers/Locals";
 import { ObjectId } from "mongodb";
 import * as slug from "slug";
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { Axios, AxiosRequestConfig } from "axios";
 
 import * as XLSX from "xlsx";
 import Company from "../../../models/company";
@@ -488,6 +488,7 @@ class Products {
           })
       );
 
+    
       // console.log(names);
       // return res.json(names);
       productArr = productArr
@@ -516,6 +517,10 @@ class Products {
         }
       }
 
+      if(productArr?.[0]?.slug){
+          await Products.allForLoadingCache(companyId, productArr[0].slug);
+      }
+
       let products = await Product.insertMany(productArr);
 
       updateCategoryProduct(categoryId);
@@ -524,6 +529,18 @@ class Products {
     } catch (error) {
       next(error);
     }
+  }
+
+  private static async allForLoadingCache(companyId: string, slug: string) {
+    let companyDetails = await Company.findOne({
+      companyId: new ObjectId(companyId),
+    }).lean();
+
+    const options: AxiosRequestConfig = {
+      url: `https://sociallink.one/${companyDetails?.meta?.domainName}/product/${slug}`,
+      method: "GET",
+    };
+    await axios(options);
   }
 
   public static async bulkUpload(
@@ -733,6 +750,9 @@ class Products {
       updateProductData = Products.addProductVersion(updateProductData);
       productArr[0] = updateProductData;
 
+      if(updateProductData?.slug){
+        await Products.allForLoadingCache(companyId, updateProductData?.slug);
+      }
       let products = await Promise.all(
         productArr.map(async (it) => {
           let _id = it?._id;
