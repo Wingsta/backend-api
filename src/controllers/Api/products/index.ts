@@ -7,6 +7,7 @@
 import * as jwt from "jsonwebtoken";
 import { faker } from "@faker-js/faker";
 import { NextFunction, Request, Response } from "express";
+import { v1 as uuidv1 } from "uuid";
 import AccountUser from "../../../models/accountuser";
 import { IAccountUser, ICompany } from "../../../interfaces/models/accountuser";
 import * as bcrypt from "bcryptjs";
@@ -349,7 +350,7 @@ class Products {
         mongoQuery["_id"] = productId;
       }
 
-      console.log(mongoQuery)
+      console.log(mongoQuery);
       let product = await Product.findOne(mongoQuery)
         .populate("posts")
         .populate("categoryId", { name: 1 });
@@ -724,14 +725,14 @@ class Products {
           updateProductData?.name?.toLowerCase()?.trim() !==
             product?.name?.toLowerCase()?.trim())
       ) {
-         let slugValue = slug(updateProductData?.name);
-         slugValue = await Products.checkAndUpdateSlug(slugValue, companyId);
-         updateProductData.slug = slugValue
+        let slugValue = slug(updateProductData?.name);
+        slugValue = await Products.checkAndUpdateSlug(slugValue, companyId);
+        updateProductData.slug = slugValue;
       }
 
-      productArr[0] = updateProductData
+      updateProductData = Products.addProductVersion(updateProductData);
+      productArr[0] = updateProductData;
 
-      console.log(updateProductData);
       let products = await Promise.all(
         productArr.map(async (it) => {
           let _id = it?._id;
@@ -761,6 +762,11 @@ class Products {
     } catch (error) {
       next(error);
     }
+  }
+
+  public static addProductVersion(updateProductData: IProducts) {
+    updateProductData.productVersion = uuidv1();
+    return updateProductData;
   }
 
   public static async delete(req: Request, res: Response, next: NextFunction) {

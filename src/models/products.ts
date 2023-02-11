@@ -71,6 +71,7 @@ export const ProductSchema = new mongoose.Schema<IProducts>(
     carouselImages: { type: Array },
     categoryId: { type: Types.ObjectId, ref: "Category" },
     posts: [{ type: Types.ObjectId, ref: "Post" }],
+    productVersion : {type : String},
     originalPrice: { type: Number },
     description: { type: String },
     productUnitCount: { type: Number },

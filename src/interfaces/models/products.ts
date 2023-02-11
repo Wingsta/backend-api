@@ -41,7 +41,7 @@ export interface IProducts {
 	carouselImages: string[];
 	categoryId?: Types.ObjectId;
 	posts: any[];
-
+	productVersion: string;
 	description: string;
 	productUnitCount: number;
 	productUnitLabel: string;
