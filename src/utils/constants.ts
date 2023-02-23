@@ -101,3 +101,8 @@ export const Capitalize = text => {
         return "";
     }
 };
+
+export const configurationTypes = {
+    TERMS_AND_CONDITIONS: "terms and conditions",
+    PRIVACY_POLICY: "privacy policy"
+}

@@ -25,6 +25,7 @@ import CategoryController from "../controllers/Api/category/index";
 import PostalCodeController from "../controllers/Api/postalCode/index";
 import DeliveryController from "../controllers/Api/delivery/index";
 import InventoryController from "../controllers/Api/inventory/index";
+import ConfigurationController from "../controllers/Api/configuration/index";
 
 const router = Router();
 
@@ -571,6 +572,36 @@ router.post(
 	"/inventory",
 	passport.authenticate("jwt", { session: false }),
 	InventoryController.postInventory
+);
+
+router.get(
+	"/configuration/terms-and-conditions",
+	passport.authenticate("jwt", { session: false }),
+	ConfigurationController.getTermsAndConditions
+);
+
+router.post(
+	"/configuration/terms-and-conditions",
+	passport.authenticate("jwt", { session: false }),
+	ConfigurationController.postTermsAndConditions
+);
+
+router.get(
+	"/configuration/privacy-policy",
+	passport.authenticate("jwt", { session: false }),
+	ConfigurationController.getPrivacyPolicy
+);
+
+router.post(
+	"/configuration/privacy-policy",
+	passport.authenticate("jwt", { session: false }),
+	ConfigurationController.postPrivacyPolicy
+);
+
+router.get(
+	"/public/configuration/:domain/:configurationType",
+	DomainController.getPublicDomainMiddleWare,
+	ConfigurationController.getPublicConfiguration
 );
 
 export default router;
