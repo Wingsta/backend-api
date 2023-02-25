@@ -106,3 +106,9 @@ export const configurationTypes = {
     TERMS_AND_CONDITIONS: "terms and conditions",
     PRIVACY_POLICY: "privacy policy"
 }
+
+export const replaceSpecialChars = (text: string, sendEmptyString?: boolean) => {
+    return text
+        ? String(text).trim().replace(/[&\/\\#, +()$~%.'":*?<>{}^\[\]\|]/g, '\\$&')
+        : (sendEmptyString ? '' : text);
+};

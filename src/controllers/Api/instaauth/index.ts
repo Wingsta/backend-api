@@ -24,6 +24,7 @@ import Product from "../../../models/products";
 import Post from "../../../models/posts";
 import { IPosts } from "../../../interfaces/models/posts";
 import { IProducts } from "../../../interfaces/models/products";
+import { replaceSpecialChars } from "../../../utils/constants";
 
 interface ISignupGet extends IAccountUser, ICompany {}
 
@@ -96,6 +97,7 @@ class AccountUserAuth {
       let mongoQuery = { companyId } as any;
 
       if (searchTerm) {
+        searchTerm = replaceSpecialChars(searchTerm);
         mongoQuery["$or"] = [{ name: new RegExp(searchTerm, "i") }];
       }
 

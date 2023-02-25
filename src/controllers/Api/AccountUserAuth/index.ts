@@ -186,12 +186,12 @@ class AccountUserAuth {
 				return res.json(sendErrorResponse("Account not found"));
 			}
 
-			if (
-				account.password &&
-				!(await bcrypt.compare(oldPassword, account.password))
-			) {
-				return res.json(sendErrorResponse("Old Password is incorrect"));
-			}
+			// if (
+			// 	account.password &&
+			// 	!(await bcrypt.compare(oldPassword, account.password))
+			// ) {
+			// 	return res.json(sendErrorResponse("Old Password is incorrect"));
+			// }
 
 			let password = await generateHash(newPassword);
 			let accountUser = await AccountUser.updateOne(

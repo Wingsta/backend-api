@@ -11,6 +11,7 @@ import {
 } from "../../../services/response/sendresponse";
 import Profile from "../../../models/profile";
 import moment = require("moment");
+import { replaceSpecialChars } from "../../../utils/constants";
 
 
 class Customers {
@@ -53,6 +54,7 @@ class Customers {
                 mongoQuery["status"] = { $in: statusTypes };
             }
             if (searchTerm) {
+                searchTerm = replaceSpecialChars(searchTerm);
                 mongoQuery["$or"] = [
                     { name: new RegExp(searchTerm, "i") },
                     { mobile: new RegExp(searchTerm, "i") },

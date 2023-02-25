@@ -7,6 +7,7 @@ import {
 import Category from "../../../models/category";
 import { validateCategory, validateDuplicateCategory } from "./utils";
 import Product from "../../../models/products";
+import { replaceSpecialChars } from "../../../utils/constants";
 
 class Categories {
 
@@ -36,6 +37,7 @@ class Categories {
             let mongoQuery = { companyId } as any;
 
             if (searchTerm) {
+                searchTerm = replaceSpecialChars(searchTerm);
                 mongoQuery["$or"] = [
                     { name: new RegExp(searchTerm, "i") }
                 ];
@@ -82,6 +84,8 @@ class Categories {
             let { companyId } = req.user as { companyId: string };
 
             let { name, editId } = req.body as { name: string, editId: string | null };
+            
+            name = replaceSpecialChars(name);
 
             let query = {
                 companyId: companyId,
@@ -121,6 +125,8 @@ class Categories {
 
             let { name, isActive } = req.body as { name: string, isActive: boolean };
 
+            name = replaceSpecialChars(name);
+
             let category = await Category.findOne({
                 companyId: companyId,
                 name : new RegExp(`^${name}$`, 'i')
@@ -156,6 +162,8 @@ class Categories {
             let { companyId } = req.user as { companyId: string };
 
             let { name, isActive } = req.body as { name: string, isActive: boolean };
+
+            name = replaceSpecialChars(name);
 
             let category = await Category.findOne({
                 companyId: companyId,

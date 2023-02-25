@@ -29,6 +29,7 @@ import {
 } from "../../../services/response/sendresponse";
 import { uploadImage } from "../../../services/gcloud/upload";
 import { updateCategoryProduct } from "../common/common";
+import { replaceSpecialChars } from "../../../utils/constants";
 
 function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
@@ -83,6 +84,7 @@ class Products {
         mongoQuery["status"] = { $in: statusTypes };
       }
       if (searchTerm) {
+        searchTerm = replaceSpecialChars(searchTerm);
         mongoQuery["$or"] = [
           { sku: new RegExp(searchTerm, "i") },
           { name: new RegExp(searchTerm, "i") },
@@ -162,6 +164,7 @@ class Products {
         mongoQuery["status"] = { $in: statusTypes };
       }
       if (searchTerm) {
+        searchTerm = replaceSpecialChars(searchTerm);
         mongoQuery["$or"] = [
           { sku: new RegExp(searchTerm, "i") },
           { name: new RegExp(searchTerm, "i") },

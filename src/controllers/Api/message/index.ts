@@ -19,6 +19,7 @@ import {
 import Profile from "../../../models/profile";
 import { validateMessage } from "./utils";
 import moment = require("moment");
+import { replaceSpecialChars } from "../../../utils/constants";
 
 
 class Messages {
@@ -108,6 +109,7 @@ class Messages {
                 mongoQuery["status"] = { $in: statusTypes };
             }
             if (searchTerm) {
+                searchTerm = replaceSpecialChars(searchTerm);
                 mongoQuery["$or"] = [
                     { message: new RegExp(searchTerm, "i") }
                 ];
