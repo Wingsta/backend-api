@@ -459,7 +459,7 @@ router.get(
 	ProductController.getCategory
 );
 
-router.get(
+router.post(
 	"/public/domain/:domain/products",
 
 	DomainController.getPublicDomainProducts,

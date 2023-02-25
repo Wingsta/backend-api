@@ -69,7 +69,14 @@ class Products {
       if (offset) {
         offset = parseInt(offset.toString());
       }
+
+      const { categoryId } = req.body as any;
+      
       let mongoQuery = { companyId } as any;
+
+      if (categoryId && categoryId.length > 0) {
+        mongoQuery.categoryId = { $in: categoryId }
+      }
 
       if (status) {
         let statusTypes = status.split(",");
@@ -226,7 +233,9 @@ class Products {
 
       let mongoQuery = { companyId } as any;
 
-      let category = await Category.find(mongoQuery)
+      let limit = 5;
+
+      let category = await Category.find({ ...mongoQuery, isActive: true })
         .select({
           name: 1,
           isActive: 1,
@@ -235,7 +244,8 @@ class Products {
         .sort({ order: 1, createdAt: -1 })
         .lean();
 
-      mongoQuery.categoryId = { $ne: null };
+      // mongoQuery.categoryId = { $ne: null };
+      mongoQuery.categoryId = { $in: category.slice(0, limit).map(x => x._id) };
 
       let categoryProduct = await Product.aggregate([
         {
@@ -260,10 +270,13 @@ class Products {
         },
       ]);
 
+      let categoryCount = await Category.countDocuments({ companyId, isActive: true });
+
       return res.json(
         sendSuccessResponse({
           category,
           product: categoryProduct,
+          moreCategory: categoryCount > limit ? limit : 0
         })
       );
     } catch (error) {
