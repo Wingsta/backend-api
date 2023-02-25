@@ -20,9 +20,7 @@ export async function compressImages() {
   });
 
   console.log(files.length);
-  files = files.filter(
-    (it) => it.metadata.name === `63eb60993ccb570011bd67fd/IMG_0280.jpg`
-  );
+  files = files.filter((it) => it.metadata.contentType.startsWith("image/webp"));
   console.log(files.length);
   for (const file of files) {
     // continue
@@ -30,15 +28,16 @@ export async function compressImages() {
       const metadata = await file.metadata;
       console.log(metadata?.contentType, metadata?.size);
       if (
-        metadata.contentType.startsWith("image/")
+        metadata.contentType.startsWith("image/webp") &&
+        parseInt(metadata?.size) > 317776
       ) {
         try {
           const stream = file.createReadStream();
           const resizedStream = stream.pipe(
-            sharp().resize(1200, 1200, {
+            sharp().resize(600, 600, {
               fit: "contain",
-              
-              background: { r: 134, g: 149, b: 150, alpha: 1 },
+
+              background: { r: 255, g: 255, b: 255, alpha: 0.0 },
             })
           );
           const newFile = gc.bucket(bucketName).file(`${metadata?.name}`);

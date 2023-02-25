@@ -27,6 +27,7 @@ class CommonController {
   }
   public static async upload(req: Request, res: Response, next): Promise<any> {
     try {
+   
       let myFile = req.file as any;
       let compress = req.query.compress;
       myFile.originalname = CommonController.appendTimestampToFileName(
@@ -35,7 +36,7 @@ class CommonController {
       if (myFile?.mimetype?.startsWith("image/") && compress === "true") {
         let buffer = await sharp(myFile.buffer)
           .webp({ quality: 80 })
-          .resize(3840, 3840, {
+          .resize(600, 600, {
             fit: "contain",
             background: { r: 255, g: 255, b: 255, alpha: 0.0 },
           })
