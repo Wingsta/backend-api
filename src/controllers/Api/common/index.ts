@@ -36,7 +36,7 @@ class CommonController {
       if (myFile?.mimetype?.startsWith("image/") && compress === "true") {
         let buffer = await sharp(myFile.buffer)
           .webp({ quality: 80 })
-          .resize(1200, 1200, {
+          .resize(2000, 2000, {
             fit: "contain",
             background: { r: 255, g: 255, b: 255, alpha: 0.0 },
           })
