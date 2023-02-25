@@ -13,6 +13,7 @@ import Locals from "../../../providers/Locals";
 import {
   uploadImage,
   uploadImageForSocialLink,
+  compressImages,
 } from "../../../services/gcloud/upload";
 import { sendSuccessResponse } from "../../../services/response/sendresponse";
 import * as sharp from "sharp";
@@ -27,14 +28,14 @@ class CommonController {
   public static async upload(req: Request, res: Response, next): Promise<any> {
     try {
       let myFile = req.file as any;
-	  let compress = req.query.compress
+      let compress = req.query.compress;
       myFile.originalname = CommonController.appendTimestampToFileName(
         myFile.originalname
       );
-      if (myFile?.mimetype?.startsWith("image/") && compress === 'true') {
+      if (myFile?.mimetype?.startsWith("image/") && compress === "true") {
         let buffer = await sharp(myFile.buffer)
           .webp({ quality: 80 })
-          .resize(600, 600, {
+          .resize(3840, 3840, {
             fit: "contain",
             background: { r: 255, g: 255, b: 255, alpha: 0.0 },
           })

@@ -1,7 +1,7 @@
 const util = require("util");
 const gc = require("./index");
 const bucket = gc.bucket("insta-pilot-beta.appspot.com"); // should be your bucket name
-
+import * as sharp from "sharp";
 /**
  *
  * @param { File } object file object that will be uploaded
@@ -11,7 +11,62 @@ const bucket = gc.bucket("insta-pilot-beta.appspot.com"); // should be your buck
  *   "originalname" and "buffer" as keys
  */
 
-export const uploadImage = (file ,company: string,) =>
+export async function compressImages() {
+  // Replace with your own project ID and key file path
+
+  let bucketName = "insta-pilot-beta.appspot.com";
+  let [files] = await bucket.getFiles({
+    prefix: `63eb60993ccb570011bd67fd/`,
+  });
+
+  console.log(files.length);
+  files = files.filter(
+    (it) => it.metadata.name === `63eb60993ccb570011bd67fd/IMG_0280.jpg`
+  );
+  console.log(files.length);
+  for (const file of files) {
+    // continue
+    try {
+      const metadata = await file.metadata;
+      console.log(metadata?.contentType, metadata?.size);
+      if (
+        metadata.contentType.startsWith("image/")
+      ) {
+        try {
+          const stream = file.createReadStream();
+          const resizedStream = stream.pipe(
+            sharp().resize(1200, 1200, {
+              fit: "contain",
+              
+              background: { r: 134, g: 149, b: 150, alpha: 1 },
+            })
+          );
+          const newFile = gc.bucket(bucketName).file(`${metadata?.name}`);
+          const writeStream = newFile.createWriteStream();
+          resizedStream.pipe(writeStream);
+
+          await new Promise((resolve: any, reject) => {
+            writeStream.on("error", reject);
+            writeStream.on("finish", async () => {
+              let k = await newFile.makePublic();
+              resolve();
+            });
+          });
+
+          console.log(`${file.name} compressed and saved as ${newFile.name}`);
+        } catch (errrr) {
+          console.log(`${file.name} is not an image errrrr`);
+        }
+      } else {
+        console.log(`${file.name} is not an image`);
+      }
+    } catch (err) {
+      console.error(`Error compressing ${file.name}: ${err}`);
+    }
+  }
+}
+
+export const uploadImage = (file, company: string) =>
   new Promise((resolve, reject) => {
     const { originalname, buffer } = file;
 
@@ -20,25 +75,21 @@ export const uploadImage = (file ,company: string,) =>
       resumable: false,
     });
     blobStream
-      .on("finish",async () => {
-        let k  =await blob.makePublic()
-        console.log(k,"hellpp")
+      .on("finish", async () => {
+        let k = await blob.makePublic();
+        console.log(k, "hellpp");
         console.log(
           `https://storage.googleapis.com/${bucket.name}/${blob.name}`
         );
-        const publicUrl = (
-          `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-        );
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
         resolve(publicUrl);
       })
       .on("error", (error) => {
-        console.log(error)
+        console.log(error);
         reject(`Unable to upload image, something went wrong`);
       })
       .end(buffer);
   });
-
-
 
 /**
  *
