@@ -35,7 +35,21 @@ class Messages {
 
             let { companyId } = req.user as { companyId: string };
 
-            let { name, mobile, message } = req.body as { name: string, mobile: string, message: string };
+            let { 
+                name, 
+                mobile, 
+                message, 
+                type,
+                productId,
+                productDetails
+            } = req.body as { 
+                name: string, 
+                mobile: string,
+                message: string,
+                type: string,
+                productId: string,
+                productDetails: any
+            };
 
             let timeInterval = moment().utcOffset('+05:30', true).subtract(24, 'hours').toDate()
 
@@ -54,7 +68,9 @@ class Messages {
             const messages = await Message.find({ 
                 createdAt: { $gte: timeInterval },
                 userId: profile?._id,
-                companyId
+                companyId,
+                type,
+                productId
             });
 
             if (messages.length > 1) {
@@ -64,7 +80,10 @@ class Messages {
             await new Message({
                 message,
                 userId: profile?._id,
-                companyId
+                companyId,
+                type,
+                productId,
+                productDetails
             }).save();
 
             return res.json(sendSuccessResponse(null, "Message created successfully!"));
@@ -85,6 +104,7 @@ class Messages {
                 status,
                 startDate,
                 endDate,
+                type
             } = req.query as unknown as {
                 limit: number;
                 offset: number;
@@ -93,6 +113,7 @@ class Messages {
                 status: string;
                 startDate: Date,
                 endDate: Date,
+                type: string
             };
 
             if (limit) {
@@ -103,6 +124,10 @@ class Messages {
                 offset = parseInt(offset.toString());
             }
             let mongoQuery = { companyId } as any;
+
+            if (type) {
+                mongoQuery.type = type;
+            }
 
             if (status) {
                 let statusTypes = status.split(",");

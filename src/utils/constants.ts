@@ -112,3 +112,10 @@ export const replaceSpecialChars = (text: string, sendEmptyString?: boolean) => 
         ? String(text).trim().replace(/[&\/\\#, +()$~%.'":*?<>{}^\[\]\|]/g, '\\$&')
         : (sendEmptyString ? '' : text);
 };
+
+export const messageType = {
+    MESSAGE: "message",
+    ENQUIRY: "enquiry"
+}
+
+export const messageTypeConstant = Object.values(messageType);

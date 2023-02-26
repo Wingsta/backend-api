@@ -11,5 +11,7 @@
    message: string;
    userId: Types.ObjectId;
    companyId: Types.ObjectId;
+   productId?: Types.ObjectId;
+   productDetails?: any
 }
  

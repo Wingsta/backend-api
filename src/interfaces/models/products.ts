@@ -46,6 +46,7 @@ export interface IProducts {
 	productUnitCount: number;
 	productUnitLabel: string;
 	variants?: IVariant[];
+	enquiry?: boolean;
 }
 
 

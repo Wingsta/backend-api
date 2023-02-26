@@ -10,6 +10,7 @@ import * as bcrypt from "bcrypt-nodejs";
 import { IProducts, IVariant } from "../interfaces/models/products";
 import mongoose from "../providers/Database";
 import { Types } from "mongoose";
+import { boolean } from "joi";
 
 // Create the model schema & register your custom methods here
 
@@ -79,6 +80,10 @@ export const ProductSchema = new mongoose.Schema<IProducts>(
     variants: [VariantSchema],
     createdAt: { type: Date },
     updatedAt: { type: Date },
+    enquiry: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,
