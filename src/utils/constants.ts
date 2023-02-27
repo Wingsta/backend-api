@@ -31,7 +31,7 @@ export const roundOff = (num:number, includeDecimal?:Boolean) => {
 const Razorpay = require('razorpay');
 const uuid = require('uuid');
 
-export const createRazorpayOrder = (key_id: string, key_secret: string, amount:number):any => {
+export const createRazorpayOrder = (key_id: string, key_secret: string, amount:number,notes?: any):any => {
 
     const instance = new Razorpay({
         key_id,
@@ -39,10 +39,11 @@ export const createRazorpayOrder = (key_id: string, key_secret: string, amount:n
     });
 
     const options = {
-        amount: roundOff(amount) * 100, // Razorpay treats input as paise, so we make it rupees by multiplying by 100
-        currency: 'INR',
-        receipt: uuid.v4(),
-        payment_capture: 1
+      amount: roundOff(amount) * 100, // Razorpay treats input as paise, so we make it rupees by multiplying by 100
+      currency: "INR",
+      receipt: uuid.v4(),
+      payment_capture: 1,
+      notes: notes || []
     };
 
     console.log(options);

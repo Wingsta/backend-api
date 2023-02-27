@@ -48,6 +48,32 @@ router.post(
 );
 
 router.post(
+  "/credits-order",
+  passport.authenticate("jwt", { session: false }),
+  CommonController.createOrder
+);
+
+router.patch(
+  "/credits/razorpay-response",
+  passport.authenticate("jwt", { session: false }),
+
+  CommonController.updateRazorpayPayment
+);
+
+router.post(
+  "/credits/webhook/razorpay-response",
+  CommonController.updateRazorpayPaymentWebhook
+);
+
+router.patch(
+  "/credits/razorpay-cancel",
+  passport.authenticate("jwt", { session: false }),
+
+  CommonController.cancelRazorpayPayment
+);
+
+
+router.post(
 	"/uploadForSocialLink",
 	passport.authenticate("jwt", { session: false }),
 	CommonController.uploadForSocialLink

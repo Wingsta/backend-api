@@ -21,10 +21,53 @@ export interface IAccountUser {
 export interface ICompany {
   _id: Types.ObjectId;
   companyName: string;
-  meta: { [key : string] : any};
+  meta: { [key: string]: any };
   razorpayAppId?: string;
-  razorpaySecretKey?: string
-  promoCode: string
+  razorpaySecretKey?: string;
+  promoCode: string;
+  sms: {
+    value: number;
+    totalUsed: number;
+    totalCredits: number;
+  };
+  whatsapp: {
+    value: number;
+    totalUsed: number;
+    totalCredits: number;
+  };
+}
+
+export type TransactionStatusT = "created" | "complete" | "failed"| "canceled"| "processing";
+
+export type TransactionStatusConstantT = "in"| "out"|"refund";
+
+export type TransactionGatewayT = "razorpay";
+
+export interface ITranscationLogs {
+  _id: Types.ObjectId;
+  companyId: string;
+  userId: string;
+  status: TransactionStatusT;
+  razorpayPaymentId: string;
+  returnData: any;
+  item: {
+    type: "SMS" | "WHATSAPP";
+    value: number;
+    credits: number;
+  }[];
+  totalAmount: number;
+  transactionStatus: TransactionStatusConstantT;
+  gateway: TransactionGatewayT;
+  mode: string;
+  orderId: string;
+}
+
+export interface IMessageLogs {
+  type : "SMS" | 'WHATSAPP',
+  message : string;
+  phoneNumber : string;
+  creditsUsed : string;
+  actualSpent : string;
 }
 
 

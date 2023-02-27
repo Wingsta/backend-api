@@ -7,7 +7,7 @@
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt-nodejs';
 
-import { ICompany } from '../interfaces/models/accountuser';
+import { IMessageLogs } from '../interfaces/models/accountuser';
 import mongoose from '../providers/Database';
 import { Types ,Schema} from 'mongoose';
 
@@ -15,7 +15,7 @@ import { Types ,Schema} from 'mongoose';
 
 
 // Define the User Schema
-export const CompanySchema = new mongoose.Schema<ICompany>(
+export const MessageLogsSchema = new mongoose.Schema<IMessageLogs>(
   {
     companyName: { type: String },
     meta: {
@@ -41,9 +41,9 @@ export const CompanySchema = new mongoose.Schema<ICompany>(
 
 
 
-const Company = mongoose.model<ICompany & mongoose.Document>(
-	"Company",
-	CompanySchema
+const MessageLogs = mongoose.model<IMessageLogs & mongoose.Document>(
+  "MessageLog",
+  MessageLogsSchema
 );
 
-export default Company;
+export default MessageLogs;

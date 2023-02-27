@@ -20,6 +20,8 @@ class 	Locals {
 		const port = process.env.PORT || 4040;
 		const appSecret = process.env.APP_SECRET || 'This is your responsibility!';
 		const profileSecret = process.env.PROFILE_SECRET || "This is your responsibility!";
+		const razorpayAppId = process.env.razorpayAppId || null;
+		const razorpaySecretKey = process.env.razorpaySecretKey || null;
 		const mongooseUrl = process.env.MONGOOSE_URL;
 		const maxUploadLimit = process.env.APP_MAX_UPLOAD_LIMIT || '50mb';
 		const maxParameterLimit = process.env.APP_MAX_PARAMETER_LIMIT || '50mb';
@@ -60,10 +62,13 @@ class 	Locals {
       mongooseUrl,
       name,
       port,
+	  razorpayAppId,
+	  razorpaySecretKey,
       redisDB,
       redisHttpPort,
       redisHttpHost,
       redisPrefix,
+	  
       url,
       queueMonitor,
       queueMonitorHttpPort,
