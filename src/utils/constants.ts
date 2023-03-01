@@ -11,6 +11,35 @@ export const ORDER_STATUS = {
     DELIVERY_CANCELLED: "DELIVERY_CANCELLED"
 }
 
+export const RAZORPAY_STATUS = {
+  CREATED: "CREATED",
+  COMPLETED : "COMPLETED",
+  FAILED : "FAILED",
+  CANCELLED : "CANCELLED",
+  PROCESSING : "PROCESSING"
+};
+
+export const RAZORPAY_TRANSCATION_STATUS = {
+    IN : "IN",
+    OUT :"OUT",
+    REFUND : "REFUND"
+}
+
+export const RAZORPAY_TRANSCATION_GATEWAY = {
+    RAZORPAY : "RAZORPAY"
+}
+
+export const PER_UNIT_CREDIT_COST = {
+    SMS : 0.25,
+    WHATSAPP : 0.7,
+    GST : 0.18
+}
+
+export const CREDIT_TYPES = {
+  SMS: "SMS",
+  WHATSAPP: "WHATSAPP",
+};
+
 export const PAYMENT_METHOD = {
     CARD: "CARD",
     CASH: "CASH",

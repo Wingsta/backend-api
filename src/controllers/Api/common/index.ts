@@ -20,7 +20,7 @@ import {
   sendSuccessResponse,
 } from "../../../services/response/sendresponse";
 import * as sharp from "sharp";
-import { createRazorpayOrder, ORDER_STATUS, roundOff } from "../../../utils/constants";
+import { createRazorpayOrder, CREDIT_TYPES, ORDER_STATUS, PER_UNIT_CREDIT_COST, RAZORPAY_STATUS, RAZORPAY_TRANSCATION_GATEWAY, RAZORPAY_TRANSCATION_STATUS, roundOff } from "../../../utils/constants";
 import TranscationLogs from "../../../models/transcationlogs";
 import { LeanDocument, Document } from "mongoose";
 import { ITranscationLogs } from "../../../interfaces/models/accountuser";
@@ -108,7 +108,7 @@ class CommonController {
 
      if (!company.sms) {
        company.sms = {
-         value: 0.25,
+         value: PER_UNIT_CREDIT_COST.SMS,
          totalUsed: 0,
          totalCredits: 0,
        };
@@ -116,7 +116,7 @@ class CommonController {
 
      if (!company.whatsapp) {
        company.whatsapp = {
-         value: 0.7,
+         value: PER_UNIT_CREDIT_COST.WHATSAPP,
          totalUsed: 0,
          totalCredits: 0,
        };
@@ -125,11 +125,16 @@ class CommonController {
     let smsAmount = (sms || 0) * company.sms.value;
     let whatsappAmount = (whatsapp || 0) * company.whatsapp.value;
     let totalAmount = (smsAmount || 0) + (whatsappAmount || 0);
-    let totalAmountAfterTax = totalAmount + totalAmount * 0.28;
+    let totalAmountAfterTax =
+      totalAmount + totalAmount * PER_UNIT_CREDIT_COST.GST;
     totalAmountAfterTax = roundOff(totalAmountAfterTax, true);
     let notes = [
-      { type: "SMS", value: 0.25, credits: sms },
-      { type: "WHATSAPP", value: 0.7, credits: whatsapp},
+      { type: CREDIT_TYPES.SMS, value: PER_UNIT_CREDIT_COST.SMS, credits: sms },
+      {
+        type: CREDIT_TYPES.WHATSAPP,
+        value: PER_UNIT_CREDIT_COST.WHATSAPP,
+        credits: whatsapp,
+      },
     ];
     const orderData = await createRazorpayOrder(
       razorpayAppId,
@@ -153,8 +158,8 @@ class CommonController {
         returnData: razorpayData?.returnData,
         item: notes,
         totalAmount: totalAmountAfterTax,
-        transactionStatus: "in",
-        gateway: "razorpay",
+        transactionStatus: RAZORPAY_TRANSCATION_STATUS.IN,
+        gateway: RAZORPAY_TRANSCATION_GATEWAY.RAZORPAY,
         mode: "online",
         orderId: razorpayData?.razorpayOrderId,
       }).save();
@@ -175,15 +180,15 @@ class CommonController {
 
     if(!company.sms){
       company.sms = {
-        value : 0.25,
-        totalUsed : 0,
-        totalCredits : 0
-      }
+        value: PER_UNIT_CREDIT_COST.SMS,
+        totalUsed: 0,
+        totalCredits: 0,
+      };
     }
 
     if (!company.whatsapp) {
       company.whatsapp = {
-        value: 0.7,
+        value: PER_UNIT_CREDIT_COST.WHATSAPP,
         totalUsed: 0,
         totalCredits: 0,
       };
@@ -196,7 +201,7 @@ class CommonController {
         sendSuccessResponse({
           sms: company.sms,
           whatsapp: company.whatsapp,
-          gst: 0.18,
+          gst: PER_UNIT_CREDIT_COST.GST,
         })
       );
     
@@ -210,6 +215,12 @@ class CommonController {
     try {
       let razorpay_order_id = req.body.razorpay_order_id as string;
 
+          let { razorpayAppId, razorpaySecretKey } = Locals.config();
+
+          console.log(razorpayAppId, razorpaySecretKey);
+          if (!razorpayAppId || !razorpaySecretKey) {
+            return res.json(sendErrorResponse("no razorpay app id"));
+          }
       let { companyId } = req.user as { companyId: string };
 
       if (!razorpay_order_id) {
@@ -230,13 +241,13 @@ class CommonController {
         throw new Error("order details not found!");
       }
 
-      if (order?.status === "complete") {
+      if (order?.status === RAZORPAY_STATUS.COMPLETED) {
         return res.json(
           sendSuccessResponse(null, "Payment status updated successfully!")
         );
       }
 
-      const { razorpayAppId, razorpaySecretKey } = company;
+      
 
       const generatedSignature = crypto
         .createHmac("SHA256", razorpaySecretKey)
@@ -249,7 +260,7 @@ class CommonController {
             orderId: req.body.razorpay_order_id,
           },
           {
-            status: "failed",
+            status: RAZORPAY_STATUS.FAILED,
           }
         );
 
@@ -302,7 +313,7 @@ class CommonController {
               orderId: razorpay_order_id,
             },
             {
-              status: "complete",
+              status: RAZORPAY_STATUS.COMPLETED,
               mode: mode,
               returnData: { ...order.returnData, ...req.body },
               razorpayPaymentId: req.body.razorpay_payment_id,
@@ -316,7 +327,7 @@ class CommonController {
               razorpayOrderId: razorpay_order_id,
             },
             {
-              status: "failed",
+              status: RAZORPAY_STATUS.FAILED,
             }
           );
         }
@@ -351,10 +362,10 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value:0.25,
+          value: PER_UNIT_CREDIT_COST.SMS,
           totalCredits:
             (company?.sms?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === "SMS")?.credits,
+            order?.item?.find((it) => it.type === CREDIT_TYPES.SMS)?.credits,
         },
         whatsapp: {
           ...(company.whatsapp || {
@@ -362,10 +373,10 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value:0.7,
+          value: PER_UNIT_CREDIT_COST.WHATSAPP,
           totalCredits:
             (company?.whatsapp?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === "WHATSAPP")?.credits,
+            order?.item?.find((it) => it.type === CREDIT_TYPES.WHATSAPP)?.credits,
         },
       }
     );
@@ -384,7 +395,7 @@ class CommonController {
 
         const order = await TranscationLogs.findOne({
           orderId: order_id,
-          status: "processing",
+          status: RAZORPAY_STATUS.PROCESSING,
         }).lean();
 
         if (order) {
@@ -439,7 +450,7 @@ class CommonController {
                     orderId: order_id,
                   },
                   {
-                    status: "complete",
+                    status: RAZORPAY_STATUS.COMPLETED,
                     mode: mode,
                     returnData: {
                       ...order.returnData,
@@ -456,7 +467,7 @@ class CommonController {
                     orderId: order_id,
                   },
                   {
-                    status: "failed",
+                    status: RAZORPAY_STATUS.FAILED,
                   }
                 );
               }
@@ -484,7 +495,7 @@ class CommonController {
           orderId: razorpay_order_id,
         },
         {
-          status: "failed",
+          status: RAZORPAY_STATUS.FAILED,
         }
       ).lean();
 
@@ -494,6 +505,14 @@ class CommonController {
     } catch (error) {
       next(error);
     }
+  }
+
+  public static async getTranscationLogs(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    
   }
 }
 

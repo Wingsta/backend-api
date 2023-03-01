@@ -37,11 +37,16 @@ export interface ICompany {
   };
 }
 
-export type TransactionStatusT = "created" | "complete" | "failed"| "canceled"| "processing";
+export type TransactionStatusT =
+  | "CREATED"
+  | "COMPLETED"
+  | "FAILED"
+  | "CANCELLED"
+  | "PROCESSING" | string;
 
-export type TransactionStatusConstantT = "in"| "out"|"refund";
+export type TransactionStatusConstantT = "IN"| "OUT" | "REFUND" | string;
 
-export type TransactionGatewayT = "razorpay";
+export type TransactionGatewayT = "RAZORPAY" | string;
 
 export interface ITranscationLogs {
   _id: Types.ObjectId;
