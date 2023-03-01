@@ -128,8 +128,8 @@ class CommonController {
     let totalAmountAfterTax = totalAmount + totalAmount * 0.28;
     totalAmountAfterTax = roundOff(totalAmountAfterTax, true);
     let notes = [
-      { type: "SMS", value: smsAmount, credits: smsAmount },
-      { type: "WHATSAPP", value: whatsappAmount, credits: whatsappAmount },
+      { type: "SMS", value: 0.25, credits: sms },
+      { type: "WHATSAPP", value: 0.7, credits: whatsapp},
     ];
     const orderData = await createRazorpayOrder(
       razorpayAppId,
@@ -351,12 +351,10 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value:
-            (company?.sms?.value || 0) +
-            order?.item?.find((it) => it.type === "SMS")?.value,
+          value:0.25,
           totalCredits:
             (company?.sms?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === "SMS")?.value,
+            order?.item?.find((it) => it.type === "SMS")?.credits,
         },
         whatsapp: {
           ...(company.whatsapp || {
@@ -364,12 +362,10 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value:
-            (company?.whatsapp?.value || 0) +
-            order?.item?.find((it) => it.type === "WHATSAPP")?.value,
+          value:0.7,
           totalCredits:
             (company?.whatsapp?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === "WHATSAPP")?.value,
+            order?.item?.find((it) => it.type === "WHATSAPP")?.credits,
         },
       }
     );
