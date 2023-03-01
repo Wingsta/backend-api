@@ -68,7 +68,7 @@ export const createRazorpayOrder = (key_id: string, key_secret: string, amount:n
     });
 
     const options = {
-      amount: roundOff(amount) * 100, // Razorpay treats input as paise, so we make it rupees by multiplying by 100
+      amount: roundOff(amount, true) * 100, // Razorpay treats input as paise, so we make it rupees by multiplying by 100
       currency: "INR",
       receipt: uuid.v4(),
       payment_capture: 1,

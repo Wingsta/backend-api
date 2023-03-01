@@ -344,10 +344,7 @@ class CommonController {
       throw new Error("Store details not found!");
     }
 
-    await Company.findOneAndUpdate(
-      {
-        id: companyId,
-      },
+    await Company.findByIdAndUpdate(companyId,
       {
         sms: {
           ...(company.sms || {
@@ -355,7 +352,7 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value: PER_UNIT_CREDIT_COST.SMS,
+          value: company?.sms?.value || PER_UNIT_CREDIT_COST.SMS,
           totalCredits:
             (company?.sms?.totalCredits || 0) +
             order?.item?.find((it) => it.type === CREDIT_TYPES.SMS)?.credits,
@@ -366,7 +363,7 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value: PER_UNIT_CREDIT_COST.WHATSAPP,
+          value: company?.whatsapp?.value || PER_UNIT_CREDIT_COST.WHATSAPP,
           totalCredits:
             (company?.whatsapp?.totalCredits || 0) +
             order?.item?.find((it) => it.type === CREDIT_TYPES.WHATSAPP)
@@ -382,6 +379,7 @@ class CommonController {
     next: NextFunction
   ) {
     try {
+      console.log("inside webhook");
       const { payload } = req.body;
 
       let { razorpayAppId, razorpaySecretKey } = Locals.config();
@@ -395,8 +393,10 @@ class CommonController {
 
         const order = await TranscationLogs.findOne({
           orderId: order_id,
-          status: RAZORPAY_STATUS.PROCESSING,
+          status: RAZORPAY_STATUS.CREATED,
         }).lean();
+
+        console.log(order);
 
         if (order) {
           const company = await Company.findById(order?.companyId);
