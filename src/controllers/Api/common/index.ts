@@ -510,7 +510,7 @@ class CommonController {
         offset = 0,
         sortBy = "createdAt",
         sortType = "desc",
-        status,
+        status = RAZORPAY_STATUS.COMPLETED,
       } = req.query as unknown as {
         limit: number;
         offset: number;
