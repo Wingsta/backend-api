@@ -140,6 +140,42 @@ class CommonController {
     }
   }
 
+  public static async getOrder(
+    req: Request,
+    res: Response,
+    next
+  ): Promise<any> {
+  
+    let { companyId } = req.user as { companyId: string };
+ 
+    let company = await Company.findById(companyId);
+
+    if(!company.sms){
+      company.sms = {
+        value : 0.25,
+        totalUsed : 0,
+        totalCredits : 0
+      }
+    }
+
+    if (!company.whatsapp) {
+      company.whatsapp = {
+        value: 0.25,
+        totalUsed: 0,
+        totalCredits: 0,
+      };
+    }
+    
+    
+    
+   
+      return res.json({
+        sms: company.sms,
+        whatsapp: company.whatsapp,
+      });
+    
+  }
+
   public static async updateRazorpayPayment(
     req: Request,
     res: Response,
@@ -148,8 +184,7 @@ class CommonController {
     try {
       let razorpay_order_id = req.body.razorpay_order_id as string;
 
-      let {  companyId } = req.user as { companyId: string;  };
-
+      let { companyId } = req.user as { companyId: string };
 
       if (!razorpay_order_id) {
         throw new Error("Razorpay order id is required!");
@@ -169,7 +204,7 @@ class CommonController {
         throw new Error("order details not found!");
       }
 
-      if (order?.status === 'complete') {
+      if (order?.status === "complete") {
         return res.json(
           sendSuccessResponse(null, "Payment status updated successfully!")
         );
@@ -188,7 +223,7 @@ class CommonController {
             orderId: req.body.razorpay_order_id,
           },
           {
-            status: 'failed',
+            status: "failed",
           }
         );
 
@@ -241,7 +276,7 @@ class CommonController {
               orderId: razorpay_order_id,
             },
             {
-              status: 'complete',
+              status: "complete",
               mode: mode,
               returnData: { ...order.returnData, ...req.body },
               razorpayPaymentId: req.body.razorpay_payment_id,
@@ -249,14 +284,13 @@ class CommonController {
           );
 
           await CommonController.updateOrderToCompany(order);
-        
         } else if (paymentData?.data?.status === "failed") {
           await TranscationLogs.findOneAndUpdate(
             {
               razorpayOrderId: razorpay_order_id,
             },
             {
-              status: 'failed',
+              status: "failed",
             }
           );
         }
@@ -270,7 +304,9 @@ class CommonController {
     }
   }
 
-  private static async updateOrderToCompany(order: LeanDocument<ITranscationLogs & Document<any, any, any>>) {
+  private static async updateOrderToCompany(
+    order: LeanDocument<ITranscationLogs & Document<any, any, any>>
+  ) {
     let { companyId } = order;
     const company = await Company.findById(companyId);
 
@@ -289,9 +325,11 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value: (company?.sms?.value || 0) +
+          value:
+            (company?.sms?.value || 0) +
             order?.item?.find((it) => it.type === "SMS")?.value,
-          totalCredits: (company?.sms?.totalCredits || 0) +
+          totalCredits:
+            (company?.sms?.totalCredits || 0) +
             order?.item?.find((it) => it.type === "SMS")?.value,
         },
         whatsapp: {
@@ -300,12 +338,12 @@ class CommonController {
             totalUsed: 0,
             totalCredits: 0,
           }),
-          value: (company?.whatsapp?.value || 0) +
-            order?.item?.find((it) => it.type === "WHATSAPP")
-              ?.value,
-          totalCredits: (company?.whatsapp?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === "WHATSAPP")
-              ?.value,
+          value:
+            (company?.whatsapp?.value || 0) +
+            order?.item?.find((it) => it.type === "WHATSAPP")?.value,
+          totalCredits:
+            (company?.whatsapp?.totalCredits || 0) +
+            order?.item?.find((it) => it.type === "WHATSAPP")?.value,
         },
       }
     );
@@ -324,7 +362,7 @@ class CommonController {
 
         const order = await TranscationLogs.findOne({
           orderId: order_id,
-          status: 'processing',
+          status: "processing",
         }).lean();
 
         if (order) {
@@ -379,7 +417,7 @@ class CommonController {
                     orderId: order_id,
                   },
                   {
-                    status: 'complete',
+                    status: "complete",
                     mode: mode,
                     returnData: {
                       ...order.returnData,
@@ -390,7 +428,6 @@ class CommonController {
                 );
 
                 await CommonController.updateOrderToCompany(order);
-
               } else if (paymentData?.data?.status === "failed") {
                 await TranscationLogs.findOneAndUpdate(
                   {
@@ -425,7 +462,7 @@ class CommonController {
           orderId: razorpay_order_id,
         },
         {
-          status: 'failed',
+          status: "failed",
         }
       ).lean();
 
