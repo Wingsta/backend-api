@@ -104,23 +104,23 @@ class CommonController {
       return res.json(sendErrorResponse("no razorpay app id"));
     }
 
-     let company = await Company.findById(companyId);
+    let company = await Company.findById(companyId);
 
-     if (!company.sms) {
-       company.sms = {
-         value: PER_UNIT_CREDIT_COST.SMS,
-         totalUsed: 0,
-         totalCredits: 0,
-       };
-     }
+    if (!company.sms) {
+      company.sms = {
+        value: PER_UNIT_CREDIT_COST.SMS,
+        totalUsed: 0,
+        totalCredits: 0,
+      };
+    }
 
-     if (!company.whatsapp) {
-       company.whatsapp = {
-         value: PER_UNIT_CREDIT_COST.WHATSAPP,
-         totalUsed: 0,
-         totalCredits: 0,
-       };
-     }
+    if (!company.whatsapp) {
+      company.whatsapp = {
+        value: PER_UNIT_CREDIT_COST.WHATSAPP,
+        totalUsed: 0,
+        totalCredits: 0,
+      };
+    }
 
     let smsAmount = (sms || 0) * company.sms.value;
     let whatsappAmount = (whatsapp || 0) * company.whatsapp.value;
@@ -139,7 +139,7 @@ class CommonController {
     const orderData = await createRazorpayOrder(
       razorpayAppId,
       razorpaySecretKey,
-      +totalAmountAfterTax,
+      +totalAmountAfterTax
       // notes
     );
 
@@ -164,7 +164,7 @@ class CommonController {
         orderId: razorpayData?.razorpayOrderId,
       }).save();
 
-      return res.json(sendSuccessResponse({orderData: razorpayData}));
+      return res.json(sendSuccessResponse({ orderData: razorpayData }));
     }
   }
 
@@ -173,12 +173,11 @@ class CommonController {
     res: Response,
     next
   ): Promise<any> {
-  
     let { companyId } = req.user as { companyId: string };
- 
+
     let company = await Company.findById(companyId);
 
-    if(!company.sms){
+    if (!company.sms) {
       company.sms = {
         value: PER_UNIT_CREDIT_COST.SMS,
         totalUsed: 0,
@@ -193,18 +192,14 @@ class CommonController {
         totalCredits: 0,
       };
     }
-    
-    
-    
-   
-      return res.json(
-        sendSuccessResponse({
-          sms: company.sms,
-          whatsapp: company.whatsapp,
-          gst: PER_UNIT_CREDIT_COST.GST,
-        })
-      );
-    
+
+    return res.json(
+      sendSuccessResponse({
+        sms: company.sms,
+        whatsapp: company.whatsapp,
+        gst: PER_UNIT_CREDIT_COST.GST,
+      })
+    );
   }
 
   public static async updateRazorpayPayment(
@@ -215,12 +210,12 @@ class CommonController {
     try {
       let razorpay_order_id = req.body.razorpay_order_id as string;
 
-          let { razorpayAppId, razorpaySecretKey } = Locals.config();
+      let { razorpayAppId, razorpaySecretKey } = Locals.config();
 
-          console.log(razorpayAppId, razorpaySecretKey);
-          if (!razorpayAppId || !razorpaySecretKey) {
-            return res.json(sendErrorResponse("no razorpay app id"));
-          }
+      console.log(razorpayAppId, razorpaySecretKey);
+      if (!razorpayAppId || !razorpaySecretKey) {
+        return res.json(sendErrorResponse("no razorpay app id"));
+      }
       let { companyId } = req.user as { companyId: string };
 
       if (!razorpay_order_id) {
@@ -246,8 +241,6 @@ class CommonController {
           sendSuccessResponse(null, "Payment status updated successfully!")
         );
       }
-
-      
 
       const generatedSignature = crypto
         .createHmac("SHA256", razorpaySecretKey)
@@ -376,7 +369,8 @@ class CommonController {
           value: PER_UNIT_CREDIT_COST.WHATSAPP,
           totalCredits:
             (company?.whatsapp?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === CREDIT_TYPES.WHATSAPP)?.credits,
+            order?.item?.find((it) => it.type === CREDIT_TYPES.WHATSAPP)
+              ?.credits,
         },
       }
     );
@@ -390,12 +384,12 @@ class CommonController {
     try {
       const { payload } = req.body;
 
-         let { razorpayAppId, razorpaySecretKey } = Locals.config();
+      let { razorpayAppId, razorpaySecretKey } = Locals.config();
 
-         console.log(razorpayAppId, razorpaySecretKey);
-         if (!razorpayAppId || !razorpaySecretKey) {
-           return res.json(sendErrorResponse("no razorpay app id"));
-         }
+      console.log(razorpayAppId, razorpaySecretKey);
+      if (!razorpayAppId || !razorpaySecretKey) {
+        return res.json(sendErrorResponse("no razorpay app id"));
+      }
       if (payload?.payment?.entity) {
         const { order_id, id } = payload?.payment?.entity;
 
@@ -407,9 +401,7 @@ class CommonController {
         if (order) {
           const company = await Company.findById(order?.companyId);
 
-          if (company ) {
-            
-
+          if (company) {
             let mode = "Others";
 
             // Get payment method from razorpay
@@ -513,12 +505,79 @@ class CommonController {
     }
   }
 
-  public static async getTranscationLogs(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  public static async getTranscationLogs(req: Request, res: Response, next: NextFunction) {
+    try {
+      
+      let { companyId } = req.user as { companyId: string };
+      let {
+        limit = 10,
+        offset = 0,
+        sortBy = "createdAt",
+        sortType = "desc",
+        status,
+      } = req.query as unknown as {
+        limit: number;
+        offset: number;
+        sortBy: string;
+        sortType: string;
+        status: string;
+      };
 
+      if (limit) {
+        limit = parseInt(limit.toString());
+      }
+
+      if (offset) {
+        offset = parseInt(offset.toString());
+      }
+
+      
+
+      let mongoQuery = { companyId } as any;
+
+   
+
+      if (status) {
+        let statusTypes = status.split(",");
+        mongoQuery["status"] = { $in: statusTypes };
+      }
+    
+
+      let logs = await TranscationLogs.find(mongoQuery)
+        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+        .skip(offset)
+        .limit(limit)
+        .lean();
+      let totalCount = await TranscationLogs.find(mongoQuery).count();
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      return res.json(
+        sendSuccessResponse({
+          totalCount,
+          currentPage: offset / limit + 1,
+          logs,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
   }
 }
 
