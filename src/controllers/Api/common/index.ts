@@ -501,7 +501,7 @@ class CommonController {
     }
   }
 
-  public static async getTranscationLogs(req: Request, res: Response, next: NextFunction) {
+  public static async getTransactionLogs(req: Request, res: Response, next: NextFunction) {
     try {
       
       let { companyId } = req.user as { companyId: string };
