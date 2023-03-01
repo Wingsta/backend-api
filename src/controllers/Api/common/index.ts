@@ -138,9 +138,10 @@ class CommonController {
       // notes
     );
 
+    console.log(orderData);
     let razorpayData = {
       razorpayOrderId: orderData?.id,
-      returnData: orderData?.razorpayOrderId,
+      returnData: orderData,
     };
 
     if (razorpayData?.razorpayOrderId) {
@@ -158,7 +159,7 @@ class CommonController {
         orderId: razorpayData?.razorpayOrderId,
       }).save();
 
-      return res.json(razorpayData);
+      return res.json(sendSuccessResponse({orderData: razorpayData}));
     }
   }
 
