@@ -13,11 +13,17 @@ import { Types ,Schema} from 'mongoose';
 
 // Create the model schema & register your custom methods here
 
-const transactionStatus = ["created", "complete", "failed", "canceled", "processing"];
+const transactionStatus = [
+  "CREATED",
+  "COMPLETED",
+  "FAILED",
+  "CANCELLED",
+  "PROCESSING",
+];
 
-const transactionStatusConstant = ["in", "out", "refund"];
+const transactionStatusConstant = ["IN", "OUT", "REFUND"];
 
-const transactionGateway = ["razorpay"];
+const transactionGateway = ["RAZORPAY"];
 // Define the User Schema
 export const TranscationLogsSchema = new mongoose.Schema<ITranscationLogs>(
   {
