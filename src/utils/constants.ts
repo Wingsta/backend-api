@@ -105,7 +105,8 @@ export const Capitalize = text => {
 
 export const configurationTypes = {
     TERMS_AND_CONDITIONS: "terms and conditions",
-    PRIVACY_POLICY: "privacy policy"
+    PRIVACY_POLICY: "privacy policy",
+    NOTIFICATION: "notification"
 }
 
 export const replaceSpecialChars = (text: string, sendEmptyString?: boolean) => {
@@ -120,3 +121,10 @@ export const messageType = {
 }
 
 export const messageTypeConstant = Object.values(messageType);
+
+export const notificationConfigConstant = {
+    orderCreationSMS: true,
+    orderCreationWhatsapp: false,
+    orderUpdateSMS: true,
+    orderUpdateWhatsapp: false,
+}
