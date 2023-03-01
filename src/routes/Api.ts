@@ -60,9 +60,9 @@ router.get(
 );
 
 router.get(
-  "/transcation-logs",
+  "/transaction-logs",
   passport.authenticate("jwt", { session: false }),
-  CommonController.getTranscationLogs
+  CommonController.getTransactionLogs
 );
 
 router.patch(
