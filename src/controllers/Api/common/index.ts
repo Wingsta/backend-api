@@ -390,6 +390,12 @@ class CommonController {
     try {
       const { payload } = req.body;
 
+         let { razorpayAppId, razorpaySecretKey } = Locals.config();
+
+         console.log(razorpayAppId, razorpaySecretKey);
+         if (!razorpayAppId || !razorpaySecretKey) {
+           return res.json(sendErrorResponse("no razorpay app id"));
+         }
       if (payload?.payment?.entity) {
         const { order_id, id } = payload?.payment?.entity;
 
@@ -401,8 +407,8 @@ class CommonController {
         if (order) {
           const company = await Company.findById(order?.companyId);
 
-          if (company && company?.razorpayAppId && company?.razorpaySecretKey) {
-            const { razorpayAppId, razorpaySecretKey } = company;
+          if (company ) {
+            
 
             let mode = "Others";
 
@@ -512,7 +518,7 @@ class CommonController {
     res: Response,
     next: NextFunction
   ) {
-    
+
   }
 }
 
