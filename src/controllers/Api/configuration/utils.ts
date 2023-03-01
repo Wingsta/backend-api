@@ -20,3 +20,11 @@ export const validatePrivacyPolicy = (input: object) => {
     
     return schema.validate(input);
 };
+
+export const validateNotificationConfiguration = (input: object) => {
+    const schema = Joi.object({
+        data: Joi.any()
+    });
+    
+    return schema.validate(input);
+};

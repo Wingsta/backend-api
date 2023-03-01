@@ -4,9 +4,9 @@ import {
 	sendErrorResponse,
 	sendSuccessResponse,
 } from "../../../services/response/sendresponse";
-import { validateTermsAndCondition, validatePrivacyPolicy } from "./utils";
+import { validateTermsAndCondition, validatePrivacyPolicy, validateNotificationConfiguration } from "./utils";
 import Domain from "../../../models/domain";
-import { configurationTypes } from "../../../utils/constants";
+import { configurationTypes, notificationConfigConstant } from "../../../utils/constants";
 
 
 class Configurations {
@@ -59,6 +59,33 @@ class Configurations {
 					enabled: meta?.metaData?.termsAndConditions || false,
 					data
 				})
+			);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public static async getNotificationConfiguration(req: Request, res: Response, next: NextFunction) {
+		try {
+
+			let { companyId } = req.user as { companyId: string };
+
+			let data = {} as any;
+
+			data = await Configuration.findOne({
+				companyId,
+				type: configurationTypes.NOTIFICATION
+			})
+
+			data = data?.data || {};
+
+			data = {
+				...notificationConfigConstant,
+				...data
+			}
+
+			return res.json(
+				sendSuccessResponse(data)
 			);
 		} catch (error) {
 			next(error);
@@ -149,6 +176,35 @@ class Configurations {
 			}, { type: configurationTypes.PRIVACY_POLICY, data }, { upsert: true })
 
 			return res.json(sendSuccessResponse(null, "Privacy policy updated successfully!"));
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public static async postNotificationConfiguration(req: Request, res: Response, next: NextFunction) {
+		try {
+
+			const { error } = validateNotificationConfiguration(req.body);
+
+			if (error) {
+				return res.status(400).send(sendErrorResponse(error.details[0].message));
+			}
+
+			let { companyId } = req.user as { companyId: string };
+
+			let { data } = req.body as { data: any, privacyPolicy: boolean};
+
+			data = {
+				...notificationConfigConstant,
+				...data
+			}
+
+			await Configuration.findOneAndUpdate({
+				companyId,
+				type: configurationTypes.NOTIFICATION
+			}, { type: configurationTypes.NOTIFICATION, data }, { upsert: true })
+
+			return res.json(sendSuccessResponse(null, "Notification configuration updated successfully!"));
 		} catch (error) {
 			next(error);
 		}

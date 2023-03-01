@@ -630,4 +630,16 @@ router.get(
 	ConfigurationController.getPublicConfiguration
 );
 
+router.get(
+	"/configuration/notification",
+	passport.authenticate("jwt", { session: false }),
+	ConfigurationController.getNotificationConfiguration
+);
+
+router.post(
+	"/configuration/notification",
+	passport.authenticate("jwt", { session: false }),
+	ConfigurationController.postNotificationConfiguration
+);
+
 export default router;
