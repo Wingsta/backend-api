@@ -546,6 +546,12 @@ class CommonController {
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
         .skip(offset)
         .limit(limit)
+        .populate({
+          path: "userId",
+          select: {
+            name: 1
+          }
+        })
         .lean();
       let totalCount = await TranscationLogs.find(mongoQuery).count();
 
