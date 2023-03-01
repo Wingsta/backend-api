@@ -153,7 +153,7 @@ class CommonController {
       await new TranscationLogs({
         companyId,
         userId: null,
-        status: razorpayData?.returnData?.status,
+        status: RAZORPAY_STATUS.CREATED,
         razorpayPaymentId: razorpayData?.returnData?.receipt,
         returnData: razorpayData?.returnData,
         item: notes,
