@@ -160,7 +160,7 @@ class CommonController {
 
     if (!company.whatsapp) {
       company.whatsapp = {
-        value: 0.25,
+        value: 0.7,
         totalUsed: 0,
         totalCredits: 0,
       };
@@ -172,6 +172,7 @@ class CommonController {
       return res.json({
         sms: company.sms,
         whatsapp: company.whatsapp,
+        gst : 0.18
       });
     
   }
