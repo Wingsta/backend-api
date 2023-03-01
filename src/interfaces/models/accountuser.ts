@@ -50,8 +50,8 @@ export type TransactionGatewayT = "RAZORPAY" | string;
 
 export interface ITranscationLogs {
   _id: Types.ObjectId;
-  companyId: string;
-  userId: string;
+  companyId: Types.ObjectId;
+  userId: Types.ObjectId;
   status: TransactionStatusT;
   razorpayPaymentId: string;
   returnData: any;
