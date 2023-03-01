@@ -20,7 +20,7 @@ import {
   sendSuccessResponse,
 } from "../../../services/response/sendresponse";
 import * as sharp from "sharp";
-import { createRazorpayOrder, ORDER_STATUS } from "../../../utils/constants";
+import { createRazorpayOrder, ORDER_STATUS, roundOff } from "../../../utils/constants";
 import TranscationLogs from "../../../models/transcationlogs";
 import { LeanDocument, Document } from "mongoose";
 import { ITranscationLogs } from "../../../interfaces/models/accountuser";
@@ -92,9 +92,9 @@ class CommonController {
     res: Response,
     next
   ): Promise<any> {
-    let { smsAmount, whatsappAmount } = req.body as {
-      smsAmount: number;
-      whatsappAmount: number;
+    let { sms, whatsapp } = req.body as {
+      sms: number;
+      whatsapp: number;
     };
     let { companyId } = req.user as { companyId: string };
     let { razorpayAppId, razorpaySecretKey } = Locals.config();
@@ -103,8 +103,30 @@ class CommonController {
     if (!razorpayAppId || !razorpaySecretKey) {
       return res.json(sendErrorResponse("no razorpay app id"));
     }
+
+     let company = await Company.findById(companyId);
+
+     if (!company.sms) {
+       company.sms = {
+         value: 0.25,
+         totalUsed: 0,
+         totalCredits: 0,
+       };
+     }
+
+     if (!company.whatsapp) {
+       company.whatsapp = {
+         value: 0.7,
+         totalUsed: 0,
+         totalCredits: 0,
+       };
+     }
+
+    let smsAmount = sms * company.sms.value;
+    let whatsappAmount = whatsapp * company.whatsapp.value;
     let totalAmount = (smsAmount || 0) + (whatsappAmount || 0);
     let totalAmountAfterTax = totalAmount + totalAmount * 0.28;
+    totalAmountAfterTax = roundOff(totalAmountAfterTax, true);
     let notes = [
       { type: "SMS", value: smsAmount, credits: smsAmount },
       { type: "WHATSAPP", value: whatsappAmount, credits: whatsappAmount },
