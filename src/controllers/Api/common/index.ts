@@ -96,10 +96,13 @@ class CommonController {
       sms: number;
       whatsapp: number;
     };
-    let { companyId } = req.user as { companyId: string };
+    let { companyId, accountId } = req.user as {
+      companyId: string;
+      accountId: string;
+    };
     let { razorpayAppId, razorpaySecretKey } = Locals.config();
 
-    console.log(razorpayAppId, razorpaySecretKey);
+    // console.log(razorpayAppId, razorpaySecretKey, req.user);
     if (!razorpayAppId || !razorpaySecretKey) {
       return res.json(sendErrorResponse("no razorpay app id"));
     }
@@ -152,7 +155,7 @@ class CommonController {
     if (razorpayData?.razorpayOrderId) {
       await new TranscationLogs({
         companyId,
-        userId: null,
+        userId: accountId,
         status: RAZORPAY_STATUS.CREATED,
         razorpayPaymentId: razorpayData?.returnData?.receipt,
         returnData: razorpayData?.returnData,
