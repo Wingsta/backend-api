@@ -28,7 +28,7 @@ const transactionGateway = ["RAZORPAY"];
 export const TranscationLogsSchema = new mongoose.Schema<ITranscationLogs>(
   {
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
-    userId: { type: String },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "AccountUser" },
     status: {
       type: String,
       enum: transactionStatus,
