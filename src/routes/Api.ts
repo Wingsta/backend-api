@@ -53,6 +53,12 @@ router.post(
   CommonController.createOrder
 );
 
+router.get(
+  "/credits-order",
+  passport.authenticate("jwt", { session: false }),
+  CommonController.getOrder
+);
+
 router.patch(
   "/credits/razorpay-response",
   passport.authenticate("jwt", { session: false }),
