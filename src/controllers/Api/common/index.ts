@@ -122,8 +122,8 @@ class CommonController {
        };
      }
 
-    let smsAmount = sms * company.sms.value;
-    let whatsappAmount = whatsapp * company.whatsapp.value;
+    let smsAmount = (sms || 0) * company.sms.value;
+    let whatsappAmount = (whatsapp || 0) * company.whatsapp.value;
     let totalAmount = (smsAmount || 0) + (whatsappAmount || 0);
     let totalAmountAfterTax = totalAmount + totalAmount * 0.28;
     totalAmountAfterTax = roundOff(totalAmountAfterTax, true);
@@ -135,7 +135,7 @@ class CommonController {
       razorpayAppId,
       razorpaySecretKey,
       +totalAmountAfterTax,
-      notes
+      // notes
     );
 
     let razorpayData = {
