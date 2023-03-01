@@ -172,6 +172,7 @@ class CommonController {
       return res.json({
         sms: company.sms,
         whatsapp: company.whatsapp,
+        gst : 0.18
       });
     
   }
