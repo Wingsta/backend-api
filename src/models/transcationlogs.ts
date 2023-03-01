@@ -32,7 +32,7 @@ export const TranscationLogsSchema = new mongoose.Schema<ITranscationLogs>(
     status: {
       type: String,
       enum: transactionStatus,
-      default: "created",
+      default: "CREATED",
     },
     razorpayPaymentId: {
       type: String,
@@ -51,7 +51,7 @@ export const TranscationLogsSchema = new mongoose.Schema<ITranscationLogs>(
     transactionStatus: {
       type: String,
       enum: transactionStatusConstant,
-      default: "in",
+      default: "IN",
     },
     gateway: {
       type: String,
