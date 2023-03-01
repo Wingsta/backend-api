@@ -1,7 +1,7 @@
 import Configuration from "../models/configuration";
 import { configurationTypes, notificationConfigConstant } from "./constants";
 
-export const checkNotification = async (companyId: string, key: string):Promise<Boolean> => {
+export const checkNotification = async (companyId: string, key: string, returnAll: boolean = false):Promise<any> => {
     try {
         let notificationConfig = {} as any;
         
@@ -17,8 +17,15 @@ export const checkNotification = async (companyId: string, key: string):Promise<
             ...notificationConfig
         }
 
+        if (returnAll) {
+            return notificationConfig;
+        }
+
         return notificationConfig[key] ? true : false;      
     } catch (e) {
+        if (returnAll) {
+            return notificationConfigConstant;
+        }
         return false;
     }
 }
