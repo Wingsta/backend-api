@@ -379,12 +379,10 @@ class CommonController {
     next: NextFunction
   ) {
     try {
-      console.log("inside webhook");
       const { payload } = req.body;
 
       let { razorpayAppId, razorpaySecretKey } = Locals.config();
 
-      console.log(razorpayAppId, razorpaySecretKey);
       if (!razorpayAppId || !razorpaySecretKey) {
         return res.json(sendErrorResponse("no razorpay app id"));
       }
@@ -395,8 +393,6 @@ class CommonController {
           orderId: order_id,
           status: RAZORPAY_STATUS.CREATED,
         }).lean();
-
-        console.log(order);
 
         if (order) {
           const company = await Company.findById(order?.companyId);
