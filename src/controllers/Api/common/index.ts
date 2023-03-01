@@ -169,11 +169,13 @@ class CommonController {
     
     
    
-      return res.json({
-        sms: company.sms,
-        whatsapp: company.whatsapp,
-        gst : 0.18
-      });
+      return res.json(
+        sendSuccessResponse({
+          sms: company.sms,
+          whatsapp: company.whatsapp,
+          gst: 0.18,
+        })
+      );
     
   }
 
