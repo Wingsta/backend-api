@@ -65,6 +65,12 @@ router.get(
   CommonController.getTransactionLogs
 );
 
+router.get(
+  "/message-logs",
+  passport.authenticate("jwt", { session: false }),
+  CommonController.getTransactionLogs
+);
+
 router.patch(
   "/credits/razorpay-response",
   passport.authenticate("jwt", { session: false }),

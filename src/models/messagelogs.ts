@@ -17,22 +17,21 @@ import { Types ,Schema} from 'mongoose';
 // Define the User Schema
 export const MessageLogsSchema = new mongoose.Schema<IMessageLogs>(
   {
-    companyName: { type: String },
-    meta: {
-      buisnessAccountData: { type: Object },
-      buisnessAccountId: { type: String },
-      fbPageId: { type: String },
-      subscriptions: { type: Object },
-      fbPageAccessToken: { type: String },
-      accessToken: { type: String },
-      domainName: { type: String },
-      domainId: { type: Types.ObjectId, ref: "Domain" },
+    type: { type: String, enum: ["SMS", "WHATSAPP"] },
+    message: {
+      type: String,
     },
-    razorpayAppId: { type: String },
-    razorpaySecretKey: { type: String },
-    promoCode: { type: String },
-    sms: { type: Schema.Types.Mixed },
-    whatsapp: { type: Schema.Types.Mixed },
+    phoneNumber: {
+      type: String,
+    },
+    creditsUsed: {
+      type: String,
+    },
+    actualSpent: {
+      type: String,
+    },
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "AccountUser" },
   },
   {
     timestamps: true,

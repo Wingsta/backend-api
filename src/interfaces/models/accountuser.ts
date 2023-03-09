@@ -68,11 +68,13 @@ export interface ITranscationLogs {
 }
 
 export interface IMessageLogs {
-  type : "SMS" | 'WHATSAPP',
-  message : string;
-  phoneNumber : string;
-  creditsUsed : string;
-  actualSpent : string;
+  type: "SMS" | "WHATSAPP";
+  message: string;
+  phoneNumber: string;
+  creditsUsed: string;
+  actualSpent: string;
+  companyId: Types.ObjectId;
+  userId: Types.ObjectId;
 }
 
 

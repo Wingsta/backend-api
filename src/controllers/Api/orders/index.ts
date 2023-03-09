@@ -27,6 +27,7 @@ import { createInvoice } from "./pdfkit";
 import Product from "../../../models/products";
 import AdminOrderController from "../admin-orders";
 import { sendNewOrderEmail } from "../../../utils/notification";
+import { sendMessage } from "../../../utils/sendNotifications";
 const PDFDocument = require("pdf-lib").PDFDocument;
 
 class ProfileController {
@@ -307,8 +308,14 @@ class ProfileController {
       let preview = req.body.preview;
       let selfPickup = req.body.selfPickup;
 
-      let { id, companyId } = req.user as { companyId: string; id: string };
+      let { id, companyId } = req.user as {
+        companyId: string;
+        id: string;
+        mobile; string
+      };
 
+      
+      
       if (!id) {
         return res.json(sendErrorResponse("unauthorised"));
       }
@@ -500,7 +507,11 @@ class ProfileController {
 
         let update = await AdminOrderController.updateProducts(products,companyId, 'DEC');
 
-        sendNewOrderEmail(companyId, order);
+        // sendNewOrderEmail(companyId, order);
+        sendMessage(companyId, id,"orderCreationWhatsapp", "mobile", {
+          orderId: `${prefix}${orderNumber}`,
+          totalAfterTax,
+        });
 
         return res.json(
           sendSuccessResponse({

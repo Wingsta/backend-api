@@ -24,6 +24,7 @@ import { createRazorpayOrder, CREDIT_TYPES, ORDER_STATUS, PER_UNIT_CREDIT_COST, 
 import TranscationLogs from "../../../models/transcationlogs";
 import { LeanDocument, Document } from "mongoose";
 import { ITranscationLogs } from "../../../interfaces/models/accountuser";
+import MessageLogs from "../../../models/messagelogs";
 const crypto = require("crypto");
 const axios = require("axios");
 class CommonController {
@@ -347,33 +348,30 @@ class CommonController {
       throw new Error("Store details not found!");
     }
 
-    await Company.findByIdAndUpdate(companyId,
-      {
-        sms: {
-          ...(company.sms || {
-            value: 0,
-            totalUsed: 0,
-            totalCredits: 0,
-          }),
-          value: company?.sms?.value || PER_UNIT_CREDIT_COST.SMS,
-          totalCredits:
-            (company?.sms?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === CREDIT_TYPES.SMS)?.credits,
-        },
-        whatsapp: {
-          ...(company.whatsapp || {
-            value: 0,
-            totalUsed: 0,
-            totalCredits: 0,
-          }),
-          value: company?.whatsapp?.value || PER_UNIT_CREDIT_COST.WHATSAPP,
-          totalCredits:
-            (company?.whatsapp?.totalCredits || 0) +
-            order?.item?.find((it) => it.type === CREDIT_TYPES.WHATSAPP)
-              ?.credits,
-        },
-      }
-    );
+    await Company.findByIdAndUpdate(companyId, {
+      sms: {
+        ...(company.sms || {
+          value: 0,
+          totalUsed: 0,
+          totalCredits: 0,
+        }),
+        value: company?.sms?.value || PER_UNIT_CREDIT_COST.SMS,
+        totalCredits:
+          (company?.sms?.totalCredits || 0) +
+          order?.item?.find((it) => it.type === CREDIT_TYPES.SMS)?.credits,
+      },
+      whatsapp: {
+        ...(company.whatsapp || {
+          value: 0,
+          totalUsed: 0,
+          totalCredits: 0,
+        }),
+        value: company?.whatsapp?.value || PER_UNIT_CREDIT_COST.WHATSAPP,
+        totalCredits:
+          (company?.whatsapp?.totalCredits || 0) +
+          order?.item?.find((it) => it.type === CREDIT_TYPES.WHATSAPP)?.credits,
+      },
+    });
   }
 
   public static async updateRazorpayPaymentWebhook(
@@ -504,9 +502,12 @@ class CommonController {
     }
   }
 
-  public static async getTransactionLogs(req: Request, res: Response, next: NextFunction) {
+  public static async getTransactionLogs(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      
       let { companyId } = req.user as { companyId: string };
       let {
         limit = 10,
@@ -530,17 +531,12 @@ class CommonController {
         offset = parseInt(offset.toString());
       }
 
-      
-
       let mongoQuery = { companyId } as any;
-
-   
 
       if (status) {
         let statusTypes = status.split(",");
         mongoQuery["status"] = { $in: statusTypes };
       }
-    
 
       let logs = await TranscationLogs.find(mongoQuery)
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
@@ -549,8 +545,84 @@ class CommonController {
         .populate({
           path: "userId",
           select: {
-            name: 1
-          }
+            name: 1,
+          },
+        })
+        .lean();
+      let totalCount = await TranscationLogs.find(mongoQuery).count();
+
+      //  let products1 = await Promise.all(
+      //    products.map(async (it) => {
+      //      let _id = it?._id;
+
+      //      if (!_id) return { update: false, _id };
+      //      delete it?._id;
+
+      //      let update = await Product.updateOne(
+      //        { _id: _id },
+      //        { status: [1, 2, 3, 4][getRandomIntInclusive(0, 3)] },
+      //        {
+      //          upsert: true,
+      //        }
+      //      );
+
+      //      return { update: !!update.ok, _id: _id };
+      //    })
+      //  );
+      return res.json(
+        sendSuccessResponse({
+          totalCount,
+          currentPage: offset / limit + 1,
+          logs,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getMessageLogs(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      let { companyId } = req.user as { companyId: string };
+      let {
+        limit = 10,
+        offset = 0,
+        sortBy = "createdAt",
+        sortType = "desc",
+        
+      } = req.query as unknown as {
+        limit: number;
+        offset: number;
+        sortBy: string;
+        sortType: string;
+        
+      };
+
+      if (limit) {
+        limit = parseInt(limit.toString());
+      }
+
+      if (offset) {
+        offset = parseInt(offset.toString());
+      }
+
+      let mongoQuery = { companyId } as any;
+
+  
+
+      let logs = await MessageLogs.find(mongoQuery)
+        .sort([[sortBy, sortType === "asc" ? 1 : -1]])
+        .skip(offset)
+        .limit(limit)
+        .populate({
+          path: "userId",
+          select: {
+            name: 1,
+          },
         })
         .lean();
       let totalCount = await TranscationLogs.find(mongoQuery).count();
