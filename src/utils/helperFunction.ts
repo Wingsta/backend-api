@@ -1,3 +1,4 @@
+import moment = require("moment");
 import Configuration from "../models/configuration";
 import { configurationTypes, notificationConfigConstant } from "./constants";
 
@@ -28,4 +29,8 @@ export const checkNotification = async (companyId: string, key: string, returnAl
         }
         return false;
     }
+}
+
+export const checkIfPlanExpired = (planEndDate: string) => {
+    return moment(planEndDate).format("YYYY-MM-DD") < moment().format("YYYY-MM-DD") ? true : false;
 }

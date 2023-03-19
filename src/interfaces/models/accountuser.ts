@@ -35,6 +35,10 @@ export interface ICompany {
     totalUsed: number;
     totalCredits: number;
   };
+  subscribedPlan?: Types.ObjectId,
+  trial: Boolean,
+  planStartDate: string,
+  planEndDate: string
 }
 
 export type TransactionStatusT =
@@ -65,6 +69,10 @@ export interface ITranscationLogs {
   gateway: TransactionGatewayT;
   mode: string;
   orderId: string;
+  plan: any;
+  gst: number;
+  gstAmount: number;
+  type: string
 }
 
 export interface IMessageLogs {

@@ -15,7 +15,7 @@ import User from '../models/User';
 import Log from '../middlewares/Log';
 
 class Passport {
-	public mountPackage (_express: Application): Application {
+	public mountPackage(_express: Application): Application {
 		_express = _express.use(passport.initialize());
 		_express = _express.use(passport.session());
 
@@ -38,7 +38,7 @@ class Passport {
 		try {
 			let j = LocalStrategy.init(passport);
 			let k = ProfileStrategy.init(passport);
-			console.log(k,j)
+			console.log(k, j)
 			// TwitterStrategy.init(passport);
 		} catch (_err) {
 			console.log(_err)
@@ -46,23 +46,23 @@ class Passport {
 		}
 	}
 
-	public isAuthenticated (req, res, next): any {
+	public isAuthenticated(req, res, next): any {
 		if (req.isAuthenticated()) {
 			return next();
 		}
 
-		req.flash('errors', { msg: 'Please Log-In to access any further!'});
+		req.flash('errors', { msg: 'Please Log-In to access any further!' });
 		return res.redirect('/login');
 	}
 
-	public isAuthorized (req, res, next): any {
+	public isAuthorized(req, res, next): any {
 		// const provider = req.path.split('/').slice(-1)[0];
 		// const token = req.user.tokens.find(token => token.kind === provider);
 		// console.log(req.user);
 		// if (token) {
-			return next();
+		return next();
 		// } else {
-			// return res.redirect(`/auth/${provider}`);
+		// return res.redirect(`/auth/${provider}`);
 		// }
 	}
 }

@@ -26,86 +26,97 @@ import PostalCodeController from "../controllers/Api/postalCode/index";
 import DeliveryController from "../controllers/Api/delivery/index";
 import InventoryController from "../controllers/Api/inventory/index";
 import ConfigurationController from "../controllers/Api/configuration/index";
+import SubscriptionController from "../controllers/Api/subscription/index";
+import PricingPlanController from "../controllers/Api/pricingPlans/index";
+import PlanAuth from "../middlewares/planAuth";
 
 const router = Router();
 
 router.get(
-  "/domain-path",
+	"/domain-path",
 
-  DomainController.getPaths
+	DomainController.getPaths
 );
 
 router.get(
-  "/slug-path",
-  
-  DomainController.getPathSlugs
+	"/slug-path",
+
+	DomainController.getPathSlugs
 );
 
 router.post(
 	"/upload",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CommonController.upload
 );
 
 router.post(
-  "/credits-order",
-  passport.authenticate("jwt", { session: false }),
-  CommonController.createOrder
+	"/credits-order",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	CommonController.createOrder
 );
 
 router.get(
-  "/credits-order",
-  passport.authenticate("jwt", { session: false }),
-  CommonController.getOrder
+	"/credits-order",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	CommonController.getOrder
 );
 
 router.get(
-  "/transaction-logs",
-  passport.authenticate("jwt", { session: false }),
-  CommonController.getTransactionLogs
+	"/transaction-logs",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	CommonController.getTransactionLogs
 );
 
 router.get(
-  "/message-logs",
-  passport.authenticate("jwt", { session: false }),
-  CommonController.getTransactionLogs
+	"/message-logs",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	CommonController.getTransactionLogs
 );
 
 router.patch(
-  "/credits/razorpay-response",
-  passport.authenticate("jwt", { session: false }),
-
-  CommonController.updateRazorpayPayment
+	"/credits/razorpay-response",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	CommonController.updateRazorpayPayment
 );
 
 router.post(
-  "/credits/webhook/razorpay-response",
-  CommonController.updateRazorpayPaymentWebhook
+	"/credits/webhook/razorpay-response",
+	CommonController.updateRazorpayPaymentWebhook
 );
 
 router.patch(
-  "/credits/razorpay-cancel",
-  passport.authenticate("jwt", { session: false }),
-
-  CommonController.cancelRazorpayPayment
+	"/credits/razorpay-cancel",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	CommonController.cancelRazorpayPayment
 );
 
 
 router.post(
 	"/uploadForSocialLink",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CommonController.uploadForSocialLink
 );
 
 router.post(
 	"/bulkupload",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.bulkUpload
 );
 
 router.post(
 	"/signup",
 	//   passport.authenticate("jwt", { session: false }),
+	// PlanAuth,
 	AccountUserController.signup
 );
 
@@ -113,6 +124,7 @@ router.post(
 router.post(
 	"/login",
 	//   passport.authenticate("jwt", { session: false }),
+	// PlanAuth,
 	AccountUserController.login
 );
 
@@ -120,120 +132,140 @@ router.post(
 router.post(
 	"/change-password",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	AccountUserController.resetPassword
 );
 
 router.get(
 	"/account-user",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	AccountUserController.getAccountUser
 );
 
 router.patch(
 	"/account-user",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	AccountUserController.patchAccountUser
 );
 
 router.post(
 	"/insta/login",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InstaAuthController.login
 );
 
 router.get(
 	"/insta/post",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InstaAuthController.get
 );
 
 router.post(
 	"/insta/carousel",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InstaAuthController.createCarousel
 );
 
 router.get(
 	"/insta/post/:postId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InstaAuthController.login
 );
 
 router.delete(
 	"/insta/post/:postId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InstaAuthController.login
 );
 
 router.patch(
 	"/insta/post/:postId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InstaAuthController.login
 );
 
 router.get(
 	"/refreshToken",
 	passport.authenticate("jwt", { session: false }),
+	// PlanAuth,
 	AuthRefreshController.perform
 );
 
 router.post(
 	"/products",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.post
 );
 
 router.patch(
 	"/products",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.patch
 );
 
 router.get(
 	"/products",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.get
 );
 
 router.get(
 	"/product/:productId/analytics",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.getIdPosts
 );
 
 router.get(
 	"/product/:productId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.getId
 );
 
 router.get(
 	"/product/sku/:slug",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.getProductDetail
 );
 
 router.delete(
 	"/products",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ProductController.delete
 );
 
 router.post(
 	"/domain/",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DomainController.post
 );
 
 router.get(
 	"/domain/exists",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DomainController.get
 );
 
 router.get(
 	"/domain/:domain",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DomainController.getDomainMiddleWare,
 	DomainController.getDomain
 );
@@ -241,40 +273,43 @@ router.get(
 router.post(
 	"/domain/toggle-publish/:domain",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DomainController.togglePublish
 );
 
 router.post(
 	"/domain/:domain/meta",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DomainController.patchDomainMeta
 );
 
 router.post(
 	"/domain/:domain",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DomainController.patchDomain
 );
 
 // admin orders
 router.get(
-  "/order/pdf/:id",
-  passport.authenticate("jwt", { session: false }),
-
-  AdminOrderController.getPdfBlob
+	"/order/pdf/:id",
+	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
+	AdminOrderController.getPdfBlob
 );
 
 router.get(
 	"/order/:id",
 	passport.authenticate("jwt", { session: false }),
-
+	PlanAuth,
 	AdminOrderController.getOneOrder
 );
 
 router.get(
 	"/orderhistory/:id",
 	passport.authenticate("jwt", { session: false }),
-
+	PlanAuth,
 	AdminOrderController.getOrderHistory
 );
 
@@ -283,7 +318,7 @@ router.get(
 router.get(
 	"/order/",
 	passport.authenticate("jwt", { session: false }),
-
+	PlanAuth,
 	AdminOrderController.getOrders
 );
 
@@ -292,14 +327,14 @@ router.get(
 router.post(
 	"/order/updateStatus/:orderId",
 	passport.authenticate("jwt", { session: false }),
-
+	PlanAuth,
 	AdminOrderController.statusUpdate
 );
 
 router.post(
 	"/order/offline",
 	passport.authenticate("jwt", { session: false }),
-
+	PlanAuth,
 	AdminOrderController.createOfflineOrder
 );
 
@@ -349,7 +384,7 @@ router.patch(
 router.get(
 	"/profile/check-mobile/:mobile",
 	passport.authenticate("jwt", { session: false }),
-
+	PlanAuth,
 	ProfileController.checkMobile
 );
 
@@ -531,54 +566,63 @@ router.post(
 router.get(
 	"/message",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	MessageController.getAllMessages
 );
 
 router.get(
 	"/customers",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CustomerController.getCustomers
 );
 
 router.get(
 	"/customers/:customerId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CustomerController.getCustomerDetail
 );
 
 router.get(
 	"/category",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CategoryController.getAllCategory
 );
 
 router.post(
 	"/category/check-duplicate",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CategoryController.checkDuplicate
 );
 
 router.post(
 	"/category",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CategoryController.createCategory
 );
 
 router.patch(
 	"/category/sort",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CategoryController.sortCategory
 );
 
 router.patch(
 	"/category/:categoryId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CategoryController.editCategory
 );
 
 router.delete(
 	"/category/:categoryId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	CategoryController.deleteCategory
 );
 
@@ -590,12 +634,14 @@ router.post(
 router.get(
 	"/delivery",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DeliveryController.getDeliverySettings
 );
 
 router.post(
 	"/delivery",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	DeliveryController.saveDeliverySettings
 );
 
@@ -603,42 +649,49 @@ router.post(
 router.get(
 	"/inventory",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InventoryController.getInventory
 );
 
 router.get(
 	"/inventory/:inventoryId",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InventoryController.getInventoryDetail
 );
 
 router.post(
 	"/inventory",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	InventoryController.postInventory
 );
 
 router.get(
 	"/configuration/terms-and-conditions",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ConfigurationController.getTermsAndConditions
 );
 
 router.post(
 	"/configuration/terms-and-conditions",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ConfigurationController.postTermsAndConditions
 );
 
 router.get(
 	"/configuration/privacy-policy",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ConfigurationController.getPrivacyPolicy
 );
 
 router.post(
 	"/configuration/privacy-policy",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ConfigurationController.postPrivacyPolicy
 );
 
@@ -651,13 +704,36 @@ router.get(
 router.get(
 	"/configuration/notification",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ConfigurationController.getNotificationConfiguration
 );
 
 router.post(
 	"/configuration/notification",
 	passport.authenticate("jwt", { session: false }),
+	PlanAuth,
 	ConfigurationController.postNotificationConfiguration
 );
+
+router.get(
+	"/subscription",
+	passport.authenticate("jwt", { session: false }),
+	// PlanAuth,
+	SubscriptionController.getPlanDetails
+);
+
+// router.get(
+// 	"/pricing-plan",
+// 	passport.authenticate("jwt", { session: false }),
+//	PlanAuth,
+// 	PricingPlanController.getPricingPlans
+// );
+
+// router.post(
+// 	"/pricing-plan",
+// 	passport.authenticate("jwt", { session: false }),
+//	PlanAuth,
+// 	PricingPlanController.createPricingPlan
+// );
 
 export default router;

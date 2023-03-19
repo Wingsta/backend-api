@@ -29,6 +29,8 @@ export const RAZORPAY_TRANSCATION_GATEWAY = {
     RAZORPAY : "RAZORPAY"
 }
 
+export const SUBSCRIPTION_GST = 0.18;
+
 export const PER_UNIT_CREDIT_COST = {
     SMS : 0.25,
     WHATSAPP : 0.7,
@@ -156,4 +158,11 @@ export const notificationConfigConstant = {
     orderCreationWhatsapp: false,
     orderUpdateSMS: true,
     orderUpdateWhatsapp: false,
+}
+
+export const trialDays = 14;
+
+export const TRANSCATION_TYPE = {
+    SUBSCRIPTION : "SUBSCRIPTION",
+    ADDONS :"ADDONS"
 }

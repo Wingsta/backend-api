@@ -16,26 +16,23 @@ opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = Locals.config().appSecret;
 
 class Local {
-  public static init(_passport: any): any {
-    _passport.use(
-      new JwtStrategy(opts, function (jwt_payload, done) {
-		 
-        AccountUser.findOne({ email: jwt_payload.email }, function (err, user) {
-          if (err) {
-            
-            return done(err, false);
-          }
-          if (user) {
-            
-            return done(null, jwt_payload);
-          } else {
-            return done(null, false);
-            // or you could create a new account
-          }
-        });
-      })
-    );
-  }
+	public static init(_passport: any): any {
+		_passport.use(
+			new JwtStrategy(opts, function (jwt_payload, done) {
+
+				AccountUser.findOne({ email: jwt_payload.email }, function (err, user) {
+					if (err) {
+						return done(err, false);
+					}
+					if (user) {
+						return done(null, jwt_payload);
+					} else {
+						return done(null, false);
+					}
+				});
+			})
+		);
+	}
 }
 
 export default Local;

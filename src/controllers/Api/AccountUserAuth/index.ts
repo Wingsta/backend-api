@@ -20,6 +20,9 @@ import {
 	sendResponse,
 	sendSuccessResponse,
 } from "../../../services/response/sendresponse";
+import PricingPlan from "../../../models/pricingPlan";
+import moment = require("moment");
+import { trialDays } from "../../../utils/constants";
 
 interface ISignupGet extends IAccountUser, ICompany { }
 
@@ -116,18 +119,32 @@ class AccountUserAuth {
 
 			if (body.companyName) {
 
-				let companyDetails = {}
+				const pricingPlan = await PricingPlan.find().lean();
+
+				console.log(moment().utcOffset('+05:30'));
+				console.log(moment());
+
+				let companyDetails = {
+					trial: true,
+					subscribedPlan: pricingPlan && pricingPlan.length > 0 ? pricingPlan[0]?._id : null,
+					planStartDate: moment().utcOffset('+05:30').format("YYYY-MM-DD"),
+					planEndDate: moment().utcOffset('+05:30').add(trialDays-1, "days").format('YYYY-MM-DD')
+				} as any;
 
 				if (body.promoCode) {
 					companyDetails = {
+						...companyDetails,
 						companyName: body.companyName,
 						promoCode: body.promoCode
 					}
 				} else {
 					companyDetails = {
+						...companyDetails,
 						companyName: body.companyName
 					}
 				}
+
+				console.log(companyDetails);
 
 				company = await new Company(companyDetails).save();
 
