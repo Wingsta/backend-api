@@ -32,7 +32,7 @@ export interface IOrder {
 	orderNumber : number;
 	products: IOrderProducts[];
 	userId: Types.ObjectId;
-	companyId: Types.ObjectId;
+	companyId: Types.ObjectId | string;
 	status:
 	| "PROCESSING"
 	| "PAYMENT_PROCESSING"

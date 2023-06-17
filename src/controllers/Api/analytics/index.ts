@@ -116,7 +116,9 @@ class AdminOrderController {
 
       let customers = await Profile.count({companyId , createdAt : {$gte : new Date(dateRange.fromDate), $lte : new Date(dateRange.toDate)}}).lean()
       let orders = await Order.count({
-        companyId,
+        // @ts-nocheck 
+        // @ts-ignore
+        companyId: companyId as string,
         createdAt: {
           $gte: new Date(dateRange.fromDate),
           $lte: new Date(dateRange.toDate),
@@ -124,12 +126,17 @@ class AdminOrderController {
       }).lean();
 
       let latestOrders = await Order.find({
-        companyId,
+        // @ts-ignore
+        companyId: companyId as string,
         createdAt: {
           $gte: new Date(dateRange.fromDate),
           $lte: new Date(dateRange.toDate),
         },
-      }).populate('userId').sort([["-id",-1]]).limit(7).lean();
+      })
+        .populate("userId")
+        .sort([["-id", -1]])
+        .limit(7)
+        .lean();
       console.log(JSON.stringify({companyId , createdAt : {$gte : new Date(dateRange.fromDate), $lte : new Date(dateRange.toDate)}}))
       return res.json(
         sendSuccessResponse({
