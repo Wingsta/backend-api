@@ -8,3 +8,10 @@ public/static
 .logs/*.log
 
 dist/
+
+
+user_data
+
+.wwebjs_auth
+
+images

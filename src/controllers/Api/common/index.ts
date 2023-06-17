@@ -45,8 +45,8 @@ class CommonController {
       if (myFile?.mimetype?.startsWith("image/") && compress === "true") {
         let buffer = await sharp(myFile.buffer)
           .webp({ quality: 80 })
-          .resize(2000, 2000, {
-            fit: "contain",
+          .resize(1500, 1000, {
+            fit: "cover",
             background: { r: 255, g: 255, b: 255, alpha: 0.0 },
           })
           .toBuffer();
@@ -62,6 +62,35 @@ class CommonController {
       res.json(
         sendSuccessResponse({
           url: imageUrl,
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async slackbot(req: Request, res: Response, next): Promise<any> {
+    try {
+      let text = (req.body.text || "") as any;
+      
+        const webhookUrl =
+          "https://hooks.slack.com/services/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"; // Replace with your actual Slack webhook URL
+        const payload = {
+          text:text,
+          // attachments: [
+          //     {
+          //         fields: formValues.map(({ label, value }) => ({ title: label, value })),
+          //     },
+          // ],
+        };
+
+        const response = await axios.post(webhookUrl, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+console.log(response)
+      res.json(
+        sendSuccessResponse({
+          response : response?.data,
         })
       );
     } catch (error) {
@@ -593,13 +622,11 @@ class CommonController {
         offset = 0,
         sortBy = "createdAt",
         sortType = "desc",
-        
       } = req.query as unknown as {
         limit: number;
         offset: number;
         sortBy: string;
         sortType: string;
-        
       };
 
       if (limit) {
@@ -611,8 +638,6 @@ class CommonController {
       }
 
       let mongoQuery = { companyId } as any;
-
-  
 
       let logs = await MessageLogs.find(mongoQuery)
         .sort([[sortBy, sortType === "asc" ? 1 : -1]])
