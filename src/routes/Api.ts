@@ -27,7 +27,7 @@ import DeliveryController from "../controllers/Api/delivery/index";
 import InventoryController from "../controllers/Api/inventory/index";
 import ConfigurationController from "../controllers/Api/configuration/index";
 import AnalyticsController from "../controllers/Api/analytics/index";
-import { getScreenShot } from "../controllers/Api/common/pupeeter";
+
 
 const router = Router();
 
@@ -43,10 +43,6 @@ router.get(
   DomainController.getPathSlugs
 );
 
-router.get(
-  "/screenshot",
-  getScreenShot
-);
 
 router.get(
   "/analytics/totalsales",
